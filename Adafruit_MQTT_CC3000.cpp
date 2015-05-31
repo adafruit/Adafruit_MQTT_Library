@@ -101,3 +101,7 @@ uint16_t Adafruit_MQTT_CC3000::readPacket(uint8_t *buffer, uint8_t maxlen, uint1
   }
   return len;
 }
+
+int32_t Adafruit_MQTT_CC3000::close(void) {
+  return mqttclient.close(); 
+}
