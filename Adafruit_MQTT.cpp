@@ -6,14 +6,29 @@ Adafruit_MQTT::Adafruit_MQTT(char *server, uint16_t port, char *user, char *key,
   servername[SERVERNAME_SIZE-1] = 0;
   portnum = port;
   serverip = 0;
+
   strncpy(username, user, USERNAME_SIZE);
   username[USERNAME_SIZE-1] = 0;
+
   strncpy(userkey, key, KEY_SIZE);
   userkey[KEY_SIZE-1] = 0;
+
   strncpy(clientid, cid, CLIENTID_SIZE);
-  userkey[CLIENTID_SIZE-1] = 0;
+  clientid[CLIENTID_SIZE-1] = 0;
 
   errno = 0;
+}
+
+boolean Adafruit_MQTT::ping(void) {
+
+}
+
+static uint8_t *stringprint(uint8_t *p, char *s) {
+  uint16_t len = strlen(s);
+  p[0] = len >> 8; p++;
+  p[0] = len & 0xFF; p++;
+  memcpy(p, s, len);
+  return p+len;
 }
 
 // http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718028
@@ -25,11 +40,7 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
   p+=2;
   // fill in packet[1] last
 
-  p[0] = 0;
-  p[1] = 6; // (strlen(MQIsdp)
-  p+=2;
-  memcpy(p,"MQIsdp", 6);
-  p+=6;
+  p = stringprint(p, "MQIsdp");
 
   p[0] = MQTT_PROTOCOL_LEVEL;
   p++;
@@ -47,25 +58,16 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
   p[0] = MQTT_CONN_KEEPALIVE & 0xFF;
   p++;
 
-  uint16_t len = strlen(clientid);
-  p[0] = len >> 8; p++;
-  p[0] = len & 0xFF; p++;
-  memcpy(p, clientid, len);
-  p+=len;
+  uint16_t len;
+  if ((clientid[0] != 0) && (strlen(clientid) > 0)) {
+    p = stringprint(p, clientid);
+  }
 
   if (username[0] != 0) {
-    len = strlen(username);
-    p[0] = len >> 8; p++;
-    p[0] = len & 0xFF; p++;
-    memcpy(p, username, len);
-    p+=len;
+    p = stringprint(p, username);
   }
   if (userkey[0] != 0) {
-    len = strlen(userkey);
-    p[0] = len >> 8; p++;
-    p[0] = len & 0xFF; p++;
-    memcpy(p, userkey, len);
-    p+=len;
+    p = stringprint(p, userkey);
   }
 
   uint8_t totallen = p - packet;
@@ -82,17 +84,14 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
 
 uint8_t Adafruit_MQTT::publishPacket(uint8_t *packet, char *topic, char *data, uint8_t qos) {
   uint8_t *p = packet;
-  uint16_t len = strlen(topic);
+  uint16_t len;
 
   p[0] = MQTT_CTRL_PUBLISH << 4 | qos << 1;
   // fill in packet[1] last
   p+=2;
-  p[0] = len >> 8;
-  p++;
-  p[0] = len & 0xFF;
-  p++;
-  memcpy(p, topic, len);
-  p+=len;
+
+  p = stringprint(p, topic);
+
   memcpy(p, data, strlen(data));
   p+=strlen(data);
   len = p - packet;

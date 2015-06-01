@@ -2,7 +2,7 @@
 #include "Adafruit_MQTT_CC3000.h"
 #include <Adafruit_Watchdog.h>
 
-Adafruit_MQTT_CC3000::Adafruit_MQTT_CC3000(Adafruit_CC3000 *cc3k, char *server, uint16_t port, char *user, char *key) : Adafruit_MQTT(server, port, user, key),  cc3000(cc3k)
+Adafruit_MQTT_CC3000::Adafruit_MQTT_CC3000(Adafruit_CC3000 *cc3k, char *server, uint16_t port, char *user, char *key, char *cid) : Adafruit_MQTT(server, port, user, key, cid),  cc3000(cc3k)
 {
   // nothin doin
 }

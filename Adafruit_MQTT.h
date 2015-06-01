@@ -19,7 +19,7 @@
 #define SERVERNAME_SIZE  25
 #define USERNAME_SIZE  25
 #define KEY_SIZE  41
-#define FEEDNAME_SIZE  25
+#define FEEDNAME_SIZE  45
 #define CLIENTID_SIZE 23
 
 #define CONNECT_TIMEOUT_MS 3000
@@ -37,11 +37,13 @@
 
 class Adafruit_MQTT {
  public:
-  Adafruit_MQTT(char *server, uint16_t port, char *user, char *key);
+  Adafruit_MQTT(char *server, uint16_t port, char *user, char *key, char *cid);
   uint8_t connectPacket(uint8_t *packet);
 
   virtual boolean publish(char *topic, char *payload, uint8_t qos) {}
   uint8_t publishPacket(uint8_t *packet, char *topic, char *payload, uint8_t qos);
+
+  boolean ping(void);
 
  protected:
   int8_t errno;
