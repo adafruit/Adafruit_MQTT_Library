@@ -24,9 +24,9 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
   // fill in packet[1] last
 
   p[0] = 0;
-  p[1] = 6; // (strlen(MQIdsp)
+  p[1] = 6; // (strlen(MQIsdp)
   p+=2;
-  memcpy(p,"MQIdsp", 6);
+  memcpy(p,"MQIsdp", 6);
   p+=6;
 
   p[0] = MQTT_PROTOCOL_LEVEL;
