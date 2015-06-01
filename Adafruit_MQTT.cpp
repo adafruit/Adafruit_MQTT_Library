@@ -1,7 +1,7 @@
 #include "Adafruit_MQTT.h"
 
 
-Adafruit_MQTT::Adafruit_MQTT(char *server, uint16_t port, char *user, char *key) {
+Adafruit_MQTT::Adafruit_MQTT(char *server, uint16_t port, char *user, char *key, char *cid) {
   strncpy(servername, server, SERVERNAME_SIZE);
   servername[SERVERNAME_SIZE-1] = 0;
   portnum = port;
@@ -9,7 +9,9 @@ Adafruit_MQTT::Adafruit_MQTT(char *server, uint16_t port, char *user, char *key)
   strncpy(username, user, USERNAME_SIZE);
   username[USERNAME_SIZE-1] = 0;
   strncpy(userkey, key, KEY_SIZE);
-  userkey[KEY_SIZE-1] = 0; 
+  userkey[KEY_SIZE-1] = 0;
+  strncpy(clientid, cid, CLIENTID_SIZE);
+  userkey[CLIENTID_SIZE-1] = 0;
 
   errno = 0;
 }
@@ -45,15 +47,21 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
   p[0] = MQTT_CONN_KEEPALIVE & 0xFF;
   p++;
 
+  uint16_t len = strlen(clientid);
+  p[0] = len >> 8; p++;
+  p[0] = len & 0xFF; p++;
+  memcpy(p, clientid, len);
+  p+=len;
+
   if (username[0] != 0) {
-    uint16_t len = strlen(username);
+    len = strlen(username);
     p[0] = len >> 8; p++;
     p[0] = len & 0xFF; p++;
     memcpy(p, username, len);
     p+=len;
   }
   if (userkey[0] != 0) {
-    uint16_t len = strlen(userkey);
+    len = strlen(userkey);
     p[0] = len >> 8; p++;
     p[0] = len & 0xFF; p++;
     memcpy(p, userkey, len);
