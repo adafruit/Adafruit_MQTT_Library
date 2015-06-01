@@ -19,7 +19,8 @@
 #define SERVERNAME_SIZE  25
 #define USERNAME_SIZE  25
 #define KEY_SIZE  41
-#define FEEDNAME_SIZE  65
+#define FEEDNAME_SIZE  25
+#define CLIENTID_SIZE 23
 
 #define CONNECT_TIMEOUT_MS 3000
 #define PUBLISH_TIMEOUT_MS 500
@@ -47,6 +48,7 @@ class Adafruit_MQTT {
   char servername[SERVERNAME_SIZE];
   uint32_t serverip;
   int16_t portnum;
+  char clientid[CLIENTID_SIZE];
   char username[USERNAME_SIZE];
   char userkey[KEY_SIZE];
 
