@@ -67,20 +67,50 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
   p[1] = 0;
   p+=2;
 
-
   packet[1] = totallen;
   
-
   return totallen+2;
 }
 
+uint8_t Adafruit_MQTT::publishPacket(uint8_t *packet, char *topic, char *data, uint8_t qos) {
+  uint8_t *p = packet;
+  uint16_t len = strlen(topic);
 
-Adafruit_MQTT_Publish::Adafruit_MQTT_Publish(Adafruit_MQTT *mqttserver, char *feed) {
-  mqtt = mqttserver;
-  strncpy(feedname, feed, FEEDNAME_SIZE);
-  feedname[FEEDNAME_SIZE-1] = 0; 
+  p[0] = MQTT_CTRL_PUBLISH << 4 | qos << 1;
+  // fill in packet[1] last
+  p+=2;
+  p[0] = len >> 8;
+  p++;
+  p[0] = len & 0xFF;
+  p++;
+  memcpy(p, topic, len);
+  p+=len;
+  memcpy(p, data, strlen(data));
+  p+=strlen(data);
+  len = p - packet;
+  packet[1] = len-2;
+  return len;
+}
+
+
+Adafruit_MQTT_Publish::Adafruit_MQTT_Publish(Adafruit_MQTT &mqttserver, char *feed, uint8_t q) {
+  mqtt = &mqttserver;
+  strncpy(topic, feed, FEEDNAME_SIZE);
+  topic[FEEDNAME_SIZE-1] = 0; 
+  qos = q;
 
   errno = 0;
 }
 
 
+bool Adafruit_MQTT_Publish::publish(int32_t i) {
+  char payload[18];
+  itoa(i, payload, 10);
+  return mqtt->publish(topic, payload, qos);
+}
+
+bool Adafruit_MQTT_Publish::publish(uint32_t i) {
+  char payload[18];
+  itoa(i, payload, 10);
+  return mqtt->publish(topic, payload, qos);
+}

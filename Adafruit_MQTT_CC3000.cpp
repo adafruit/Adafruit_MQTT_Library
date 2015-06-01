@@ -105,3 +105,43 @@ uint16_t Adafruit_MQTT_CC3000::readPacket(uint8_t *buffer, uint8_t maxlen, uint1
 int32_t Adafruit_MQTT_CC3000::close(void) {
   return mqttclient.close(); 
 }
+
+boolean Adafruit_MQTT_CC3000::publish(char *topic, char *data, uint8_t qos) {
+  uint8_t len = publishPacket(buffer, topic, data, qos);
+  Serial.println("MQTT publish packet:");
+  for (uint8_t i=0; i<len; i++) {
+    if (isprint(buffer[i]))
+      Serial.write(buffer[i]);
+    else  
+      Serial.print(" ");
+    Serial.print(" [0x");
+    if (buffer[i] < 0x10)
+      Serial.print("0");
+    Serial.print(buffer[i],HEX);
+    Serial.print("], ");
+    if (i % 8 == 7) Serial.println();
+  }
+  Serial.println();
+    
+  if (mqttclient.connected()) {
+    uint16_t ret = mqttclient.write(buffer, len);
+    //Serial.print("returned: "); Serial.println(ret);
+    if (ret != len)  return false;
+  } else {
+    Serial.println(F("Connection failed"));    
+    return false;
+  }
+  
+  if (qos > 0) {
+    Serial.println(F("Reply:"));
+    len = readPacket(buffer, 4, PUBLISH_TIMEOUT_MS);
+    for (uint8_t i=0; i<len; i++) {
+      Serial.write(buffer[i]); Serial.print(" [0x"); Serial.print(buffer[i], HEX); Serial.print("], ");
+    }
+    Serial.println();
+
+    return true;
+  } else {
+    return true;
+  }
+}

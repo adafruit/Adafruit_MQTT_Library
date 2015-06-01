@@ -13,6 +13,8 @@ class Adafruit_MQTT_CC3000 : public Adafruit_MQTT {
   uint16_t readPacket(uint8_t *buffer, uint8_t maxlen, uint16_t timeout);
   int32_t close(void);
 
+  boolean publish(char *topic, char *payload, uint8_t qos);
+
  private:
   Adafruit_CC3000 *cc3000;
   Adafruit_CC3000_Client mqttclient;
