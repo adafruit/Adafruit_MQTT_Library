@@ -1,6 +1,6 @@
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_CC3000.h"
-#include <Adafruit_Watchdog.h>
+#include <Adafruit_SleepyDog.h>
 
 static void printBuffer(uint8_t *buffer, uint8_t len) {
   for (uint8_t i=0; i<len; i++) {
