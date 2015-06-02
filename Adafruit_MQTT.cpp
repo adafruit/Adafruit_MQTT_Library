@@ -1,6 +1,16 @@
 #include "Adafruit_MQTT.h"
 
 
+Adafruit_MQTT::Adafruit_MQTT(const char *server, uint16_t port, const PROGMEM char *cid, const PROGMEM char *user, const PROGMEM char *pass) {
+  servername = server;
+  portnum = port;
+  serverip = 0;
+  clientid = cid;
+  username = user;
+  password = pass;
+}
+
+/*
 Adafruit_MQTT::Adafruit_MQTT(char *server, uint16_t port, char *cid, char *user, char *pass) {
   strncpy(servername, server, SERVERNAME_SIZE);
   servername[SERVERNAME_SIZE-1] = 0;
@@ -15,9 +25,8 @@ Adafruit_MQTT::Adafruit_MQTT(char *server, uint16_t port, char *cid, char *user,
 
   strncpy(password, pass, PASSWORD_SIZE);
   password[PASSWORD_SIZE-1] = 0;
-
-  errno = 0;
 }
+*/
 
 uint8_t Adafruit_MQTT::pingPacket(uint8_t *packet) {
   packet[0] = MQTT_CTRL_PINGREQ << 4;
@@ -30,6 +39,19 @@ static uint8_t *stringprint(uint8_t *p, char *s) {
   p[0] = len >> 8; p++;
   p[0] = len & 0xFF; p++;
   memcpy(p, s, len);
+  return p+len;
+}
+
+static uint8_t *stringprint_P(uint8_t *p, const char *s) {
+  uint16_t len = strlen_P(s);
+  /*
+  for (uint8_t i=0; i<len; i++) {
+    Serial.write(pgm_read_byte(s+i));
+  }
+  */
+  p[0] = len >> 8; p++;
+  p[0] = len & 0xFF; p++;
+  strncpy_P((char *)p, s, len);
   return p+len;
 }
 
@@ -49,9 +71,9 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
   p++;
 
   p[0] = MQTT_CONN_CLEANSESSION;
-  if (username[0] != 0) 
+  if (pgm_read_byte(username) != 0)
     p[0] |= MQTT_CONN_USERNAMEFLAG;
-  if (password[0] != 0) 
+  if (pgm_read_byte(password) != 0)
     p[0] |= MQTT_CONN_PASSWORDFLAG;
   p++;
   // TODO: add WILL support?
@@ -61,13 +83,13 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
   p[0] = MQTT_CONN_KEEPALIVE & 0xFF;
   p++;
 
-  p = stringprint(p, clientid);
+  p = stringprint_P(p, clientid);
 
-  if (username[0] != 0) {
-    p = stringprint(p, username);
+  if (pgm_read_byte(username) != 0) {
+    p = stringprint_P(p, username);
   }
-  if (password[0] != 0) {
-    p = stringprint(p, password);
+  if (pgm_read_byte(password) != 0) {
+    p = stringprint_P(p, password);
   }
 
   len = p - packet;
@@ -77,7 +99,7 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
   return len;
 }
 
-uint8_t Adafruit_MQTT::publishPacket(uint8_t *packet, char *topic, char *data, uint8_t qos) {
+uint8_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic, char *data, uint8_t qos) {
   uint8_t *p = packet;
   uint16_t len;
 
@@ -85,7 +107,7 @@ uint8_t Adafruit_MQTT::publishPacket(uint8_t *packet, char *topic, char *data, u
   // fill in packet[1] last
   p+=2;
 
-  p = stringprint(p, topic);
+  p = stringprint_P(p, topic);
 
   memcpy(p, data, strlen(data));
   p+=strlen(data);
@@ -95,14 +117,12 @@ uint8_t Adafruit_MQTT::publishPacket(uint8_t *packet, char *topic, char *data, u
 }
 
 
-Adafruit_MQTT_Publish::Adafruit_MQTT_Publish(Adafruit_MQTT &mqttserver, char *feed, uint8_t q) {
-  mqtt = &mqttserver;
-  strncpy(topic, feed, FEEDNAME_SIZE);
-  topic[FEEDNAME_SIZE-1] = 0; 
+Adafruit_MQTT_Publish::Adafruit_MQTT_Publish(Adafruit_MQTT *mqttserver, const char *feed, uint8_t q) {
+  mqtt = mqttserver;
+  topic = feed;
   qos = q;
-
-  errno = 0;
 }
+
 
 
 bool Adafruit_MQTT_Publish::publish(int32_t i) {
@@ -116,3 +136,7 @@ bool Adafruit_MQTT_Publish::publish(uint32_t i) {
   itoa(i, payload, 10);
   return mqtt->publish(topic, payload, qos);
 }
+bool Adafruit_MQTT_Publish::publish(char *payload) {
+  return mqtt->publish(topic, payload, qos);
+}
+

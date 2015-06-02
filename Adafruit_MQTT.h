@@ -19,10 +19,13 @@
 #define MQTT_QOS_0 0x0
 
 #define SERVERNAME_SIZE  25
+
 #define PASSWORD_SIZE  25
 #define USERNAME_SIZE  41
-#define FEEDNAME_SIZE  45
 #define CLIENTID_SIZE 23
+
+#define FEEDNAME_SIZE  40
+
 
 #define CONNECT_TIMEOUT_MS 3000
 #define PUBLISH_TIMEOUT_MS 500
@@ -36,50 +39,51 @@
 #define MQTT_CONN_CLEANSESSION   0x02
 #define MQTT_CONN_KEEPALIVE 15  // in seconds
 
-#define MAXBUFFERSIZE 130
+#define MAXBUFFERSIZE (60)
 
 class Adafruit_MQTT {
  public:
-  Adafruit_MQTT(char *server, uint16_t port, char *cid, char *user, char *pass);
+  Adafruit_MQTT(const char *server, uint16_t port, const PROGMEM char *cid, const PROGMEM char *user, const PROGMEM char *pass);
+
   uint8_t connectPacket(uint8_t *packet);
 
-  virtual boolean publish(char *topic, char *payload, uint8_t qos) {}
-  uint8_t publishPacket(uint8_t *packet, char *topic, char *payload, uint8_t qos);
+  virtual boolean publish(const char *topic, char *payload, uint8_t qos) {}
+  uint8_t publishPacket(uint8_t *packet, const char *topic, char *payload, uint8_t qos);
 
-  virtual boolean ping(void) {}
+  virtual boolean ping(uint8_t t) {}
   uint8_t pingPacket(uint8_t *packet);
 
  protected:
   int8_t errno;
-  char servername[SERVERNAME_SIZE];
+  const char *servername;
   uint32_t serverip;
   int16_t portnum;
-  char clientid[CLIENTID_SIZE];
-  char username[USERNAME_SIZE];
-  char password[PASSWORD_SIZE];
+  const char *clientid;
+  const char *username;
+  const char *password;
 
   uint8_t buffer[MAXBUFFERSIZE];
 };
 
 class Adafruit_MQTT_Publish {
  public:
-  Adafruit_MQTT_Publish(Adafruit_MQTT& mqttserver, char *feed, uint8_t qos = 0);
+  Adafruit_MQTT_Publish(Adafruit_MQTT *mqttserver, const char *feed, uint8_t qos = 0);
 
-  //bool publish(char *s);
+  bool publish(char *s);
   //bool publish(double f);
   bool publish(int32_t i);
   bool publish(uint32_t i);
  
 private:
   Adafruit_MQTT *mqtt;
-  char topic[FEEDNAME_SIZE];
+  const char *topic;
   uint8_t qos;
-  int8_t errno;
 };
 
-class Adafruit_MQTT_Subscibe {
+class Adafruit_MQTT_Subscribe {
  public:
-  Adafruit_MQTT_Subscibe(Adafruit_MQTT *mqttserver, char *feedname);
+  Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver, char *feedname);
+
   bool setCallback(void (*callback)(char *));
 
 };
