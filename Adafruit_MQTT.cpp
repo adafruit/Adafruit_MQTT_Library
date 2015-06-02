@@ -8,6 +8,10 @@ Adafruit_MQTT::Adafruit_MQTT(const char *server, uint16_t port, const PROGMEM ch
   clientid = cid;
   username = user;
   password = pass;
+
+  for (uint8_t i=0; i<MAXSUBSCRIPTIONS; i++) {
+    subscriptions[i] = 0;
+  }
 }
 
 /*
@@ -116,6 +120,30 @@ uint8_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic, char *d
   return len;
 }
 
+uint8_t Adafruit_MQTT::subscribePacket(uint8_t *packet, const char *topic, uint8_t qos) {
+  uint8_t *p = packet;
+  uint16_t len;
+
+  p[0] = MQTT_CTRL_SUBSCRIBE << 4 | MQTT_QOS_1 << 1;
+  // fill in packet[1] last
+  p+=2;
+
+  // put in a message id,
+  p[0] = 0xAD;
+  p[1] = 0xAF;
+  p+=2;
+
+  p = stringprint_P(p, topic);
+
+  p[0] = qos;
+  p++;
+
+  len = p - packet;
+  packet[1] = len-2; // don't include the 2 bytes of fixed header data
+  return len;
+}
+
+
 
 Adafruit_MQTT_Publish::Adafruit_MQTT_Publish(Adafruit_MQTT *mqttserver, const char *feed, uint8_t q) {
   mqtt = mqttserver;
@@ -140,3 +168,9 @@ bool Adafruit_MQTT_Publish::publish(char *payload) {
   return mqtt->publish(topic, payload, qos);
 }
 
+
+Adafruit_MQTT_Subscribe::Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver, const char *feed, uint8_t q) {
+  mqtt = mqttserver;
+  topic = feed;
+  qos = q;
+}

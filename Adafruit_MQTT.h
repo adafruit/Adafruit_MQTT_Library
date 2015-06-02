@@ -12,6 +12,8 @@
 #define MQTT_CTRL_CONNECT 0x01
 #define MQTT_CTRL_CONNECTACK 0x02
 #define MQTT_CTRL_PUBLISH 0x03
+#define MQTT_CTRL_SUBSCRIBE 0x08
+#define MQTT_CTRL_SUBACK 0x09
 #define MQTT_CTRL_PINGREQ 0x0C
 #define MQTT_CTRL_PINGRESP 0x0D
 
@@ -39,7 +41,18 @@
 #define MQTT_CONN_CLEANSESSION   0x02
 #define MQTT_CONN_KEEPALIVE 15  // in seconds
 
-#define MAXBUFFERSIZE (60)
+#define MAXBUFFERSIZE (85)
+#define MAXSUBSCRIPTIONS 5
+#define SUBSCRIPTIONDATALEN 20
+
+
+//#define DEBUG_MQTT_CONNECT
+//#define DEBUG_MQTT_SUBSCRIBE
+//#define DEBUG_MQTT_READSUB
+//#define DEBUG_MQTT_PUBLISH
+//#define DEBUG_MQTT_PACKETREAD
+
+class Adafruit_MQTT_Subscribe;  // forward decl
 
 class Adafruit_MQTT {
  public:
@@ -53,6 +66,11 @@ class Adafruit_MQTT {
   virtual boolean ping(uint8_t t) {}
   uint8_t pingPacket(uint8_t *packet);
 
+  virtual boolean subscribe(Adafruit_MQTT_Subscribe *sub) {}
+  uint8_t subscribePacket(uint8_t *packet, const char *topic, uint8_t qos);
+
+  virtual Adafruit_MQTT_Subscribe *readSubscription(int16_t timeout = 0) {};
+
  protected:
   int8_t errno;
   const char *servername;
@@ -62,6 +80,7 @@ class Adafruit_MQTT {
   const char *username;
   const char *password;
 
+  Adafruit_MQTT_Subscribe *subscriptions[MAXSUBSCRIPTIONS];
   uint8_t buffer[MAXBUFFERSIZE];
 };
 
@@ -82,10 +101,16 @@ private:
 
 class Adafruit_MQTT_Subscribe {
  public:
-  Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver, char *feedname);
+  Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver, const char *feedname, uint8_t q=0);
 
   bool setCallback(void (*callback)(char *));
 
+  const char *topic;
+  uint8_t qos;
+
+  uint8_t * lastread[SUBSCRIPTIONDATALEN];
+ private:
+  Adafruit_MQTT *mqtt;
 };
 
 
