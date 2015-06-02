@@ -9,21 +9,24 @@
 
 #define MQTT_PROTOCOL_LEVEL 3
 
-#define MQTT_CTRL_CONNECT 0x1
-#define MQTT_CTRL_CONNECTACK 0x2
-#define MQTT_CTRL_PUBLISH 0x3
+#define MQTT_CTRL_CONNECT 0x01
+#define MQTT_CTRL_CONNECTACK 0x02
+#define MQTT_CTRL_PUBLISH 0x03
+#define MQTT_CTRL_PINGREQ 0x0C
+#define MQTT_CTRL_PINGRESP 0x0D
 
 #define MQTT_QOS_1 0x1
 #define MQTT_QOS_0 0x0
 
 #define SERVERNAME_SIZE  25
-#define USERNAME_SIZE  25
-#define KEY_SIZE  41
+#define PASSWORD_SIZE  25
+#define USERNAME_SIZE  41
 #define FEEDNAME_SIZE  45
 #define CLIENTID_SIZE 23
 
 #define CONNECT_TIMEOUT_MS 3000
 #define PUBLISH_TIMEOUT_MS 500
+#define PING_TIMEOUT_MS 500
 
 #define MQTT_CONN_USERNAMEFLAG 0x80
 #define MQTT_CONN_PASSWORDFLAG 0x40
@@ -37,13 +40,14 @@
 
 class Adafruit_MQTT {
  public:
-  Adafruit_MQTT(char *server, uint16_t port, char *user, char *key, char *cid);
+  Adafruit_MQTT(char *server, uint16_t port, char *cid, char *user, char *pass);
   uint8_t connectPacket(uint8_t *packet);
 
   virtual boolean publish(char *topic, char *payload, uint8_t qos) {}
   uint8_t publishPacket(uint8_t *packet, char *topic, char *payload, uint8_t qos);
 
-  boolean ping(void);
+  virtual boolean ping(void) {}
+  uint8_t pingPacket(uint8_t *packet);
 
  protected:
   int8_t errno;
@@ -52,7 +56,7 @@ class Adafruit_MQTT {
   int16_t portnum;
   char clientid[CLIENTID_SIZE];
   char username[USERNAME_SIZE];
-  char userkey[KEY_SIZE];
+  char password[PASSWORD_SIZE];
 
   uint8_t buffer[MAXBUFFERSIZE];
 };

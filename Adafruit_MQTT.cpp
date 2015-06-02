@@ -1,26 +1,28 @@
 #include "Adafruit_MQTT.h"
 
 
-Adafruit_MQTT::Adafruit_MQTT(char *server, uint16_t port, char *user, char *key, char *cid) {
+Adafruit_MQTT::Adafruit_MQTT(char *server, uint16_t port, char *cid, char *user, char *pass) {
   strncpy(servername, server, SERVERNAME_SIZE);
   servername[SERVERNAME_SIZE-1] = 0;
   portnum = port;
   serverip = 0;
 
+  strncpy(clientid, cid, CLIENTID_SIZE);
+  clientid[CLIENTID_SIZE-1] = 0;
+
   strncpy(username, user, USERNAME_SIZE);
   username[USERNAME_SIZE-1] = 0;
 
-  strncpy(userkey, key, KEY_SIZE);
-  userkey[KEY_SIZE-1] = 0;
-
-  strncpy(clientid, cid, CLIENTID_SIZE);
-  clientid[CLIENTID_SIZE-1] = 0;
+  strncpy(password, pass, PASSWORD_SIZE);
+  password[PASSWORD_SIZE-1] = 0;
 
   errno = 0;
 }
 
-boolean Adafruit_MQTT::ping(void) {
-
+uint8_t Adafruit_MQTT::pingPacket(uint8_t *packet) {
+  packet[0] = MQTT_CTRL_PINGREQ << 4;
+  packet[1] = 0;
+  return 2;
 }
 
 static uint8_t *stringprint(uint8_t *p, char *s) {
@@ -34,6 +36,7 @@ static uint8_t *stringprint(uint8_t *p, char *s) {
 // http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718028
 uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
   uint8_t *p = packet;
+  uint16_t len;
 
   // fixed header, connection messsage no flags
   p[0] = (MQTT_CTRL_CONNECT << 4) | 0x0;
@@ -48,7 +51,7 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
   p[0] = MQTT_CONN_CLEANSESSION;
   if (username[0] != 0) 
     p[0] |= MQTT_CONN_USERNAMEFLAG;
-  if (userkey[0] != 0) 
+  if (password[0] != 0) 
     p[0] |= MQTT_CONN_PASSWORDFLAG;
   p++;
   // TODO: add WILL support?
@@ -58,28 +61,20 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
   p[0] = MQTT_CONN_KEEPALIVE & 0xFF;
   p++;
 
-  uint16_t len;
-  if ((clientid[0] != 0) && (strlen(clientid) > 0)) {
-    p = stringprint(p, clientid);
-  }
+  p = stringprint(p, clientid);
 
   if (username[0] != 0) {
     p = stringprint(p, username);
   }
-  if (userkey[0] != 0) {
-    p = stringprint(p, userkey);
+  if (password[0] != 0) {
+    p = stringprint(p, password);
   }
 
-  uint8_t totallen = p - packet;
+  len = p - packet;
 
-  // add two empty bytes at the end (?)
-  p[0] = 0;
-  p[1] = 0;
-  p+=2;
-
-  packet[1] = totallen;
+  packet[1] = len-2;  // don't include the 2 bytes of fixed header data
   
-  return totallen+2;
+  return len;
 }
 
 uint8_t Adafruit_MQTT::publishPacket(uint8_t *packet, char *topic, char *data, uint8_t qos) {
@@ -95,7 +90,7 @@ uint8_t Adafruit_MQTT::publishPacket(uint8_t *packet, char *topic, char *data, u
   memcpy(p, data, strlen(data));
   p+=strlen(data);
   len = p - packet;
-  packet[1] = len-2;
+  packet[1] = len-2; // don't include the 2 bytes of fixed header data
   return len;
 }
 

@@ -2,7 +2,7 @@
 #include "Adafruit_MQTT_CC3000.h"
 #include <Adafruit_Watchdog.h>
 
-Adafruit_MQTT_CC3000::Adafruit_MQTT_CC3000(Adafruit_CC3000 *cc3k, char *server, uint16_t port, char *user, char *key, char *cid) : Adafruit_MQTT(server, port, user, key, cid),  cc3000(cc3k)
+Adafruit_MQTT_CC3000::Adafruit_MQTT_CC3000(Adafruit_CC3000 *cc3k, char *server, uint16_t port, char *cid, char *user, char *pass) : Adafruit_MQTT(server, port, cid, user, pass),  cc3000(cc3k)
 {
   // nothin doin
 }
@@ -100,6 +100,36 @@ uint16_t Adafruit_MQTT_CC3000::readPacket(uint8_t *buffer, uint8_t maxlen, uint1
     }
   }
   return len;
+}
+
+boolean Adafruit_MQTT_CC3000::ping(void) {
+  uint8_t len = pingPacket(buffer);
+ 
+  Serial.print("pinging...");
+  for (uint8_t i=0; i<len; i++) {
+    Serial.write(buffer[i]); Serial.print(" [0x"); Serial.print(buffer[i], HEX); Serial.print("], ");
+  }
+  Serial.println();
+  if (mqttclient.connected()) {
+    uint16_t ret = mqttclient.write(buffer, len);
+    Serial.print("returned: "); Serial.println(ret);
+    if (ret != len)  return false;
+  } else {
+    Serial.println(F("Connection failed"));    
+    return false;
+  }
+
+  // process ping reply
+  Serial.println(F("Reply:"));
+  len = readPacket(buffer, 2, PING_TIMEOUT_MS);
+  for (uint8_t i=0; i<len; i++) {
+    Serial.write(buffer[i]); Serial.print(" [0x"); Serial.print(buffer[i], HEX); Serial.print("], ");
+  }
+  Serial.println();
+  if (buffer[0] == (MQTT_CTRL_PINGRESP << 4))
+    return true;
+
+  return false;
 }
 
 int32_t Adafruit_MQTT_CC3000::close(void) {
