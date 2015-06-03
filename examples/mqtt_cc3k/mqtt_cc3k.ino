@@ -11,7 +11,7 @@
 
 Adafruit_CC3000 cc3000 = Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ, ADAFRUIT_CC3000_VBAT, SPI_CLOCK_DIV2); // you can change this clock speed
 
-Adafruit_MQTT_CC3000 mqtt(&cc3000, AIO_SERVER, AIO_SERVERPORT, AIO_CLIENTNAME, AIO_KEY, AIO_PASSWORD);
+Adafruit_MQTT_CC3000 mqtt(&cc3000, AIO_SERVER, AIO_SERVERPORT, AIO_CLIENTNAME, AIO_USERNAME, AIO_KEY);
 
 const char PHOTOCELL_FEED[] PROGMEM = "api/feeds/photocell/data/send.json";
 Adafruit_MQTT_Publish photocell = Adafruit_MQTT_Publish(&mqtt, PHOTOCELL_FEED);

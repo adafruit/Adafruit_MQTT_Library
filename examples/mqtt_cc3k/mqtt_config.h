@@ -22,8 +22,8 @@
 const char AIO_SERVER[] PROGMEM =  "io.adafruit.com";
 #define AIO_SERVERPORT 1883
 const char AIO_CLIENTNAME[] PROGMEM = "huzzah";
+const char AIO_USERNAME[] PROGMEM = "";
 const char AIO_KEY[] PROGMEM = "";
-const char AIO_PASSWORD[] PROGMEM = "";
 
 
 
