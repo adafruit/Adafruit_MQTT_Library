@@ -188,18 +188,6 @@ Adafruit_MQTT_Subscribe *Adafruit_MQTT::readSubscription(int16_t timeout) {
         DEBUG_PRINT(F("Found sub #")); DEBUG_PRINTLN(i);
         break;        
       }
-      // bool flag = true;
-      // // TODO: REPLACE WITH MEMCMP?
-      // for (uint8_t k=0; k<topiclen; k++) {
-      //   if ( buffer[4+k] != pgm_read_byte(subscriptions[i]->topic+k) ) 
-      //     flag = false;
-      // }
-      // bool flag = strcmp_P()
-      // if (flag) {
-      //   DEBUG_PRINTLN_VERBOSE((char *)buffer+4);
-      //   DEBUG_PRINT_VERBOSE(F("Found sub #")); DEBUG_PRINTLN_VERBOSE(i);
-      //   break;
-      // }
     }
   }
   if (i==MAXSUBSCRIPTIONS) return NULL; // matching sub not found ???

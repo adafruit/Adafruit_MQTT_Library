@@ -37,17 +37,17 @@
 #define MQTT_QOS_1 0x1
 #define MQTT_QOS_0 0x0
 
-#define SERVERNAME_SIZE  25
-
-#define PASSWORD_SIZE  50  // Need to be able to store an AIO key which is 41 chars.
-#define USERNAME_SIZE  41
-#define CLIENTID_SIZE  23
-
-#define FEEDNAME_SIZE  40
-
 #define CONNECT_TIMEOUT_MS 3000
 #define PUBLISH_TIMEOUT_MS 500
 #define PING_TIMEOUT_MS 500
+
+// Adjust as necessary, in seconds
+#define MQTT_CONN_KEEPALIVE 15
+
+// Largest full packet we're able to send.
+// Need to be able to store at least ~90 chars for a connect packet with full 
+// 23 char client ID.
+#define MAXBUFFERSIZE (105)
 
 #define MQTT_CONN_USERNAMEFLAG 0x80
 #define MQTT_CONN_PASSWORDFLAG 0x40
@@ -55,11 +55,13 @@
 #define MQTT_CONN_WILLQOS   0x08
 #define MQTT_CONN_WILLFLAG   0x04
 #define MQTT_CONN_CLEANSESSION   0x02
-#define MQTT_CONN_KEEPALIVE 15  // in seconds
 
-#define MAXBUFFERSIZE (105)  // Need to be able to store at least ~90 chars
-                             // for a connect packet with full 23 char client ID.
+// how many subscriptions we want to be able to
+// track
 #define MAXSUBSCRIPTIONS 5
+
+// how much data we save in a subscription object
+// eg max-subscription-payload-size
 #define SUBSCRIPTIONDATALEN 20
 
 
@@ -128,7 +130,7 @@ class Adafruit_MQTT {
   const char *clientid;
   const char *username;
   const char *password;
-  uint8_t buffer[MAXBUFFERSIZE];
+  uint8_t buffer[MAXBUFFERSIZE];  // one buffer, used for all incoming/outgoing
 
  private:
   Adafruit_MQTT_Subscribe *subscriptions[MAXSUBSCRIPTIONS];
