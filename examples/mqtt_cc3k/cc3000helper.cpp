@@ -1,17 +1,18 @@
-#include <Adafruit_Watchdog.h>
+#include <Adafruit_SleepyDog.h>
 #include <Adafruit_CC3000.h>
 #include <ccspi.h>
 #include <SPI.h>
-#include "mqtt_config.h"
 
-#define STATICIP 1
+#define STATICIP 0
+
+#define halt(s) { Serial.println(F( s )); while(1);  }
 
 uint16_t checkFirmwareVersion(void);
 bool displayConnectionDetails(void);
 
 extern Adafruit_CC3000 cc3000;
 
-boolean CC3000connect(void) {
+boolean CC3000connect(const char* wlan_ssid, const char* wlan_pass, uint8_t wlan_security) {
   Watchdog.reset();
     
   // Check for compatible firmware
@@ -36,11 +37,11 @@ boolean CC3000connect(void) {
 
   // Attempt to connect to an access point
   Serial.print(F("\nAttempting to connect to ")); 
-  Serial.print(WLAN_SSID); Serial.print(F("..."));
+  Serial.print(wlan_ssid); Serial.print(F("..."));
 
   Watchdog.disable();
   // try 3 times
-  if (!cc3000.connectToAP(WLAN_SSID, WLAN_PASS, WLAN_SECURITY, 3)) {
+  if (!cc3000.connectToAP(wlan_ssid, wlan_pass, wlan_security, 3)) {
     return false;
   }
   
