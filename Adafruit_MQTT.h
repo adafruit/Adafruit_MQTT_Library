@@ -71,8 +71,8 @@ class Adafruit_MQTT_Subscribe;  // forward decl
 
 class Adafruit_MQTT {
  public:
-  Adafruit_MQTT(const char *server, uint16_t port, const PROGMEM char *cid, 
-                const PROGMEM char *user, const PROGMEM char *pass);
+  Adafruit_MQTT(const char *server, uint16_t port, const char *cid, 
+                const char *user, const char *pass);
   virtual ~Adafruit_MQTT() {}
 
   // Connect to the MQTT server.  Returns 0 on success, otherwise an error code
