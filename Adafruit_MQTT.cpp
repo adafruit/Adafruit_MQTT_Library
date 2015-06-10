@@ -1,3 +1,24 @@
+// The MIT License (MIT)
+//
+// Copyright (c) 2015 Adafruit Industries
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
 #include "Adafruit_MQTT.h"
 
 
@@ -339,6 +360,18 @@ Adafruit_MQTT_Publish::Adafruit_MQTT_Publish(Adafruit_MQTT *mqttserver,
 bool Adafruit_MQTT_Publish::publish(int32_t i) {
   char payload[18];
   itoa(i, payload, 10);
+  return mqtt->publish(topic, payload, qos);
+}
+
+bool Adafruit_MQTT_Publish::publish(double f, uint8_t precision) {
+  char payload[40];  // Need to technically hold float max, 39 digits and minus sign.
+  #if defined(ARDUINO_ARCH_AVR)
+    // Use avrlibc dtostre function on AVR platforms.
+    dtostrf(f, 0, precision, payload);
+  #else
+    // Otherwise fall back to snprintf on other platforms.
+    snprintf(payload, sizeof(payload)-1, "%f", f);
+  #endif
   return mqtt->publish(topic, payload, qos);
 }
 

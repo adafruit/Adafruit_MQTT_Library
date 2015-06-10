@@ -1,3 +1,16 @@
+/*************************************************** 
+  Adafruit MQTT Library CC3000 Example
+
+  Designed specifically to work with the Adafruit WiFi products:
+  ----> https://www.adafruit.com/products/1469
+
+  Adafruit invests time and resources providing this open source code, 
+  please support Adafruit and open-source hardware by purchasing 
+  products from Adafruit!
+
+  Written by Limor Fried/Ladyada for Adafruit Industries.  
+  MIT license, all text above must be included in any redistribution
+ ****************************************************/
 #include <Adafruit_SleepyDog.h>
 #include <Adafruit_CC3000.h>
 #include <SPI.h>
@@ -13,11 +26,6 @@
 // Use hardware SPI for the remaining pins
 // On an UNO, SCK = 13, MISO = 12, and MOSI = 11
 
-// Alternate config:
-//#define ADAFRUIT_CC3000_IRQ   2
-//#define ADAFRUIT_CC3000_VBAT  8
-//#define ADAFRUIT_CC3000_CS    10
-
 /************************* WiFi Access Point *********************************/
 
 #define WLAN_SSID       "...your SSID..."  // can't be longer than 32 characters!
@@ -31,11 +39,6 @@
 #define AIO_SERVERPORT  1883
 #define AIO_USERNAME    "...your AIO username (see https://accounts.adafruit.com)..."
 #define AIO_KEY         "...your AIO key...";
-
-/* Debug server configuration (not normally used):
-#define AIO_SERVER      "apt.adafruit.com"
-#define AIO_SERVERPORT  1883
-*/
 
 /************ Global State (you don't need to change this!) ******************/
 

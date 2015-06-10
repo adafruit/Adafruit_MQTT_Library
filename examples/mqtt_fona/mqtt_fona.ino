@@ -1,3 +1,22 @@
+/*************************************************** 
+  Adafruit MQTT Library FONA Example
+
+  Designed specifically to work with the Adafruit FONA 
+  ----> http://www.adafruit.com/products/1946
+  ----> http://www.adafruit.com/products/1963
+  ----> http://www.adafruit.com/products/2468
+  ----> http://www.adafruit.com/products/2542
+
+  These cellular modules use TTL Serial to communicate, 2 pins are 
+  required to interface.
+
+  Adafruit invests time and resources providing this open source code, 
+  please support Adafruit and open-source hardware by purchasing 
+  products from Adafruit!
+
+  Written by Limor Fried/Ladyada for Adafruit Industries.  
+  MIT license, all text above must be included in any redistribution
+ ****************************************************/
 #include <Adafruit_SleepyDog.h>
 #include <SoftwareSerial.h>
 #include "Adafruit_FONA.h"
@@ -97,7 +116,6 @@ void loop() {
 
   // check if we're still connected
   if (!fona.TCPconnected() || (txfailures >= MAXTXFAILURES)) {
-    //////////////////////////////
     Serial.println(F("Connecting to MQTT..."));
     int8_t ret, retries = 5;
     while (retries && (ret = mqtt.connect()) != 0) {

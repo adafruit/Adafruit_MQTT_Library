@@ -1,6 +1,19 @@
-// Adafruit IO MQTT Example for ESP8266.
-// Must be using ESP8266 Arduino from:
-//   https://github.com/esp8266/Arduino
+/*************************************************** 
+  Adafruit MQTT Library ESP8266 Example
+
+  Must use ESP8266 Arduino from:
+    https://github.com/esp8266/Arduino
+
+  Works great with Adafruit's Huzzah ESP board:
+  ----> https://www.adafruit.com/product/2471
+
+  Adafruit invests time and resources providing this open source code, 
+  please support Adafruit and open-source hardware by purchasing 
+  products from Adafruit!
+
+  Written by Tony DiCola for Adafruit Industries.  
+  MIT license, all text above must be included in any redistribution
+ ****************************************************/
 #include <ESP8266WiFi.h>
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_Client.h"
@@ -16,11 +29,6 @@
 #define AIO_SERVERPORT  1883
 #define AIO_USERNAME    "...your AIO username (see https://accounts.adafruit.com)..."
 #define AIO_KEY         "...your AIO key...";
-
-/* Debug server configuration (not normally used):
-#define AIO_SERVER      "apt.adafruit.com"
-#define AIO_SERVERPORT  1883
-*/
 
 /************ Global State (you don't need to change this!) ******************/
 
