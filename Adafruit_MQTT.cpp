@@ -47,9 +47,8 @@ static uint8_t *stringprint_P(uint8_t *p, const char *s, uint16_t maxlen=0) {
 
 // Adafruit_MQTT Definition ////////////////////////////////////////////////////
 
-Adafruit_MQTT::Adafruit_MQTT(const char *server, uint16_t port,
-                             const PROGMEM char *cid, const PROGMEM char *user,
-                             const PROGMEM char *pass) {
+Adafruit_MQTT::Adafruit_MQTT(const char *server, uint16_t port, const char *cid,
+                             const char *user, const char *pass) {
   servername = server;
   portnum = port;
   clientid = cid;
@@ -184,7 +183,6 @@ Adafruit_MQTT_Subscribe *Adafruit_MQTT::readSubscription(int16_t timeout) {
       // Stop if the subscription topic matches the received topic. Be careful
       // to make comparison case insensitive.
       if (strncasecmp_P((char*)buffer+4, subscriptions[i]->topic, topiclen) == 0) {
-        DEBUG_PRINTLN(subscriptions[i]->topic);
         DEBUG_PRINT(F("Found sub #")); DEBUG_PRINTLN(i);
         break;        
       }
