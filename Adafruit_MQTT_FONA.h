@@ -74,8 +74,8 @@ class Adafruit_MQTT_FONA : public Adafruit_MQTT {
         DEBUG_PRINT('!');
         
         if (len + avail > maxlen) {
-    // oof we cant read more of the available data in this buffer
-    return len;
+	  avail = maxlen - len;
+	  if (avail == 0) return len;
         }
 
         // try to read the data into the end of the pointer
