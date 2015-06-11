@@ -3,7 +3,7 @@
 #include <ccspi.h>
 #include <SPI.h>
 
-#define STATICIP 0
+//#define STATICIP
 
 #define halt(s) { Serial.println(F( s )); while(1);  }
 
