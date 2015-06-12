@@ -129,8 +129,10 @@ void loop() {
   // Try to ping the MQTT server
   /*
   if (! mqtt.ping(3) ) {
-    // MQTT pings failed, lets reconnect
-    Serial.println("Ping fail!");
+    // MQTT pings failed, let's reconnect by forcing a watchdog reset.
+    Serial.println("Ping fail! Resetting...");
+    Watchdog.enable(8000);
+    delay(10000);
   }
   */
 
