@@ -365,13 +365,7 @@ bool Adafruit_MQTT_Publish::publish(int32_t i) {
 
 bool Adafruit_MQTT_Publish::publish(double f, uint8_t precision) {
   char payload[40];  // Need to technically hold float max, 39 digits and minus sign.
-  #if defined(ARDUINO_ARCH_AVR)
-    // Use avrlibc dtostre function on AVR platforms.
-    dtostrf(f, 0, precision, payload);
-  #else
-    // Otherwise fall back to snprintf on other platforms.
-    snprintf(payload, sizeof(payload)-1, "%f", f);
-  #endif
+  dtostrf(f, 0, precision, payload);
   return mqtt->publish(topic, payload, qos);
 }
 
