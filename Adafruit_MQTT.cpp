@@ -38,6 +38,7 @@ void printBuffer(uint8_t *buffer, uint8_t len) {
   DEBUG_PRINTER.println();
 }
 
+/* Not used now, but might be useful in the future
 static uint8_t *stringprint(uint8_t *p, char *s) {
   uint16_t len = strlen(s);
   p[0] = len >> 8; p++;
@@ -45,6 +46,7 @@ static uint8_t *stringprint(uint8_t *p, char *s) {
   memcpy(p, s, len);
   return p+len;
 }
+*/
 
 static uint8_t *stringprint_P(uint8_t *p, const char *s, uint16_t maxlen=0) {
   // If maxlen is specified (has a non-zero value) then use it as the maximum
