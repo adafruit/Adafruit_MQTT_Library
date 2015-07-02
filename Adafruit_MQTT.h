@@ -202,7 +202,7 @@ class Adafruit_MQTT_Subscribe {
   const char *topic;
   uint8_t qos;
 
-  uint8_t * lastread[SUBSCRIPTIONDATALEN];
+  uint8_t lastread[SUBSCRIPTIONDATALEN];
  private:
   Adafruit_MQTT *mqtt;
 };
