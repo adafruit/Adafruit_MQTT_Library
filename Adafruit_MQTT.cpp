@@ -140,7 +140,7 @@ int8_t Adafruit_MQTT::connect() {
   return 0;
 }
 
-bool Adafruit_MQTT::publish(const char *topic, char *data, uint8_t qos) {
+bool Adafruit_MQTT::publish(const char *topic, const char *data, uint8_t qos) {
   // Construct and send publish packet.
   uint8_t len = publishPacket(buffer, topic, data, qos);
   if (!sendPacket(buffer, len))
@@ -294,7 +294,7 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
 }
 
 uint8_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic, 
-                                     char *data, uint8_t qos) {
+                                     const char *data, uint8_t qos) {
   uint8_t *p = packet;
   uint16_t len;
 
@@ -375,7 +375,7 @@ bool Adafruit_MQTT_Publish::publish(uint32_t i) {
   return mqtt->publish(topic, payload, qos);
 }
 
-bool Adafruit_MQTT_Publish::publish(char *payload) {
+bool Adafruit_MQTT_Publish::publish(const char *payload) {
   return mqtt->publish(topic, payload, qos);
 }
 
