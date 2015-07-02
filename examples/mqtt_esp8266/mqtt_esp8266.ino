@@ -104,7 +104,7 @@ void loop() {
 
   // this is our 'wait for incoming subscription packets' busy subloop
   Adafruit_MQTT_Subscribe *subscription;
-  while (subscription = mqtt.readSubscription(1000)) {
+  while ((subscription = mqtt.readSubscription(1000))) {
     if (subscription == &onoffbutton) {
       Serial.print(F("Got: "));
       Serial.println((char *)onoffbutton.lastread);
