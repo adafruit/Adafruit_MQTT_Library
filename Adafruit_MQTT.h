@@ -203,6 +203,9 @@ class Adafruit_MQTT_Subscribe {
   uint8_t qos;
 
   uint8_t lastread[SUBSCRIPTIONDATALEN];
+  // Number valid bytes in lastread. Limited to SUBSCRIPTIONDATALEN-1 to
+  // ensure nul terminating lastread.
+  uint8_t datalen;
  private:
   Adafruit_MQTT *mqtt;
 };
