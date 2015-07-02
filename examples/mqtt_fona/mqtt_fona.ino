@@ -122,18 +122,7 @@ void loop() {
     Serial.println(F("Connecting to MQTT..."));
     int8_t ret, retries = 5;
     while (retries && (ret = mqtt.connect()) != 0) {
-       switch (ret) {
-          case 1: Serial.println(F("Wrong protocol")); break;
-          case 2: Serial.println(F("ID rejected")); break;
-          case 3: Serial.println(F("Server unavail")); break;
-          case 4: Serial.println(F("Bad user/pass")); break;
-          case 5: Serial.println(F("Not authed")); break;
-          case 6: Serial.println(F("Failed to subscribe")); break;
-          default: {
-            Serial.println(F("Connection failed"));
-            break;
-          }
-       }
+       Serial.println(mqtt.connectErrorString(ret));
        Serial.println(F("Retrying MQTT connection"));
        retries--;
        if (retries == 0) halt("Resetting system");

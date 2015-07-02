@@ -140,6 +140,19 @@ int8_t Adafruit_MQTT::connect() {
   return 0;
 }
 
+const __FlashStringHelper* Adafruit_MQTT::connectErrorString(int8_t code) {
+   switch (code) {
+      case 1: return F("Wrong protocol");
+      case 2: return F("ID rejected");
+      case 3: return F("Server unavail");
+      case 4: return F("Bad user/pass");
+      case 5: return F("Not authed");
+      case 6: return F("Failed to subscribe");
+      case -1: return F("Connection failed");
+      default: return F("Unknown error");
+   }
+}
+
 bool Adafruit_MQTT::publish(const char *topic, const char *data, uint8_t qos) {
   // Construct and send publish packet.
   uint8_t len = publishPacket(buffer, topic, data, qos);

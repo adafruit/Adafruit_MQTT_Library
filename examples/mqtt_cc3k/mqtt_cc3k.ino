@@ -152,18 +152,9 @@ void MQTT_connect() {
   Serial.print("Connecting to MQTT... ");
 
   while ((ret = mqtt.connect()) != 0) { // connect will return 0 for connected
-       switch (ret) {
-          case 1: Serial.println("Wrong protocol"); break;
-          case 2: Serial.println("ID rejected"); break;
-          case 3: Serial.println("Server unavailable"); break;
-          case 4: Serial.println("Bad user/password"); break;
-          case 5: Serial.println("Not authenticated"); break;
-          case 6: Serial.println("Failed to subscribe"); break;
-          default:
-            Serial.println(F("Connection failed"));
+       Serial.println(mqtt.connectErrorString(ret));
+       if (ret < 0)
             CC3000connect(WLAN_SSID, WLAN_PASS, WLAN_SECURITY);  // y0w, lets connect to wifi again
-            break;
-       }
        Serial.println("Retrying MQTT connection in 5 seconds...");
        mqtt.disconnect();
        delay(5000);  // wait 5 seconds

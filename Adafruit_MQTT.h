@@ -105,7 +105,15 @@ class Adafruit_MQTT {
   //    4 = Bad username or password
   //    5 = Not authenticated
   //    6 = Failed to subscribe
+  // Use connectErrorString() to get a printable string version of the
+  // error.
   int8_t connect();
+
+  // Return a printable string version of the error code returned by
+  // connect(). This returns a __FlashStringHelper*, which points to a
+  // string stored in flash, but can be directly passed to e.g.
+  // Serial.println without any further processing.
+  const __FlashStringHelper* connectErrorString(int8_t code);
 
   // Disconnect from the MQTT server.  Returns true if disconnected, false
   // otherwise.
