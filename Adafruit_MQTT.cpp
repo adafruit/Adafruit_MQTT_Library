@@ -180,13 +180,13 @@ bool Adafruit_MQTT::subscribe(Adafruit_MQTT_Subscribe *sub) {
     }
   }
   if (i==MAXSUBSCRIPTIONS) { // add to subscriptionlist
-      for (i=0; i<MAXSUBSCRIPTIONS; i++) {
-  if (subscriptions[i] == 0) {
-    DEBUG_PRINT(F("Added sub ")); DEBUG_PRINTLN(i);
-    subscriptions[i] = sub;
-    break;
-  }
-      } 
+    for (i=0; i<MAXSUBSCRIPTIONS; i++) {
+      if (subscriptions[i] == 0) {
+        DEBUG_PRINT(F("Added sub ")); DEBUG_PRINTLN(i);
+        subscriptions[i] = sub;
+        break;
+      }
+    }
   }
   if (i==MAXSUBSCRIPTIONS) {
     DEBUG_PRINTLN(F("no more subscription space :("));
