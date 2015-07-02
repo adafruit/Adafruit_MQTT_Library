@@ -128,6 +128,8 @@ class Adafruit_MQTT {
 
   // Add a subscription to receive messages for a topic.  Returns true if the
   // subscription could be added or was already present, false otherwise.
+  // Must be called before connect(), subscribing after the connection
+  // is made is not currently supported.
   bool subscribe(Adafruit_MQTT_Subscribe *sub);
 
   // Check if any subscriptions have new messages.  Will return a reference to
