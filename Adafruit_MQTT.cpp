@@ -176,7 +176,7 @@ bool Adafruit_MQTT::subscribe(Adafruit_MQTT_Subscribe *sub) {
   for (i=0; i<MAXSUBSCRIPTIONS; i++) {
     if (subscriptions[i] == sub) {
       DEBUG_PRINTLN(F("Already subscribed"));
-      break;
+      return true;
     }
   }
   if (i==MAXSUBSCRIPTIONS) { // add to subscriptionlist
@@ -184,14 +184,13 @@ bool Adafruit_MQTT::subscribe(Adafruit_MQTT_Subscribe *sub) {
       if (subscriptions[i] == 0) {
         DEBUG_PRINT(F("Added sub ")); DEBUG_PRINTLN(i);
         subscriptions[i] = sub;
-        break;
+        return true;
       }
     }
   }
-  if (i==MAXSUBSCRIPTIONS) {
-    DEBUG_PRINTLN(F("no more subscription space :("));
-    return false;
-  }
+
+  DEBUG_PRINTLN(F("no more subscription space :("));
+  return false;
 }
 
 Adafruit_MQTT_Subscribe *Adafruit_MQTT::readSubscription(int16_t timeout) {

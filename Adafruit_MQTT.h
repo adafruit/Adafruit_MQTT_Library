@@ -127,7 +127,7 @@ class Adafruit_MQTT {
   bool publish(const char *topic, const char *payload, uint8_t qos);
 
   // Add a subscription to receive messages for a topic.  Returns true if the
-  // subscription could be added, false otherwise.
+  // subscription could be added or was already present, false otherwise.
   bool subscribe(Adafruit_MQTT_Subscribe *sub);
 
   // Check if any subscriptions have new messages.  Will return a reference to
