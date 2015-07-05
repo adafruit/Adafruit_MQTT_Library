@@ -1,4 +1,4 @@
-/*************************************************** 
+/***************************************************
   Adafruit MQTT Library ESP8266 Example
 
   Must use ESP8266 Arduino from:
@@ -7,11 +7,11 @@
   Works great with Adafruit's Huzzah ESP board:
   ----> https://www.adafruit.com/product/2471
 
-  Adafruit invests time and resources providing this open source code, 
-  please support Adafruit and open-source hardware by purchasing 
+  Adafruit invests time and resources providing this open source code,
+  please support Adafruit and open-source hardware by purchasing
   products from Adafruit!
 
-  Written by Tony DiCola for Adafruit Industries.  
+  Written by Tony DiCola for Adafruit Industries.
   MIT license, all text above must be included in any redistribution
  ****************************************************/
 #include <ESP8266WiFi.h>
@@ -47,12 +47,12 @@ Adafruit_MQTT_Client mqtt(&client, MQTT_SERVER, AIO_SERVERPORT, MQTT_CLIENTID, M
 
 /****************************** Feeds ***************************************/
 
-// Setup a feed called 'photocell' for publishing.  
+// Setup a feed called 'photocell' for publishing.
 // Notice MQTT paths for AIO follow the form: <username>/feeds/<feedname>
 const char PHOTOCELL_FEED[] PROGMEM = AIO_USERNAME "/feeds/photocell";
 Adafruit_MQTT_Publish photocell = Adafruit_MQTT_Publish(&mqtt, PHOTOCELL_FEED);
 
-// Setup a feed called 'onoff' for subscribing to changes.  
+// Setup a feed called 'onoff' for subscribing to changes.
 const char ONOFF_FEED[] PROGMEM = AIO_USERNAME "/feeds/onoff";
 Adafruit_MQTT_Subscribe onoffbutton = Adafruit_MQTT_Subscribe(&mqtt, ONOFF_FEED);
 
@@ -68,7 +68,7 @@ void setup() {
   Serial.println(); Serial.println();
   Serial.print("Connecting to ");
   Serial.println(WLAN_SSID);
-  
+
   WiFi.begin(WLAN_SSID, WLAN_PASS);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -76,35 +76,21 @@ void setup() {
   }
   Serial.println();
 
-  Serial.println("WiFi connected");  
+  Serial.println("WiFi connected");
   Serial.println("IP address: "); Serial.println(WiFi.localIP());
 
   // Setup MQTT subscription for onoff feed.
   mqtt.subscribe(&onoffbutton);
-
-  // Connect to MQTT server.
-  Serial.println(F("Connecting to MQTT..."));
-  int8_t ret;
-  while ((ret = mqtt.connect()) != 0) {
-       switch (ret) {
-          case 1: Serial.println(F("Wrong protocol")); break;
-          case 2: Serial.println(F("ID rejected")); break;
-          case 3: Serial.println(F("Server unavail")); break;
-          case 4: Serial.println(F("Bad user/pass")); break;
-          case 5: Serial.println(F("Not authed")); break;
-          case 6: Serial.println(F("Failed to subscribe")); break;
-          default: Serial.println(F("Couldn't connect to MQTT server")); break;
-       }
-       Serial.println(F("Retrying MQTT connection"));
-       mqtt.disconnect();
-       delay(5000); 
-  }
-  Serial.println(F("MQTT Connected!"));
 }
 
 uint32_t x=0;
 
 void loop() {
+  // Ensure the connection to the MQTT server is alive (this will make the first
+  // connection and automatically reconnect when disconnected).  See the MQTT_connect
+  // function definition further below.
+  MQTT_connect();
+
   // Try to ping the MQTT server
   /*
   if (! mqtt.ping(3) ) {
@@ -117,13 +103,13 @@ void loop() {
   Adafruit_MQTT_Subscribe *subscription;
   while (subscription = mqtt.readSubscription(1000)) {
     if (subscription == &onoffbutton) {
-      Serial.print(F("Got: ")); 
+      Serial.print(F("Got: "));
       Serial.println((char *)onoffbutton.lastread);
     }
   }
-  
+
   // Now we can publish stuff!
-  Serial.print(F("\nSending photocell val ")); 
+  Serial.print(F("\nSending photocell val "));
   Serial.print(x);
   Serial.print("...");
   if (! photocell.publish(x++)) {
@@ -133,4 +119,35 @@ void loop() {
   }
 
   delay(1000);
+}
+
+// Function to connect and reconnect as necessary to the MQTT server.
+// Should be called in the loop function and it will take care if connecting.
+void MQTT_connect() {
+  int8_t ret;
+
+  // Stop if already connected.
+  if (mqtt.connected()) {
+    return;
+  }
+
+  Serial.print("Connecting to MQTT... ");
+
+  while ((ret = mqtt.connect()) != 0) { // connect will return 0 for connected
+       switch (ret) {
+          case 1: Serial.println("Wrong protocol"); break;
+          case 2: Serial.println("ID rejected"); break;
+          case 3: Serial.println("Server unavailable"); break;
+          case 4: Serial.println("Bad user/password"); break;
+          case 5: Serial.println("Not authenticated"); break;
+          case 6: Serial.println("Failed to subscribe"); break;
+          default: Serial.print("Couldn't connect to server, code: ");
+                   Serial.println(ret);
+                   break;
+       }
+       Serial.println("Retrying MQTT connection in 5 seconds...");
+       mqtt.disconnect();
+       delay(5000);  // wait 5 seconds
+  }
+  Serial.println("MQTT Connected!");
 }

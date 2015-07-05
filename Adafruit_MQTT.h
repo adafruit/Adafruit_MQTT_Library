@@ -66,7 +66,7 @@
 #define MQTT_CONN_KEEPALIVE 300
 
 // Largest full packet we're able to send.
-// Need to be able to store at least ~90 chars for a connect packet with full 
+// Need to be able to store at least ~90 chars for a connect packet with full
 // 23 char client ID.
 #define MAXBUFFERSIZE (105)
 
@@ -92,7 +92,7 @@ class Adafruit_MQTT_Subscribe;  // forward decl
 
 class Adafruit_MQTT {
  public:
-  Adafruit_MQTT(const char *server, uint16_t port, const char *cid, 
+  Adafruit_MQTT(const char *server, uint16_t port, const char *cid,
                 const char *user, const char *pass);
   virtual ~Adafruit_MQTT() {}
 
@@ -111,10 +111,13 @@ class Adafruit_MQTT {
   // otherwise.
   virtual bool disconnect() = 0;  // Subclasses need to fill this in!
 
+  // Return true if connected to the MQTT server, otherwise false.
+  virtual bool connected() = 0;  // Subclasses need to fill this in!
+
   // Publish a message to a topic using the specified QoS level.  Returns true
   // if the message was published, false otherwise.
   bool publish(const char *topic, char *payload, uint8_t qos);
-  
+
   // Add a subscription to receive messages for a topic.  Returns true if the
   // subscription could be added, false otherwise.
   bool subscribe(Adafruit_MQTT_Subscribe *sub);
@@ -173,7 +176,7 @@ class Adafruit_MQTT_Publish {
                                                 // This might be ignored and a higher precision value sent.
   bool publish(int32_t i);
   bool publish(uint32_t i);
- 
+
 private:
   Adafruit_MQTT *mqtt;
   const char *topic;

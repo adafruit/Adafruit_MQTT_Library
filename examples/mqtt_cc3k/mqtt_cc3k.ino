@@ -1,14 +1,14 @@
-/*************************************************** 
+/***************************************************
   Adafruit MQTT Library CC3000 Example
 
   Designed specifically to work with the Adafruit WiFi products:
   ----> https://www.adafruit.com/products/1469
 
-  Adafruit invests time and resources providing this open source code, 
-  please support Adafruit and open-source hardware by purchasing 
+  Adafruit invests time and resources providing this open source code,
+  please support Adafruit and open-source hardware by purchasing
   products from Adafruit!
 
-  Written by Limor Fried/Ladyada for Adafruit Industries.  
+  Written by Limor Fried/Ladyada for Adafruit Industries.
   MIT license, all text above must be included in any redistribution
  ****************************************************/
 #include <Adafruit_SleepyDog.h>
@@ -30,7 +30,7 @@
 
 #define WLAN_SSID       "...your SSID..."  // can't be longer than 32 characters!
 #define WLAN_PASS       "...your password..."
-#define WLAN_SECURITY   WLAN_SEC_WPA2  // Can be: WLAN_SEC_UNSEC, WLAN_SEC_WEP, 
+#define WLAN_SECURITY   WLAN_SEC_WPA2  // Can be: WLAN_SEC_UNSEC, WLAN_SEC_WEP,
                                        //         WLAN_SEC_WPA or WLAN_SEC_WPA2
 
 /************************* Adafruit.io Setup *********************************/
@@ -64,12 +64,12 @@ boolean CC3000connect(const char* wlan_ssid, const char* wlan_pass, uint8_t wlan
 
 /****************************** Feeds ***************************************/
 
-// Setup a feed called 'photocell' for publishing.  
+// Setup a feed called 'photocell' for publishing.
 // Notice MQTT paths for AIO follow the form: <username>/feeds/<feedname>
 const char PHOTOCELL_FEED[] PROGMEM = AIO_USERNAME "/feeds/photocell";
 Adafruit_MQTT_Publish photocell = Adafruit_MQTT_Publish(&mqtt, PHOTOCELL_FEED);
 
-// Setup a feed called 'onoff' for subscribing to changes.  
+// Setup a feed called 'onoff' for subscribing to changes.
 const char ONOFF_FEED[] PROGMEM = AIO_USERNAME "/feeds/onoff";
 Adafruit_MQTT_Subscribe onoffbutton = Adafruit_MQTT_Subscribe(&mqtt, ONOFF_FEED);
 
@@ -84,7 +84,7 @@ void setup() {
 
   // Initialise the CC3000 module
   Serial.print(F("\nInit the CC3000..."));
-  if (!cc3000.begin()) 
+  if (!cc3000.begin())
       halt("Failed");
 
   mqtt.subscribe(&onoffbutton);
@@ -93,31 +93,6 @@ void setup() {
     Serial.println(F("Retrying WiFi"));
     while(1);
   }
-
-  Serial.println(F("Connected to WiFi!"));
-  //////////////////////////////
-  Serial.println(F("Connecting to MQTT..."));
-  int8_t ret;
-  while ((ret = mqtt.connect()) != 0) {
-       switch (ret) {
-          case 1: Serial.println(F("Wrong protocol")); break;
-          case 2: Serial.println(F("ID rejected")); break;
-          case 3: Serial.println(F("Server unavail")); break;
-          case 4: Serial.println(F("Bad user/pass")); break;
-          case 5: Serial.println(F("Not authed")); break;
-          case 6: Serial.println(F("Failed to subscribe")); break;
-          default: {
-            Serial.println(F("Connection failed")); 
-            CC3000connect(WLAN_SSID, WLAN_PASS, WLAN_SECURITY);  // y0w, lets connect to wifi again
-            return;           // restart the loop
-          }
-       }
-       Serial.println(F("Retrying MQTT connection"));
-       delay(5000); 
-  }
-  //////////////////////////////
-
-  Serial.println(F("MQTT Connected!"));  
 }
 
 uint32_t x=0;
@@ -125,6 +100,11 @@ uint32_t x=0;
 void loop() {
   // Make sure to reset watchdog every loop iteration!
   Watchdog.reset();
+
+  // Ensure the connection to the MQTT server is alive (this will make the first
+  // connection and automatically reconnect when disconnected).  See the MQTT_connect
+  // function definition further below.
+  MQTT_connect();
  
   // Try to ping the MQTT server
   /*
@@ -140,13 +120,13 @@ void loop() {
   Adafruit_MQTT_Subscribe *subscription;
   while (subscription = mqtt.readSubscription(1000)) {
     if (subscription == &onoffbutton) {
-      Serial.print(F("Got: ")); 
+      Serial.print(F("Got: "));
       Serial.println((char *)onoffbutton.lastread);
     }
   }
-  
+
   // Now we can publish stuff!
-  Serial.print(F("\nSending photocell val ")); 
+  Serial.print(F("\nSending photocell val "));
   Serial.print(x);
   Serial.print("...");
   if (! photocell.publish(x++)) {
@@ -154,4 +134,36 @@ void loop() {
   } else {
     Serial.println(F("OK!"));
   }
+}
+
+// Function to connect and reconnect as necessary to the MQTT server.
+// Should be called in the loop function and it will take care if connecting.
+void MQTT_connect() {
+  int8_t ret;
+
+  // Stop if already connected.
+  if (mqtt.connected()) {
+    return;
+  }
+
+  Serial.print("Connecting to MQTT... ");
+
+  while ((ret = mqtt.connect()) != 0) { // connect will return 0 for connected
+       switch (ret) {
+          case 1: Serial.println("Wrong protocol"); break;
+          case 2: Serial.println("ID rejected"); break;
+          case 3: Serial.println("Server unavailable"); break;
+          case 4: Serial.println("Bad user/password"); break;
+          case 5: Serial.println("Not authenticated"); break;
+          case 6: Serial.println("Failed to subscribe"); break;
+          default:
+            Serial.println(F("Connection failed"));
+            CC3000connect(WLAN_SSID, WLAN_PASS, WLAN_SECURITY);  // y0w, lets connect to wifi again
+            break;
+       }
+       Serial.println("Retrying MQTT connection in 5 seconds...");
+       mqtt.disconnect();
+       delay(5000);  // wait 5 seconds
+  }
+  Serial.println("MQTT Connected!");
 }

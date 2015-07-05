@@ -34,13 +34,21 @@ bool Adafruit_MQTT_Client::connectServer() {
 }
 
 bool Adafruit_MQTT_Client::disconnect() {
-  // Stop connection and return success (stop has no indication of failure).
-  client->stop();
-  return true;  
+  // Stop connection if connected and return success (stop has no indication of
+  // failure).
+  if (client->connected()) {
+    client->stop();
+  }
+  return true;
+}
+
+bool Adafruit_MQTT_Client::connected() {
+  // Return true if connected, false if not connected.
+  return client->connected();
 }
 
 uint16_t Adafruit_MQTT_Client::readPacket(uint8_t *buffer, uint8_t maxlen,
-                                          int16_t timeout, 
+                                          int16_t timeout,
                                           bool checkForValidPubPacket) {
   /* Read data until either the connection is closed, or the idle timeout is reached. */
   uint16_t len = 0;

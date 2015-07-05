@@ -35,7 +35,7 @@
 // in the compilation of the library).
 class Adafruit_MQTT_FONA : public Adafruit_MQTT {
  public:
-  Adafruit_MQTT_FONA(Adafruit_FONA *f, const char *server, uint16_t port, 
+  Adafruit_MQTT_FONA(Adafruit_FONA *f, const char *server, uint16_t port,
                        const char *cid, const char *user, const char *pass):
     Adafruit_MQTT(server, port, cid, user, pass),
     fona(f)
@@ -55,7 +55,12 @@ class Adafruit_MQTT_FONA : public Adafruit_MQTT {
     return fona->TCPclose();
   }
 
-  uint16_t readPacket(uint8_t *buffer, uint8_t maxlen, int16_t timeout, 
+  bool connected() {
+    // Return true if connected, false if not connected.
+    return fona->TCPconnected();
+  }
+
+  uint16_t readPacket(uint8_t *buffer, uint8_t maxlen, int16_t timeout,
                       bool checkForValidPubPacket = false) {
     uint8_t *buffp = buffer;
     DEBUG_PRINTLN(F("Reading a packet.."));
@@ -72,7 +77,7 @@ class Adafruit_MQTT_FONA : public Adafruit_MQTT {
       DEBUG_PRINT('.');
       while (avail = fona->TCPavailable()) {
         DEBUG_PRINT('!');
-        
+
         if (len + avail > maxlen) {
 	  avail = maxlen - len;
 	  if (avail == 0) return len;
@@ -80,7 +85,7 @@ class Adafruit_MQTT_FONA : public Adafruit_MQTT {
 
         // try to read the data into the end of the pointer
         if (! fona->TCPread(buffp, avail)) return len;
-        
+
         // read it! advance pointer
         buffp += avail;
         len += avail;
@@ -103,14 +108,14 @@ class Adafruit_MQTT_FONA : public Adafruit_MQTT {
             return len;
           }
         }
-        
+
       }
       Watchdog.reset();
       timeout -= MQTT_FONA_INTERAVAILDELAY;
       timeout -= MQTT_FONA_QUERYDELAY; // this is how long it takes to query the FONA for avail()
       delay(MQTT_FONA_INTERAVAILDELAY);
     }
-    
+
     return len;
   }
 
@@ -127,9 +132,9 @@ class Adafruit_MQTT_FONA : public Adafruit_MQTT {
       DEBUG_PRINTLN(F("Connection failed!"));
       return false;
     }
-    return true;    
+    return true;
   }
- 
+
  private:
   uint32_t serverip;
   Adafruit_FONA *fona;
