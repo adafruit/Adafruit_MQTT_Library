@@ -66,7 +66,7 @@
 #define MQTT_CONN_KEEPALIVE 300
 
 // Largest full packet we're able to send.
-// Need to be able to store at least ~90 chars for a connect packet with full 
+// Need to be able to store at least ~90 chars for a connect packet with full
 // 23 char client ID.
 #define MAXBUFFERSIZE (125)
 
@@ -110,6 +110,9 @@ class Adafruit_MQTT {
   // Disconnect from the MQTT server.  Returns true if disconnected, false
   // otherwise.
   virtual bool disconnect() = 0;  // Subclasses need to fill this in!
+
+  // Return true if connected to the MQTT server, otherwise false.
+  virtual bool connected() = 0;  // Subclasses need to fill this in!
 
   // Publish a message to a topic using the specified QoS level.  Returns true
   // if the message was published, false otherwise.

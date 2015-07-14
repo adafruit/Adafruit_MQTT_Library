@@ -28,7 +28,7 @@
 
 
 // delay in ms between calls of available()
-#define MQTT_CC3000_INTERAVAILDELAY 10  
+#define MQTT_CC3000_INTERAVAILDELAY 10
 
 
 // CC3000-specific version of the Adafruit_MQTT class.
@@ -37,7 +37,7 @@
 // in the compilation of the library).
 class Adafruit_MQTT_CC3000 : public Adafruit_MQTT {
  public:
-  Adafruit_MQTT_CC3000(Adafruit_CC3000 *cc3k, const char *server, uint16_t port, 
+  Adafruit_MQTT_CC3000(Adafruit_CC3000 *cc3k, const char *server, uint16_t port,
                        const char *cid, const char *user, const char *pass):
     Adafruit_MQTT(server, port, cid, user, pass),
     cc3000(cc3k)
@@ -66,9 +66,9 @@ class Adafruit_MQTT_CC3000 : public Adafruit_MQTT {
         if (!dnsretries) return false;
         delay(500);
       }
-      
+
       serverip = ip;
-      cc3000->printIPdotsRev(serverip);  
+      cc3000->printIPdotsRev(serverip);
       Serial.println();
     }
 
@@ -77,15 +77,24 @@ class Adafruit_MQTT_CC3000 : public Adafruit_MQTT {
     // connect to server
     DEBUG_PRINTLN(F("Connecting to TCP"));
     mqttclient = cc3000->connectTCP(serverip, portnum);
-    
+
     return mqttclient.connected();
   }
 
   bool disconnect() {
-    return (mqttclient.close() == 0); 
+    if (connected()) {
+      return (mqttclient.close() == 0);
+    }
+    else {
+      return true;
+    }
   }
 
-  uint16_t readPacket(uint8_t *buffer, uint8_t maxlen, int16_t timeout, 
+  bool connected() {
+    return mqttclient.connected();
+  }
+
+  uint16_t readPacket(uint8_t *buffer, uint8_t maxlen, int16_t timeout,
                       bool checkForValidPubPacket = false) {
     /* Read data until either the connection is closed, or the idle timeout is reached. */
     uint16_t len = 0;
@@ -137,7 +146,7 @@ class Adafruit_MQTT_CC3000 : public Adafruit_MQTT {
     }
     return true;
   }
- 
+
  private:
   uint32_t serverip;
   Adafruit_CC3000 *cc3000;

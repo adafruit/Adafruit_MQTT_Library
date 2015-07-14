@@ -27,7 +27,7 @@
 
 
 // How long to delay waiting for new data to be available in readPacket.
-#define MQTT_CLIENT_READINTERVAL_MS 10  
+#define MQTT_CLIENT_READINTERVAL_MS 10
 
 
 // MQTT client implementation for a generic Arduino Client interface.  Can work
@@ -44,10 +44,11 @@ class Adafruit_MQTT_Client : public Adafruit_MQTT {
 
   bool connectServer();
   bool disconnect();
-  uint16_t readPacket(uint8_t *buffer, uint8_t maxlen, int16_t timeout, 
+  bool connected();
+  uint16_t readPacket(uint8_t *buffer, uint8_t maxlen, int16_t timeout,
                       bool checkForValidPubPacket = false);
   bool sendPacket(uint8_t *buffer, uint8_t len);
- 
+
  private:
   Client* client;
 };
