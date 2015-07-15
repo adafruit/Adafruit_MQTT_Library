@@ -1,4 +1,4 @@
-# Adafruit MQTT Library
+# Adafruit MQTT Library [![Build Status](https://travis-ci.org/adafruit/Adafruit_MQTT_Library.svg?branch=master)](https://travis-ci.org/adafruit/Adafruit_MQTT_Library)
 
 Arduino library for MQTT support, including access to Adafruit IO.  Works with
 the Adafruit CC3000, FONA, ESP8266 Arduino platforms, and anything that supports
