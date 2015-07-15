@@ -9,8 +9,8 @@ publish and subscribe to feeds.  Note that this does not support the full MQTT
 spec but is intended to support enough for QoS 0 and 1 publishing.
 
 Depends on the following other libraries depending on the target platform:
-   
-   - [Adafruit SleepyDog](https://github.com/adafruit/Adafruit_SleepyDog), watchdog 
+
+   - [Adafruit SleepyDog](https://github.com/adafruit/Adafruit_SleepyDog), watchdog
    library used by FONA and CC3000 code for reliability.
 
    - [Adafruit CC3000](https://github.com/adafruit/Adafruit_CC3000_Library), required

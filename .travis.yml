@@ -12,7 +12,7 @@ install:
   - arduino --pref "boardsmanager.additional.urls=http://arduino.esp8266.com/package_esp8266com_index.json" --save-prefs
   - arduino --install-boards esp8266:esp8266 > /dev/null
   - arduino --install-boards arduino:sam > /dev/null
-  - arduino --install-library "Adafruit SleepyDog Library"
+  - arduino --install-library "Adafruit SleepyDog Library,Adafruit FONA Library"
 script:
   - arduino --board arduino:avr:uno --save-prefs
   - arduino --verify $PWD/examples/mqtt_cc3k/mqtt_cc3k.ino
