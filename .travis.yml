@@ -1,6 +1,6 @@
 language: c
 before_install:
-  - curl -SLs https://raw.githubusercontent.com/adafruit/travis-ci-arduino/master/install.sh | bash
+  - source <(curl -SLs https://raw.githubusercontent.com/adafruit/travis-ci-arduino/master/install.sh)
 install:
   - arduino --install-library "Adafruit SleepyDog Library,Adafruit FONA Library"
 script:
