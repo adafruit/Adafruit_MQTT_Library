@@ -1,0 +1,28 @@
+language: c
+before_install:
+  - "/sbin/start-stop-daemon --start --quiet --pidfile /tmp/custom_xvfb_1.pid --make-pidfile --background --exec /usr/bin/Xvfb -- :1 -ac -screen 0 1280x1024x16"
+  - sleep 3
+  - export DISPLAY=:1.0
+  - wget http://downloads.arduino.cc/arduino-1.6.5-linux64.tar.xz
+  - tar xf arduino-1.6.5-linux64.tar.xz
+  - sudo mv arduino-1.6.5 /usr/local/share/arduino
+  - sudo ln -s /usr/local/share/arduino/arduino /usr/local/bin/arduino
+install:
+  - ln -s $PWD /usr/local/share/arduino/libraries/Adafruit_MQTT
+  - arduino --pref "boardsmanager.additional.urls=http://arduino.esp8266.com/package_esp8266com_index.json" --save-prefs
+  - arduino --install-boards esp8266:esp8266 > /dev/null
+  - arduino --install-boards arduino:sam > /dev/null
+  - arduino --install-library "Adafruit SleepyDog Library"
+script:
+  - arduino --board arduino:avr:uno --save-prefs
+  - arduino --verify $PWD/examples/mqtt_cc3k/mqtt_cc3k.ino
+  - arduino --verify $PWD/examples/mqtt_fona/mqtt_fona.ino
+  - arduino --board arduino:sam:arduino_due_x --save-prefs
+  - arduino --verify $PWD/examples/mqtt_cc3k/mqtt_cc3k.ino
+  - arduino --verify $PWD/examples/mqtt_fona/mqtt_fona.ino
+  - arduino --board esp8266:esp8266:generic --save-prefs
+  - arduino --verify $PWD/examples/mqtt_esp8266/mqtt_esp8266.ino
+notifications:
+  email:
+    on_success: change
+    on_failure: change
