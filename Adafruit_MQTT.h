@@ -94,6 +94,8 @@ class Adafruit_MQTT {
  public:
   Adafruit_MQTT(const char *server, uint16_t port, const char *cid,
                 const char *user, const char *pass);
+  Adafruit_MQTT(const __FlashStringHelper *server, uint16_t port, const __FlashStringHelper *cid,
+                const __FlashStringHelper *user, const __FlashStringHelper *pass);
   virtual ~Adafruit_MQTT() {}
 
   // Connect to the MQTT server.  Returns 0 on success, otherwise an error code
@@ -124,7 +126,12 @@ class Adafruit_MQTT {
 
   // Publish a message to a topic using the specified QoS level.  Returns true
   // if the message was published, false otherwise.
+  // The topic must be stored in PROGMEM. It can either be a
+  // char*, or a __FlashStringHelper* (the result of the F() macro).
   bool publish(const char *topic, const char *payload, uint8_t qos);
+  bool publish(const __FlashStringHelper *topic, const char *payload, uint8_t qos) {
+    return publish((const char *)topic, payload, qos);
+  }
 
   // Add a subscription to receive messages for a topic.  Returns true if the
   // subscription could be added or was already present, false otherwise.
@@ -180,6 +187,7 @@ class Adafruit_MQTT {
 class Adafruit_MQTT_Publish {
  public:
   Adafruit_MQTT_Publish(Adafruit_MQTT *mqttserver, const char *feed, uint8_t qos = 0);
+  Adafruit_MQTT_Publish(Adafruit_MQTT *mqttserver, const __FlashStringHelper *feed, uint8_t qos = 0);
 
   bool publish(const char *s);
   bool publish(double f, uint8_t precision=2);  // Precision controls the minimum number of digits after decimal.
@@ -196,6 +204,7 @@ private:
 class Adafruit_MQTT_Subscribe {
  public:
   Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver, const char *feedname, uint8_t q=0);
+  Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver, const __FlashStringHelper *feedname, uint8_t q=0);
 
   bool setCallback(void (*callback)(char *));
 
