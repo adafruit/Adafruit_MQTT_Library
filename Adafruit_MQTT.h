@@ -128,8 +128,8 @@ class Adafruit_MQTT {
   // if the message was published, false otherwise.
   // The topic must be stored in PROGMEM. It can either be a
   // char*, or a __FlashStringHelper* (the result of the F() macro).
-  bool publish(const char *topic, const char *payload, uint8_t qos);
-  bool publish(const __FlashStringHelper *topic, const char *payload, uint8_t qos) {
+  bool publish(const char *topic, const char *payload, uint8_t qos = 0);
+  bool publish(const __FlashStringHelper *topic, const char *payload, uint8_t qos = 0) {
     return publish((const char *)topic, payload, qos);
   }
 
