@@ -1,14 +1,11 @@
 language: c
+sudo: false
 before_install:
   - source <(curl -SLs https://raw.githubusercontent.com/adafruit/travis-ci-arduino/master/install.sh)
 install:
   - arduino --install-library "Adafruit SleepyDog Library,Adafruit FONA Library,Adafruit CC3000 Library"
 script:
-  - arduino --board arduino:avr:uno --save-prefs
-  - arduino --verify $PWD/examples/mqtt_cc3k/mqtt_cc3k.ino
-  - arduino --verify $PWD/examples/mqtt_fona/mqtt_fona.ino
-  - arduino --board esp8266:esp8266:generic --save-prefs
-  - arduino --verify $PWD/examples/mqtt_esp8266/mqtt_esp8266.ino
+  - build_main_platforms
 notifications:
   email:
     on_success: change
