@@ -94,6 +94,8 @@ class Adafruit_MQTT {
  public:
   Adafruit_MQTT(const char *server, uint16_t port, const char *cid,
                 const char *user, const char *pass);
+  Adafruit_MQTT(const __FlashStringHelper *server, uint16_t port, const __FlashStringHelper *cid,
+                const __FlashStringHelper *user, const __FlashStringHelper *pass);
   virtual ~Adafruit_MQTT() {}
 
   // Connect to the MQTT server.  Returns 0 on success, otherwise an error code
@@ -105,7 +107,15 @@ class Adafruit_MQTT {
   //    4 = Bad username or password
   //    5 = Not authenticated
   //    6 = Failed to subscribe
+  // Use connectErrorString() to get a printable string version of the
+  // error.
   int8_t connect();
+
+  // Return a printable string version of the error code returned by
+  // connect(). This returns a __FlashStringHelper*, which points to a
+  // string stored in flash, but can be directly passed to e.g.
+  // Serial.println without any further processing.
+  const __FlashStringHelper* connectErrorString(int8_t code);
 
   // Disconnect from the MQTT server.  Returns true if disconnected, false
   // otherwise.
@@ -116,10 +126,17 @@ class Adafruit_MQTT {
 
   // Publish a message to a topic using the specified QoS level.  Returns true
   // if the message was published, false otherwise.
-  bool publish(const char *topic, char *payload, uint8_t qos);
+  // The topic must be stored in PROGMEM. It can either be a
+  // char*, or a __FlashStringHelper* (the result of the F() macro).
+  bool publish(const char *topic, const char *payload, uint8_t qos = 0);
+  bool publish(const __FlashStringHelper *topic, const char *payload, uint8_t qos = 0) {
+    return publish((const char *)topic, payload, qos);
+  }
 
   // Add a subscription to receive messages for a topic.  Returns true if the
-  // subscription could be added, false otherwise.
+  // subscription could be added or was already present, false otherwise.
+  // Must be called before connect(), subscribing after the connection
+  // is made is not currently supported.
   bool subscribe(Adafruit_MQTT_Subscribe *sub);
 
   // Check if any subscriptions have new messages.  Will return a reference to
@@ -161,7 +178,7 @@ class Adafruit_MQTT {
 
   // Functions to generate MQTT packets.
   uint8_t connectPacket(uint8_t *packet);
-  uint8_t publishPacket(uint8_t *packet, const char *topic, char *payload, uint8_t qos);
+  uint8_t publishPacket(uint8_t *packet, const char *topic, const char *payload, uint8_t qos);
   uint8_t subscribePacket(uint8_t *packet, const char *topic, uint8_t qos);
   uint8_t pingPacket(uint8_t *packet);
 };
@@ -170,8 +187,9 @@ class Adafruit_MQTT {
 class Adafruit_MQTT_Publish {
  public:
   Adafruit_MQTT_Publish(Adafruit_MQTT *mqttserver, const char *feed, uint8_t qos = 0);
+  Adafruit_MQTT_Publish(Adafruit_MQTT *mqttserver, const __FlashStringHelper *feed, uint8_t qos = 0);
 
-  bool publish(char *s);
+  bool publish(const char *s);
   bool publish(double f, uint8_t precision=2);  // Precision controls the minimum number of digits after decimal.
                                                 // This might be ignored and a higher precision value sent.
   bool publish(int32_t i);
@@ -186,13 +204,17 @@ private:
 class Adafruit_MQTT_Subscribe {
  public:
   Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver, const char *feedname, uint8_t q=0);
+  Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver, const __FlashStringHelper *feedname, uint8_t q=0);
 
   bool setCallback(void (*callback)(char *));
 
   const char *topic;
   uint8_t qos;
 
-  uint8_t * lastread[SUBSCRIPTIONDATALEN];
+  uint8_t lastread[SUBSCRIPTIONDATALEN];
+  // Number valid bytes in lastread. Limited to SUBSCRIPTIONDATALEN-1 to
+  // ensure nul terminating lastread.
+  uint8_t datalen;
  private:
   Adafruit_MQTT *mqtt;
 };

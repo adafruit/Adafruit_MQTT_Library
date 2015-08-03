@@ -38,6 +38,7 @@ void printBuffer(uint8_t *buffer, uint8_t len) {
   DEBUG_PRINTER.println();
 }
 
+/* Not used now, but might be useful in the future
 static uint8_t *stringprint(uint8_t *p, char *s) {
   uint16_t len = strlen(s);
   p[0] = len >> 8; p++;
@@ -45,6 +46,7 @@ static uint8_t *stringprint(uint8_t *p, char *s) {
   memcpy(p, s, len);
   return p+len;
 }
+*/
 
 static uint8_t *stringprint_P(uint8_t *p, const char *s, uint16_t maxlen=0) {
   // If maxlen is specified (has a non-zero value) then use it as the maximum
@@ -80,6 +82,20 @@ Adafruit_MQTT::Adafruit_MQTT(const char *server, uint16_t port, const char *cid,
     subscriptions[i] = 0;
   }
 }
+
+Adafruit_MQTT::Adafruit_MQTT(const __FlashStringHelper *server, uint16_t port, const __FlashStringHelper *cid,
+                             const __FlashStringHelper *user, const __FlashStringHelper *pass) {
+  servername = (const char *)server;
+  portnum = port;
+  clientid = (const char *)cid;
+  username = (const char *)user;
+  password = (const char *)pass;
+
+  for (uint8_t i=0; i<MAXSUBSCRIPTIONS; i++) {
+    subscriptions[i] = 0;
+  }
+}
+
 
 /*
 Adafruit_MQTT::Adafruit_MQTT(char *server, uint16_t port, char *cid, char *user, char *pass) {
@@ -140,7 +156,20 @@ int8_t Adafruit_MQTT::connect() {
   return 0;
 }
 
-bool Adafruit_MQTT::publish(const char *topic, char *data, uint8_t qos) {
+const __FlashStringHelper* Adafruit_MQTT::connectErrorString(int8_t code) {
+   switch (code) {
+      case 1: return F("Wrong protocol");
+      case 2: return F("ID rejected");
+      case 3: return F("Server unavail");
+      case 4: return F("Bad user/pass");
+      case 5: return F("Not authed");
+      case 6: return F("Failed to subscribe");
+      case -1: return F("Connection failed");
+      default: return F("Unknown error");
+   }
+}
+
+bool Adafruit_MQTT::publish(const char *topic, const char *data, uint8_t qos) {
   // Construct and send publish packet.
   uint8_t len = publishPacket(buffer, topic, data, qos);
   if (!sendPacket(buffer, len))
@@ -163,22 +192,21 @@ bool Adafruit_MQTT::subscribe(Adafruit_MQTT_Subscribe *sub) {
   for (i=0; i<MAXSUBSCRIPTIONS; i++) {
     if (subscriptions[i] == sub) {
       DEBUG_PRINTLN(F("Already subscribed"));
-      break;
+      return true;
     }
   }
   if (i==MAXSUBSCRIPTIONS) { // add to subscriptionlist
-      for (i=0; i<MAXSUBSCRIPTIONS; i++) {
-  if (subscriptions[i] == 0) {
-    DEBUG_PRINT(F("Added sub ")); DEBUG_PRINTLN(i);
-    subscriptions[i] = sub;
-    break;
+    for (i=0; i<MAXSUBSCRIPTIONS; i++) {
+      if (subscriptions[i] == 0) {
+        DEBUG_PRINT(F("Added sub ")); DEBUG_PRINTLN(i);
+        subscriptions[i] = sub;
+        return true;
+      }
+    }
   }
-      } 
-  }
-  if (i==MAXSUBSCRIPTIONS) {
-    DEBUG_PRINTLN(F("no more subscription space :("));
-    return false;
-  }
+
+  DEBUG_PRINTLN(F("no more subscription space :("));
+  return false;
 }
 
 Adafruit_MQTT_Subscribe *Adafruit_MQTT::readSubscription(int16_t timeout) {
@@ -220,6 +248,7 @@ Adafruit_MQTT_Subscribe *Adafruit_MQTT::readSubscription(int16_t timeout) {
   }
   // extract out just the data, into the subscription object itself
   memcpy(subscriptions[i]->lastread, buffer+4+topiclen, datalen);
+  subscriptions[i]->datalen = datalen;
   DEBUG_PRINT(F("Data len: ")); DEBUG_PRINTLN(datalen);
   DEBUG_PRINT(F("Data: ")); DEBUG_PRINTLN((char *)subscriptions[i]->lastread);
 
@@ -294,7 +323,7 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
 }
 
 uint8_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic, 
-                                     char *data, uint8_t qos) {
+                                     const char *data, uint8_t qos) {
   uint8_t *p = packet;
   uint16_t len;
 
@@ -357,6 +386,13 @@ Adafruit_MQTT_Publish::Adafruit_MQTT_Publish(Adafruit_MQTT *mqttserver,
   qos = q;
 }
 
+Adafruit_MQTT_Publish::Adafruit_MQTT_Publish(Adafruit_MQTT *mqttserver,
+                                             const __FlashStringHelper *feed, uint8_t q) {
+  mqtt = mqttserver;
+  topic = (const char *)feed;
+  qos = q;
+}
+
 bool Adafruit_MQTT_Publish::publish(int32_t i) {
   char payload[18];
   itoa(i, payload, 10);
@@ -375,7 +411,7 @@ bool Adafruit_MQTT_Publish::publish(uint32_t i) {
   return mqtt->publish(topic, payload, qos);
 }
 
-bool Adafruit_MQTT_Publish::publish(char *payload) {
+bool Adafruit_MQTT_Publish::publish(const char *payload) {
   return mqtt->publish(topic, payload, qos);
 }
 
@@ -386,5 +422,12 @@ Adafruit_MQTT_Subscribe::Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver,
                                                  const char *feed, uint8_t q) {
   mqtt = mqttserver;
   topic = feed;
+  qos = q;
+}
+
+Adafruit_MQTT_Subscribe::Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver,
+                                                 const __FlashStringHelper *feed, uint8_t q) {
+  mqtt = mqttserver;
+  topic = (const char *)feed;
   qos = q;
 }
