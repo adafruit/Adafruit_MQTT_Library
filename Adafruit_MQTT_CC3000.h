@@ -95,10 +95,12 @@ class Adafruit_MQTT_CC3000 : public Adafruit_MQTT {
   }
 
   uint16_t readPacket(uint8_t *buffer, uint8_t maxlen, int16_t timeout,
-                      bool checkForValidPubPacket = false) {
+                      uint8_t checkForValidPacket = 0) {
     /* Read data until either the connection is closed, or the idle timeout is reached. */
     uint16_t len = 0;
     int16_t t = timeout;
+
+    memset(buffer, 0, maxlen);
 
     while (mqttclient.connected() && (timeout >= 0)) {
       //DEBUG_PRINT('.');
@@ -106,22 +108,45 @@ class Adafruit_MQTT_CC3000 : public Adafruit_MQTT {
         //DEBUG_PRINT('!');
         char c = mqttclient.read();
         timeout = t;  // reset the timeout
-        buffer[len] = c;
         //DEBUG_PRINTLN((uint8_t)c, HEX);
+
+	// if we are looking for a valid packet only, keep reading until we get the start byte
+	if (checkForValidPacket && (len == 0) && (((c >> 4) & 0xF) != checkForValidPacket))
+	  continue;
+
+        buffer[len] = c;
         len++;
+
         if (len == maxlen) {  // we read all we want, bail
-          DEBUG_PRINT(F("Read packet:\t"));
+          DEBUG_PRINTLN(F("Read packet:"));
           DEBUG_PRINTBUFFER(buffer, len);
           return len;
         }
 
         // special case where we just one one publication packet at a time
-        if (checkForValidPubPacket) {
-          if ((buffer[0] == (MQTT_CTRL_PUBLISH << 4)) && (buffer[1] == len-2)) {
-            // oooh a valid publish packet!
-            DEBUG_PRINT(F("Read PUBLISH packet:\t"));
-            DEBUG_PRINTBUFFER(buffer, len);
-            return len;
+        if (checkForValidPacket && len > 1) {
+	  // checkForValidPacket == MQTT_CTRL_PUBLISH, for example
+	  
+	  // find out length of full packet
+	  uint32_t remaininglen = 0, multiplier = 1;
+	  uint8_t *packetstart = buffer;
+	  do {
+	    packetstart++;
+	    remaininglen += ((uint32_t)(packetstart[0] & 0x7F)) * multiplier;
+	    multiplier *= 128;
+	    if (multiplier > 128*128*128) {
+	      //DEBUG_PRINTLN("bad packet");
+	      //return NULL;
+	    }
+	  } while (((packetstart[0] & 0x80) != 0) && (packetstart-buffer <= len)) ;
+
+	  packetstart++;
+          if (((buffer[0] >> 4) == checkForValidPacket) && (remaininglen == len-(packetstart-buffer))) {
+            // oooh a valid MQTT packet!
+	    DEBUG_PRINT(F("Read valid packet type ")); DEBUG_PRINT(checkForValidPacket);
+	    DEBUG_PRINT(" ("); DEBUG_PRINT(len) DEBUG_PRINT(F(" bytes):\n"));
+	    DEBUG_PRINTBUFFER(buffer, len);
+	    return len;
           }
         }
       }
@@ -133,6 +158,7 @@ class Adafruit_MQTT_CC3000 : public Adafruit_MQTT {
   }
 
   bool sendPacket(uint8_t *buffer, uint8_t len) {
+    DEBUG_PRINTLN("sendpkt");
     if (mqttclient.connected()) {
       uint16_t ret = mqttclient.write(buffer, len);
       DEBUG_PRINT(F("sendPacket returned: ")); DEBUG_PRINTLN(ret);
@@ -144,6 +170,7 @@ class Adafruit_MQTT_CC3000 : public Adafruit_MQTT {
       DEBUG_PRINTLN(F("Connection failed!"));
       return false;
     }
+    
     return true;
   }
 
