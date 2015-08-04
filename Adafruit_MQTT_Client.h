@@ -46,7 +46,7 @@ class Adafruit_MQTT_Client : public Adafruit_MQTT {
   bool disconnect();
   bool connected();
   uint16_t readPacket(uint8_t *buffer, uint8_t maxlen, int16_t timeout,
-                      bool checkForValidPubPacket = false);
+                      uint8_t checkForValidPacket = 0);
   bool sendPacket(uint8_t *buffer, uint8_t len);
 
  private:

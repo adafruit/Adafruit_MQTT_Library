@@ -50,6 +50,7 @@
 #define MQTT_CTRL_CONNECT 0x01
 #define MQTT_CTRL_CONNECTACK 0x02
 #define MQTT_CTRL_PUBLISH 0x03
+#define MQTT_CTRL_PUBACK 0x04
 #define MQTT_CTRL_SUBSCRIBE 0x08
 #define MQTT_CTRL_SUBACK 0x09
 #define MQTT_CTRL_PINGREQ 0x0C
@@ -163,7 +164,7 @@ class Adafruit_MQTT {
   // milliseconds) for data to be available.  If checkForValidPubPacket is true
   // then the received data is verified to make sure it's a complete packet.
   virtual uint16_t readPacket(uint8_t *buffer, uint8_t maxlen, int16_t timeout,
-                              bool checkForValidPubPacket = false) = 0;
+                              uint8_t checkForValidPacket = 0) = 0;
 
   // Shared state that subclasses can use:
   const char *servername;

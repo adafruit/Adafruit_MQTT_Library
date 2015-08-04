@@ -49,7 +49,7 @@ bool Adafruit_MQTT_Client::connected() {
 
 uint16_t Adafruit_MQTT_Client::readPacket(uint8_t *buffer, uint8_t maxlen,
                                           int16_t timeout,
-                                          bool checkForValidPubPacket) {
+					  uint8_t checkForValidPacket) {
   /* Read data until either the connection is closed, or the idle timeout is reached. */
   uint16_t len = 0;
   int16_t t = timeout;
@@ -60,20 +60,41 @@ uint16_t Adafruit_MQTT_Client::readPacket(uint8_t *buffer, uint8_t maxlen,
       //DEBUG_PRINT('!');
       char c = client->read();
       timeout = t;  // reset the timeout
-      buffer[len] = c;
       //DEBUG_PRINTLN((uint8_t)c, HEX);
+
+      // if we are looking for a valid packet only, keep reading until we get the start byte
+      if (checkForValidPacket && (len == 0) && ((c >> 4) != checkForValidPacket))
+	continue;
+
+      buffer[len] = c;
       len++;
       if (len == maxlen) {  // we read all we want, bail
-        DEBUG_PRINT(F("Read packet:\t"));
+        DEBUG_PRINTLN(F("Read packet:"));
         DEBUG_PRINTBUFFER(buffer, len);
         return len;
       }
 
       // special case where we just one one publication packet at a time
-      if (checkForValidPubPacket) {
-        if ((buffer[0] == (MQTT_CTRL_PUBLISH << 4)) && (buffer[1] == len-2)) {
+      if (checkForValidPacket) {
+	// checkForValidPacket == MQTT_CTRL_PUBLISH, for example
+
+	// find out length of full packet
+	uint32_t remaininglen = 0, multiplier = 1;
+	uint8_t *packetstart = buffer;
+	do {
+	  packetstart++;
+	  remaininglen += ((uint32_t)(packetstart[0] & 0x7F)) * multiplier;
+	  multiplier *= 128;
+	  if (multiplier > 128*128*128)
+	    return NULL;
+	} while ((packetstart[0] & 0x80) != 0);
+
+	packetstart++;
+
+        if (((buffer[0] >> 4) == checkForValidPacket) && (remaininglen == len-(packetstart-buffer))) {
           // oooh a valid publish packet!
-          DEBUG_PRINT(F("Read PUBLISH packet:\t"));
+          DEBUG_PRINT(F("Read valid packet type ")); DEBUG_PRINT(checkForValidPacket);
+	  DEBUG_PRINT(" ("); DEBUG_PRINT(len) DEBUG_PRINT(F(" bytes):\n"));
           DEBUG_PRINTBUFFER(buffer, len);
           return len;
         }
