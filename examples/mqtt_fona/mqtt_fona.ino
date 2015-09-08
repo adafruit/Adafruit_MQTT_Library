@@ -58,7 +58,7 @@ const char MQTT_SERVER[] PROGMEM    = AIO_SERVER;
 // Set a unique MQTT client ID using the AIO key + the date and time the sketch
 // was compiled (so this should be unique across multiple devices for a user,
 // alternatively you can manually set this to a GUID or other random value).
-const char MQTT_CLIENTID[] PROGMEM  = AIO_KEY __DATE__ __TIME__;
+const char MQTT_CLIENTID[] PROGMEM  = __TIME__ AIO_USERNAME;
 const char MQTT_USERNAME[] PROGMEM  = AIO_USERNAME;
 const char MQTT_PASSWORD[] PROGMEM  = AIO_KEY;
 
