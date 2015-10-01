@@ -119,13 +119,13 @@ int8_t Adafruit_MQTT::connect() {
   // Connect to the server.
   if (!connectServer())
     return -1;
-  
+
   // Construct and send connect packet.
   uint8_t len = connectPacket(buffer);
   if (!sendPacket(buffer, len))
     return -1;
 
-  // Read connect response packet and verify it  
+  // Read connect response packet and verify it
   len = readPacket(buffer, 4, CONNECT_TIMEOUT_MS);
   if (len != 4)
     return -1;
@@ -143,7 +143,7 @@ int8_t Adafruit_MQTT::connect() {
     uint8_t len = subscribePacket(buffer, subscriptions[i]->topic, subscriptions[i]->qos);
     if (!sendPacket(buffer, len))
       return -1;
-    
+
     // Get SUBACK
     len = readPacket(buffer, 5, CONNECT_TIMEOUT_MS);
     DEBUG_PRINT(F("SUBACK:\t"));
