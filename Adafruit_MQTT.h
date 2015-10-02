@@ -29,7 +29,7 @@
 #endif
 
 // Uncomment/comment to turn on/off debug output messages.
-#define MQTT_DEBUG
+//#define MQTT_DEBUG
 
 // Set where debug messages will be printed.
 #define DEBUG_PRINTER Serial
