@@ -26,7 +26,7 @@ void printBuffer(uint8_t *buffer, uint8_t len) {
   for (uint8_t i=0; i<len; i++) {
     if (isprint(buffer[i]))
       DEBUG_PRINTER.write(buffer[i]);
-    else  
+    else
       DEBUG_PRINTER.print(" ");
     DEBUG_PRINTER.print(F(" [0x"));
     if (buffer[i] < 0x10)
@@ -96,25 +96,6 @@ Adafruit_MQTT::Adafruit_MQTT(const __FlashStringHelper *server, uint16_t port, c
   }
 }
 
-
-/*
-Adafruit_MQTT::Adafruit_MQTT(char *server, uint16_t port, char *cid, char *user, char *pass) {
-  strncpy(servername, server, SERVERNAME_SIZE);
-  servername[SERVERNAME_SIZE-1] = 0;
-  portnum = port;
-  serverip = 0;
-
-  strncpy(clientid, cid, CLIENTID_SIZE);
-  clientid[CLIENTID_SIZE-1] = 0;
-
-  strncpy(username, user, USERNAME_SIZE);
-  username[USERNAME_SIZE-1] = 0;
-
-  strncpy(password, pass, PASSWORD_SIZE);
-  password[PASSWORD_SIZE-1] = 0;
-}
-*/
-
 int8_t Adafruit_MQTT::connect() {
   // Connect to the server.
   if (!connectServer())
@@ -174,7 +155,7 @@ bool Adafruit_MQTT::publish(const char *topic, const char *data, uint8_t qos) {
   uint8_t len = publishPacket(buffer, topic, data, qos);
   if (!sendPacket(buffer, len))
     return false;
-  
+
   // If QOS level is high enough verify the response packet.
   if (qos > 0) {
     len = readPacket(buffer, 4, PUBLISH_TIMEOUT_MS);
@@ -262,11 +243,11 @@ bool Adafruit_MQTT::ping(uint8_t times) {
     uint8_t len = pingPacket(buffer);
     if (!sendPacket(buffer, len))
       return false;
-    
+
     // Process ping reply.
     len = readPacket(buffer, 2, PING_TIMEOUT_MS);
     if (buffer[0] == (MQTT_CTRL_PINGRESP << 4))
-      return true;  
+      return true;
   }
   return false;
 }
@@ -287,7 +268,10 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
   p+=2;
   // fill in packet[1] last
 
-  p = stringprint_P(p, PSTR("MQIsdp"));
+  if(MQTT_PROTOCOL_LEVEL == 3)
+    p = stringprint_P(p, PSTR("MQIsdp"));
+  else
+    p = stringprint_P(p, PSTR("MQTT"));
 
   p[0] = MQTT_PROTOCOL_LEVEL;
   p++;
@@ -305,7 +289,13 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
   p[0] = MQTT_CONN_KEEPALIVE & 0xFF;
   p++;
 
-  p = stringprint_P(p, clientid, 23);  // Limit client ID to first 23 characters.
+  if(MQTT_PROTOCOL_LEVEL == 3) {
+    p = stringprint_P(p, clientid, 23);  // Limit client ID to first 23 characters.
+  } else {
+    if (pgm_read_byte(clientid) != 0) {
+      p = stringprint_P(p, clientid);
+    }
+  }
 
   if (pgm_read_byte(username) != 0) {
     p = stringprint_P(p, username);
