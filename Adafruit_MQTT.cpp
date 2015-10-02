@@ -294,6 +294,12 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
   } else {
     if (pgm_read_byte(clientid) != 0) {
       p = stringprint_P(p, clientid);
+    } else {
+      p[0] = 0x0;
+      p++;
+      p[0] = 0x0;
+      p++;
+      DEBUG_PRINTLN(F("SERVER GENERATING CLIENT ID"));
     }
   }
 

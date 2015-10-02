@@ -45,9 +45,7 @@
   #define DEBUG_PRINTBUFFER(buffer, len) {}
 #endif
 
-#ifndef MQTT_PROTOCOL_LEVEL
-  #define MQTT_PROTOCOL_LEVEL 4
-#endif
+#define MQTT_PROTOCOL_LEVEL 4
 
 #define MQTT_CTRL_CONNECT 0x01
 #define MQTT_CTRL_CONNECTACK 0x02
@@ -65,9 +63,7 @@
 #define PING_TIMEOUT_MS 500
 
 // Adjust as necessary, in seconds.  Default to 5 minutes.
-#ifndef MQTT_CONN_KEEPALIVE
-  #define MQTT_CONN_KEEPALIVE 300
-#endif
+#define MQTT_CONN_KEEPALIVE 300
 
 // Largest full packet we're able to send.
 // Need to be able to store at least ~90 chars for a connect packet with full
