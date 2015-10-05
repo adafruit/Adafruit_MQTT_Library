@@ -279,7 +279,7 @@ Adafruit_MQTT_Subscribe *Adafruit_MQTT::readSubscription(int16_t timeout) {
       // to make comparison case insensitive.
       if (strncasecmp_P((char*)buffer+4, subscriptions[i]->topic, topiclen) == 0) {
         DEBUG_PRINT(F("Found sub #")); DEBUG_PRINTLN(i);
-        break;        
+        break;
       }
     }
   }

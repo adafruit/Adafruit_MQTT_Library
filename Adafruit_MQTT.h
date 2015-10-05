@@ -124,9 +124,8 @@ class Adafruit_MQTT {
   // Serial.println without any further processing.
   const __FlashStringHelper* connectErrorString(int8_t code);
 
-  // Disconnect from the MQTT server.  Returns true if disconnected, false
-  // otherwise.
-  virtual bool disconnect() = 0;  // Subclasses need to fill this in!
+  // Sends MQTT disconnect packet and calls disconnectServer()
+  bool disconnect();
 
   // Return true if connected to the MQTT server, otherwise false.
   virtual bool connected() = 0;  // Subclasses need to fill this in!
@@ -172,6 +171,9 @@ class Adafruit_MQTT {
   // Connect to the server and return true if successful, false otherwise.
   virtual bool connectServer() = 0;
 
+  // Disconnect from the MQTT server.  Returns true if disconnected, false otherwise.
+  virtual bool disconnectServer() = 0;  // Subclasses need to fill this in!
+
   // Send data to the server specified by the buffer and length of data.
   virtual bool sendPacket(uint8_t *buffer, uint8_t len) = 0;
 
@@ -200,6 +202,7 @@ class Adafruit_MQTT {
 
   // Functions to generate MQTT packets.
   uint8_t connectPacket(uint8_t *packet);
+  uint8_t disconnectPacket(uint8_t *packet);
   uint8_t publishPacket(uint8_t *packet, const char *topic, const char *payload, uint8_t qos);
   uint8_t subscribePacket(uint8_t *packet, const char *topic, uint8_t qos);
   uint8_t unsubscribePacket(uint8_t *packet, const char *topic);
