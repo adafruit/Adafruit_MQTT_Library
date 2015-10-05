@@ -163,9 +163,8 @@ class Adafruit_MQTT {
   // that subscribe should be called first for each topic that receives messages!
   Adafruit_MQTT_Subscribe *readSubscription(int16_t timeout=0);
 
-  // Ping the server to ensure the connection is still alive.  Returns true if
-  // successful, otherwise false.
-  bool ping(uint8_t t);
+  // Ping the server to ensure the connection is still alive.
+  bool ping();
 
  protected:
   // Interface that subclasses need to implement:
