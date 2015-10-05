@@ -126,6 +126,8 @@ int8_t Adafruit_MQTT::connect() {
       return -1;
 
     // Check for SUBACK if using MQTT 3.1.1 or higher
+    // TODO: The Server is permitted to start sending PUBLISH packets matching the
+    // Subscription before the Server sends the SUBACK Packet.
     if(MQTT_PROTOCOL_LEVEL > 3) {
       len = readPacket(buffer, 5, CONNECT_TIMEOUT_MS);
       DEBUG_PRINT(F("SUBACK:\t"));
@@ -344,7 +346,7 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
   p[0] = MQTT_CONN_CLEANSESSION;
 
   // set the will flags if needed
-  if (pgm_read_byte(will_topic) != 0) {
+  if (will_topic && pgm_read_byte(will_topic) != 0) {
 
     p[0] |= MQTT_CONN_WILLFLAG;
 
@@ -381,6 +383,11 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
       p++;
       DEBUG_PRINTLN(F("SERVER GENERATING CLIENT ID"));
     }
+  }
+
+  if (will_topic && pgm_read_byte(will_topic) != 0) {
+    p = stringprint_P(p, will_topic);
+    p = stringprint_P(p, will_payload);
   }
 
   if (pgm_read_byte(username) != 0) {
