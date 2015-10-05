@@ -70,30 +70,39 @@ static uint8_t *stringprint_P(uint8_t *p, const char *s, uint16_t maxlen=0) {
 
 // Adafruit_MQTT Definition ////////////////////////////////////////////////////
 
-Adafruit_MQTT::Adafruit_MQTT(const char *server, uint16_t port, const char *cid,
-                             const char *user, const char *pass) {
+Adafruit_MQTT::Adafruit_MQTT(const char *server, uint16_t port,
+                             const char *user, const char *pass,
+                             const char *cid) {
   servername = server;
   portnum = port;
   clientid = cid;
   username = user;
   password = pass;
 
+  // reset subscriptions
   for (uint8_t i=0; i<MAXSUBSCRIPTIONS; i++) {
     subscriptions[i] = 0;
   }
+
 }
 
-Adafruit_MQTT::Adafruit_MQTT(const __FlashStringHelper *server, uint16_t port, const __FlashStringHelper *cid,
-                             const __FlashStringHelper *user, const __FlashStringHelper *pass) {
+Adafruit_MQTT::Adafruit_MQTT(const __FlashStringHelper *server,
+                             uint16_t port,
+                             const __FlashStringHelper *user,
+                             const __FlashStringHelper *pass,
+                             const __FlashStringHelper *cid) {
+
   servername = (const char *)server;
   portnum = port;
   clientid = (const char *)cid;
   username = (const char *)user;
   password = (const char *)pass;
 
+  // reset subscriptions
   for (uint8_t i=0; i<MAXSUBSCRIPTIONS; i++) {
     subscriptions[i] = 0;
   }
+
 }
 
 int8_t Adafruit_MQTT::connect() {
@@ -518,7 +527,6 @@ uint8_t Adafruit_MQTT::disconnectPacket(uint8_t *packet) {
   DEBUG_PRINTBUFFER(buffer, 2);
   return 2;
 }
-
 
 // Adafruit_MQTT_Publish Definition ////////////////////////////////////////////
 
