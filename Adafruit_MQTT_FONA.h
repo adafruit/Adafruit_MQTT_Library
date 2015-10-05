@@ -51,7 +51,7 @@ class Adafruit_MQTT_FONA : public Adafruit_MQTT {
     return fona->TCPconnect(server, portnum);
   }
 
-  bool disconnect() {
+  bool disconnectServer() {
     return fona->TCPclose();
   }
 

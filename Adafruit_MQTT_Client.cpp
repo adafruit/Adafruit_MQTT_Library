@@ -33,7 +33,7 @@ bool Adafruit_MQTT_Client::connectServer() {
   return r != 0;
 }
 
-bool Adafruit_MQTT_Client::disconnect() {
+bool Adafruit_MQTT_Client::disconnectServer() {
   // Stop connection if connected and return success (stop has no indication of
   // failure).
   if (client->connected()) {

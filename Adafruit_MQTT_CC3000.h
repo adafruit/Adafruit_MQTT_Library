@@ -81,7 +81,7 @@ class Adafruit_MQTT_CC3000 : public Adafruit_MQTT {
     return mqttclient.connected();
   }
 
-  bool disconnect() {
+  bool disconnectServer() {
     if (connected()) {
       return (mqttclient.close() == 0);
     }
