@@ -193,6 +193,7 @@ class Adafruit_MQTT {
   uint8_t will_qos;
   uint8_t will_retain;
   uint8_t buffer[MAXBUFFERSIZE];  // one buffer, used for all incoming/outgoing
+  uint16_t packet_id_counter = 0;
 
  private:
   Adafruit_MQTT_Subscribe *subscriptions[MAXSUBSCRIPTIONS];

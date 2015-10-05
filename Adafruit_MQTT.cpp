@@ -225,7 +225,7 @@ bool Adafruit_MQTT::unsubscribe(Adafruit_MQTT_Subscribe *sub) {
 
       // if QoS for this subscription is 1 or 2, we need
       // to wait for the unsuback to confirm unsubscription
-      if(subscriptions[i]->qos > 0) {
+      if(subscriptions[i]->qos > 0 && MQTT_PROTOCOL_LEVEL > 3) {
 
         // wait for UNSUBACK
         len = readPacket(buffer, 5, CONNECT_TIMEOUT_MS);
@@ -404,6 +404,16 @@ uint8_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
   // fill in packet[1] last
   p+=2;
 
+  // add packet identifier. used for checking PUBACK in QOS > 0
+  if(qos > 0) {
+    p[0] = (packet_id_counter >> 8) & 0xFF;
+    p[1] = packet_id_counter & 0xFF;
+    p+=2;
+
+    // increment the packet id
+    packet_id_counter++;
+  }
+
   p = stringprint_P(p, topic);
 
   memcpy(p, data, strlen(data));
@@ -424,10 +434,13 @@ uint8_t Adafruit_MQTT::subscribePacket(uint8_t *packet, const char *topic,
   // fill in packet[1] last
   p+=2;
 
-  // put in a message id,
-  p[0] = 0xAD;
-  p[1] = 0xAF;
+  // packet identifier. used for checking SUBACK
+  p[0] = (packet_id_counter >> 8) & 0xFF;
+  p[1] = packet_id_counter & 0xFF;
   p+=2;
+
+  // increment the packet id
+  packet_id_counter++;
 
   p = stringprint_P(p, topic);
 
@@ -450,11 +463,13 @@ uint8_t Adafruit_MQTT::unsubscribePacket(uint8_t *packet, const char *topic) {
   // fill in packet[1] last
   p+=2;
 
-  // packet identifier. used for QoS > 1
-  // TODO: this shouldn't be a static value
-  p[0] = 0xAD;
-  p[1] = 0xAF;
+  // packet identifier. used for checking UNSUBACK
+  p[0] = (packet_id_counter >> 8) & 0xFF;
+  p[1] = packet_id_counter & 0xFF;
   p+=2;
+
+  // increment the packet id
+  packet_id_counter++;
 
   p = stringprint_P(p, topic);
 
