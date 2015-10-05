@@ -131,6 +131,14 @@ class Adafruit_MQTT {
   // Return true if connected to the MQTT server, otherwise false.
   virtual bool connected() = 0;  // Subclasses need to fill this in!
 
+  // Set MQTT last will topic, payload, QOS, and retain. This needs
+  // to be called before connect() because it is sent as part of the
+  // connect control packet.
+  bool will(const char *topic, const char *payload, uint8_t qos = 0, uint8_t retain = 0);
+  bool will(const __FlashStringHelper *topic, const char *payload, uint8_t qos = 0, uint8_t retain = 0) {
+    return will((const char *)topic, payload, qos, retain);
+  }
+
   // Publish a message to a topic using the specified QoS level.  Returns true
   // if the message was published, false otherwise.
   // The topic must be stored in PROGMEM. It can either be a
