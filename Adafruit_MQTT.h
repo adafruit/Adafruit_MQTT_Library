@@ -100,7 +100,7 @@ class Adafruit_MQTT_Subscribe;  // forward decl
 class Adafruit_MQTT {
  public:
   Adafruit_MQTT(const char *server = "io.adafruit.com",
-                uint16_t port = 1883, 
+                uint16_t port = 1883,
                 const char *user = "",
                 const char *pass = "",
                 const char *cid = "");

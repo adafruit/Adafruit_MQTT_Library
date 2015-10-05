@@ -45,18 +45,14 @@
 // Setup the main CC3000 class, just like a normal CC3000 sketch.
 Adafruit_CC3000 cc3000 = Adafruit_CC3000(ADAFRUIT_CC3000_CS, ADAFRUIT_CC3000_IRQ, ADAFRUIT_CC3000_VBAT);
 
-// Store the MQTT server, client ID, username, and password in flash memory.
+// Store the MQTT server, username, and password in flash memory.
 // This is required for using the Adafruit MQTT library.
 const char MQTT_SERVER[] PROGMEM    = AIO_SERVER;
-// Set a unique MQTT client ID using the AIO key + the date and time the sketch
-// was compiled (so this should be unique across multiple devices for a user,
-// alternatively you can manually set this to a GUID or other random value).
-const char MQTT_CLIENTID[] PROGMEM  = __TIME__ AIO_USERNAME;
 const char MQTT_USERNAME[] PROGMEM  = AIO_USERNAME;
 const char MQTT_PASSWORD[] PROGMEM  = AIO_KEY;
 
 // Setup the CC3000 MQTT class by passing in the CC3000 class and MQTT server and login details.
-Adafruit_MQTT_CC3000 mqtt(&cc3000, MQTT_SERVER, AIO_SERVERPORT, MQTT_CLIENTID, MQTT_USERNAME, MQTT_PASSWORD);
+Adafruit_MQTT_CC3000 mqtt(&cc3000, MQTT_SERVER, AIO_SERVERPORT, MQTT_USERNAME, MQTT_PASSWORD);
 
 // You don't need to change anything below this line!
 #define halt(s) { Serial.println(F( s )); while(1);  }
