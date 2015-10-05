@@ -206,6 +206,50 @@ bool Adafruit_MQTT::subscribe(Adafruit_MQTT_Subscribe *sub) {
   return false;
 }
 
+bool Adafruit_MQTT::unsubscribe(Adafruit_MQTT_Subscribe *sub) {
+  uint8_t i;
+
+  // see if we are already subscribed
+  for (i=0; i<MAXSUBSCRIPTIONS; i++) {
+
+    if (subscriptions[i] == sub) {
+
+      DEBUG_PRINTLN(F("Found matching subscription and attempting to unsubscribe."));
+
+      // Construct and send unsubscribe packet.
+      uint8_t len = unsubscribePacket(buffer, subscriptions[i]->topic);
+
+      // sending unsubscribe failed
+      if (! sendPacket(buffer, len))
+        return false;
+
+      // if QoS for this subscription is 1 or 2, we need
+      // to wait for the unsuback to confirm unsubscription
+      if(subscriptions[i]->qos > 0) {
+
+        // wait for UNSUBACK
+        len = readPacket(buffer, 5, CONNECT_TIMEOUT_MS);
+        DEBUG_PRINT(F("UNSUBACK:\t"));
+        DEBUG_PRINTBUFFER(buffer, len);
+
+        if ((len != 5) || (buffer[0] != (MQTT_CTRL_UNSUBACK << 4))) {
+          return false;  // failure to unsubscribe
+        }
+
+      }
+
+      subscriptions[i] = 0;
+      return true;
+
+    }
+
+  }
+
+  // subscription not found, so we are unsubscribed
+  return true;
+
+}
+
 Adafruit_MQTT_Subscribe *Adafruit_MQTT::readSubscription(int16_t timeout) {
   uint8_t i, topiclen, datalen;
 
@@ -394,6 +438,31 @@ uint8_t Adafruit_MQTT::subscribePacket(uint8_t *packet, const char *topic,
   DEBUG_PRINTLN(F("MQTT subscription packet:"));
   DEBUG_PRINTBUFFER(buffer, len);
   return len;
+}
+
+uint8_t Adafruit_MQTT::unsubscribePacket(uint8_t *packet, const char *topic) {
+
+  uint8_t *p = packet;
+  uint16_t len;
+
+  p[0] = MQTT_CTRL_UNSUBSCRIBE << 4 | 0x1;
+  // fill in packet[1] last
+  p+=2;
+
+  // packet identifier. used for QoS > 1
+  // TODO: this shouldn't be a static value
+  p[0] = 0xAD;
+  p[1] = 0xAF;
+  p+=2;
+
+  p = stringprint_P(p, topic);
+
+  len = p - packet;
+  packet[1] = len-2; // don't include the 2 bytes of fixed header data
+  DEBUG_PRINTLN(F("MQTT unsubscription packet:"));
+  DEBUG_PRINTBUFFER(buffer, len);
+  return len;
+
 }
 
 uint8_t Adafruit_MQTT::pingPacket(uint8_t *packet) {
