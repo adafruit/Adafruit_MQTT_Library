@@ -189,6 +189,10 @@ class Adafruit_MQTT {
   const char *clientid;
   const char *username;
   const char *password;
+  const char *will_topic;
+  const char *will_payload;
+  uint8_t will_qos;
+  uint8_t will_retain;
   uint8_t buffer[MAXBUFFERSIZE];  // one buffer, used for all incoming/outgoing
 
  private:

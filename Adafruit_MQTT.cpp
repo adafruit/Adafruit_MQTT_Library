@@ -276,13 +276,29 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
   p[0] = MQTT_PROTOCOL_LEVEL;
   p++;
 
+  // always clean the session
   p[0] = MQTT_CONN_CLEANSESSION;
+
+  // set the will flags if needed
+  if (pgm_read_byte(will_topic) != 0) {
+
+    p[0] |= MQTT_CONN_WILLFLAG;
+
+    if(will_qos == 1)
+      p[0] |= MQTT_CONN_WILLQOS_1;
+    else if(will_qos == 2)
+      p[0] |= MQTT_CONN_WILLQOS_2;
+
+    if(will_retain == 1)
+      p[0] |= MQTT_CONN_WILLRETAIN;
+
+  }
+
   if (pgm_read_byte(username) != 0)
     p[0] |= MQTT_CONN_USERNAMEFLAG;
   if (pgm_read_byte(password) != 0)
     p[0] |= MQTT_CONN_PASSWORDFLAG;
   p++;
-  // TODO: add WILL support?
 
   p[0] = MQTT_CONN_KEEPALIVE >> 8;
   p++;
