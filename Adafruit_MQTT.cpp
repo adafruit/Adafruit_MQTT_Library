@@ -155,6 +155,18 @@ const __FlashStringHelper* Adafruit_MQTT::connectErrorString(int8_t code) {
    }
 }
 
+bool Adafruit_MQTT::disconnect() {
+
+  // Construct and send disconnect packet.
+  uint8_t len = disconnectPacket(buffer);
+  if (! sendPacket(buffer, len))
+    DEBUG_PRINTLN(F("Unable to send disconnect packet"));
+
+  return disconnectServer();
+
+}
+
+
 bool Adafruit_MQTT::publish(const char *topic, const char *data, uint8_t qos) {
   // Construct and send publish packet.
   uint8_t len = publishPacket(buffer, topic, data, qos);
@@ -495,6 +507,14 @@ uint8_t Adafruit_MQTT::pingPacket(uint8_t *packet) {
   packet[0] = MQTT_CTRL_PINGREQ << 4;
   packet[1] = 0;
   DEBUG_PRINTLN(F("MQTT ping packet:"));
+  DEBUG_PRINTBUFFER(buffer, 2);
+  return 2;
+}
+
+uint8_t Adafruit_MQTT::disconnectPacket(uint8_t *packet) {
+  packet[0] = MQTT_CTRL_DISCONNECT << 4;
+  packet[1] = 0;
+  DEBUG_PRINTLN(F("MQTT disconnect packet:"));
   DEBUG_PRINTBUFFER(buffer, 2);
   return 2;
 }
