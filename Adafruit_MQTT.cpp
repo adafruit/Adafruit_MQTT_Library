@@ -167,6 +167,22 @@ bool Adafruit_MQTT::publish(const char *topic, const char *data, uint8_t qos) {
   return true;
 }
 
+bool Adafruit_MQTT::will(const char *topic, const char *payload, uint8_t qos, uint8_t retain) {
+
+  if (connected()) {
+    DEBUG_PRINT(F("Will defined after connect"));
+    return false;
+  }
+
+  will_topic = topic;
+  will_payload = payload;
+  will_qos = qos;
+  will_retain = retain;
+
+  return true;
+
+}
+
 bool Adafruit_MQTT::subscribe(Adafruit_MQTT_Subscribe *sub) {
   uint8_t i;
   // see if we are already subscribed
