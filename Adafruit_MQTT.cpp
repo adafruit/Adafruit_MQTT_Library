@@ -128,14 +128,14 @@ int8_t Adafruit_MQTT::connect() {
     // Check for SUBACK if using MQTT 3.1.1 or higher
     // TODO: The Server is permitted to start sending PUBLISH packets matching the
     // Subscription before the Server sends the SUBACK Packet.
-    if(MQTT_PROTOCOL_LEVEL > 3) {
-      len = readPacket(buffer, 5, CONNECT_TIMEOUT_MS);
-      DEBUG_PRINT(F("SUBACK:\t"));
-      DEBUG_PRINTBUFFER(buffer, len);
-      if ((len != 5) || (buffer[0] != (MQTT_CTRL_SUBACK << 4))) {
-        return 6;  // failure to subscribe
-      }
-    }
+    // if(MQTT_PROTOCOL_LEVEL > 3) {
+    //   len = readPacket(buffer, 5, CONNECT_TIMEOUT_MS);
+    //   DEBUG_PRINT(F("SUBACK:\t"));
+    //   DEBUG_PRINTBUFFER(buffer, len);
+    //   if ((len != 5) || (buffer[0] != (MQTT_CTRL_SUBACK << 4))) {
+    //     return 6;  // failure to subscribe
+    //   }
+    // }
 
   }
 
