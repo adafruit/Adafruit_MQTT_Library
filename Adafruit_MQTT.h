@@ -154,6 +154,9 @@ class Adafruit_MQTT {
   // is made is not currently supported.
   bool subscribe(Adafruit_MQTT_Subscribe *sub);
 
+  // Unsubscribe from a previously subscribed MQTT topic.
+  bool unsubscribe(Adafruit_MQTT_Subscribe *sub);
+
   // Check if any subscriptions have new messages.  Will return a reference to
   // an Adafruit_MQTT_Subscribe object which has a new message.  Should be called
   // in the sketch's loop function to ensure new messages are recevied.  Note
