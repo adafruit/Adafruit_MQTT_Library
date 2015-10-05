@@ -35,10 +35,13 @@
 // and even other platforms like ESP8266.
 class Adafruit_MQTT_Client : public Adafruit_MQTT {
  public:
-  Adafruit_MQTT_Client(Client *client, const char *server, uint16_t port,
-                       const char *cid, const char *user,
-                       const char *pass):
-    Adafruit_MQTT(server, port, cid, user, pass),
+  Adafruit_MQTT_Client(Client *client,
+                       const char *server = "io.adafruit.com",
+                       uint16_t port = 1883,
+                       const char *user = "",
+                       const char *pass = "",
+                       const char *cid = ""):
+    Adafruit_MQTT(server, port, user, pass, cid),
     client(client)
   {}
 
