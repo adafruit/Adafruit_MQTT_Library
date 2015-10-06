@@ -74,8 +74,6 @@ void setup() {
 
   Serial.println(F("Adafruit MQTT demo"));
 
-  Serial.print(F("Free RAM: ")); Serial.println(getFreeRam(), DEC);
-
   // Initialise the Client
   Serial.print(F("\nInit the Client..."));
   Ethernet.begin(mac);
@@ -83,8 +81,6 @@ void setup() {
   
 
   mqtt.subscribe(&onoffbutton);
-
-  }
 }
 
 uint32_t x=0;
