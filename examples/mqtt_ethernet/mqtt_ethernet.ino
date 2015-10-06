@@ -35,6 +35,7 @@ byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 #define AIO_USERNAME    "...your AIO username (see https://accounts.adafruit.com)..."
 #define AIO_KEY         "...your AIO key..."
 
+
 /************ Global State (you don't need to change this!) ******************/
 
 //Set up the ethernet client
