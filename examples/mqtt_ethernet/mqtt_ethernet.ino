@@ -32,8 +32,8 @@ byte mac[] = {0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED};
 
 #define AIO_SERVER      "io.adafruit.com"
 #define AIO_SERVERPORT  1883
-#define AIO_USERNAME    "tapiralec"
-#define AIO_KEY         "f2983986545d28bdad80ba706b01bc1725417aab"
+#define AIO_USERNAME    "...your AIO username (see https://accounts.adafruit.com)..."
+#define AIO_KEY         "...your AIO key..."
 
 /************ Global State (you don't need to change this!) ******************/
 
