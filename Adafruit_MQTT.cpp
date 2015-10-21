@@ -287,7 +287,13 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
   p+=2;
   // fill in packet[1] last
 
+#if (MQTT_PROTOCOL_LEVEL == 4)
+  p = stringprint_P(p, PSTR("MQTT"));
+#elif (MQTT_PROTOCOL_LEVEL == 3)
   p = stringprint_P(p, PSTR("MQIsdp"));
+#else
+  #error "No MQTT version selected!"
+#endif
 
   p[0] = MQTT_PROTOCOL_LEVEL;
   p++;
