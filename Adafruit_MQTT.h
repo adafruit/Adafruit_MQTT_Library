@@ -45,6 +45,7 @@
   #define DEBUG_PRINTBUFFER(buffer, len) {}
 #endif
 
+// Use 3 (MQTT 3.0) or 4 (MQTT 3.1.1)
 #define MQTT_PROTOCOL_LEVEL 4
 
 #define MQTT_CTRL_CONNECT     0x1
