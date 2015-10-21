@@ -84,6 +84,7 @@ Adafruit_MQTT::Adafruit_MQTT(const char *server, uint16_t port,
     subscriptions[i] = 0;
   }
 
+  packet_id_counter = 0;
 }
 
 Adafruit_MQTT::Adafruit_MQTT(const __FlashStringHelper *server,
@@ -103,6 +104,7 @@ Adafruit_MQTT::Adafruit_MQTT(const __FlashStringHelper *server,
     subscriptions[i] = 0;
   }
 
+  packet_id_counter = 0;
 }
 
 int8_t Adafruit_MQTT::connect() {
@@ -355,10 +357,13 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
   p+=2;
   // fill in packet[1] last
 
-  if(MQTT_PROTOCOL_LEVEL == 3)
+#if MQTT_PROTOCOL_LEVEL == 3
     p = stringprint_P(p, PSTR("MQIsdp"));
-  else
+#elif MQTT_PROTOCOL_LEVEL == 4
     p = stringprint_P(p, PSTR("MQTT"));
+#else
+    #error "MQTT level not supported"
+#endif
 
   p[0] = MQTT_PROTOCOL_LEVEL;
   p++;
