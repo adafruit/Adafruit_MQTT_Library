@@ -325,20 +325,21 @@ Adafruit_MQTT_Subscribe *Adafruit_MQTT::readSubscription(int16_t timeout) {
   return subscriptions[i];
 }
 
-bool Adafruit_MQTT::ping() {
+bool Adafruit_MQTT::ping(uint8_t num = 1) {
 
-  // Construct and send ping packet.
-  uint8_t len = pingPacket(buffer);
-  if (!sendPacket(buffer, len))
-    return false;
-
-  // Process ping reply.
-  len = readPacket(buffer, 2, PING_TIMEOUT_MS);
-  if (buffer[0] == (MQTT_CTRL_PINGRESP << 4))
-    return true;
-
+  while (num--) {
+    // Construct and send ping packet.
+    uint8_t len = pingPacket(buffer);
+    if (!sendPacket(buffer, len))
+      return false;
+    
+    // Process ping reply.
+    len = readPacket(buffer, 2, PING_TIMEOUT_MS);
+    if (buffer[0] == (MQTT_CTRL_PINGRESP << 4))
+      return true;
+  }
+    
   return false;
-
 }
 
 // Packet Generation Functions /////////////////////////////////////////////////
