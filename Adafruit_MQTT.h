@@ -178,7 +178,7 @@ class Adafruit_MQTT {
   Adafruit_MQTT_Subscribe *readSubscription(int16_t timeout=0);
 
   // Ping the server to ensure the connection is still alive.
-  bool ping(uint8_t n);
+  bool ping(uint8_t n = 1);
 
  protected:
   // Interface that subclasses need to implement:
@@ -214,6 +214,8 @@ class Adafruit_MQTT {
 
  private:
   Adafruit_MQTT_Subscribe *subscriptions[MAXSUBSCRIPTIONS];
+
+  void    flushIncoming(uint16_t timeout);
 
   // Functions to generate MQTT packets.
   uint8_t connectPacket(uint8_t *packet);
