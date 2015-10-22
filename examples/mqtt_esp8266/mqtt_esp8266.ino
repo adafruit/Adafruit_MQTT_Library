@@ -90,14 +90,6 @@ void loop() {
   // function definition further below.
   MQTT_connect();
 
-  // Try to ping the MQTT server
-  /*
-  if (! mqtt.ping(3) ) {
-    // MQTT pings failed, lets reconnect
-    Serial.println("Ping fail!");
-  }
-  */
-
   // this is our 'wait for incoming subscription packets' busy subloop
   Adafruit_MQTT_Subscribe *subscription;
   while ((subscription = mqtt.readSubscription(1000))) {
@@ -117,7 +109,13 @@ void loop() {
     Serial.println(F("OK!"));
   }
 
+  // ping the server to keep the mqtt connection alive
+  if(! mqtt.ping()) {
+    mqtt.disconnect();
+  }
+
   delay(1000);
+
 }
 
 // Function to connect and reconnect as necessary to the MQTT server.

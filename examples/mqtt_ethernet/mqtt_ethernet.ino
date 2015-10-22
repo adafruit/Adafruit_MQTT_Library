@@ -91,13 +91,6 @@ void loop() {
   // connection and automatically reconnect when disconnected).  See the MQTT_connect
   // function definition further below.
   MQTT_connect();
- 
-  // Try to ping the MQTT server
-  if (! mqtt.ping(3) ) {
-    // MQTT pings failed, let's reconnect by forcing a watchdog reset.
-    Serial.println("Ping fail! Resetting...");
-    delay(10000);
-  }
 
   // this is our 'wait for incoming subscription packets' busy subloop
   Adafruit_MQTT_Subscribe *subscription;
@@ -117,6 +110,12 @@ void loop() {
   } else {
     Serial.println(F("OK!"));
   }
+
+  // ping the server to keep the mqtt connection alive
+  if(! mqtt.ping()) {
+    mqtt.disconnect();
+  }
+
 }
 
 // Function to connect and reconnect as necessary to the MQTT server.

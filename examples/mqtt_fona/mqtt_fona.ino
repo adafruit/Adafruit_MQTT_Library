@@ -113,30 +113,10 @@ void loop() {
   // Make sure to reset watchdog every loop iteration!
   Watchdog.reset();
 
-  // check if we're still connected
-  if (!fona.TCPconnected() || (txfailures >= MAXTXFAILURES)) {
-    Serial.println(F("Connecting to MQTT..."));
-    int8_t ret, retries = 5;
-    while (retries && (ret = mqtt.connect()) != 0) {
-       Serial.println(mqtt.connectErrorString(ret));
-       Serial.println(F("Retrying MQTT connection"));
-       retries--;
-       if (retries == 0) halt("Resetting system");
-       delay(5000);
-    }
-    Serial.println(F("MQTT Connected!"));
-    txfailures = 0;
-  }
-
-
-  // Try to ping the MQTT server
-  /*
-  if (! mqtt.ping(3) ) {
-    // MQTT pings failed, lets reconnect
-    Serial.println("Ping fail!");
-  }
-  */
-
+  // Ensure the connection to the MQTT server is alive (this will make the first
+  // connection and automatically reconnect when disconnected).  See the MQTT_connect
+  // function definition further below.
+  MQTT_connect();
 
   // this is our 'wait for incoming subscription packets' busy subloop
   Adafruit_MQTT_Subscribe *subscription;
@@ -158,4 +138,31 @@ void loop() {
     Serial.println(F("OK!"));
     txfailures = 0;
   }
+
+  // ping the server to keep the mqtt connection alive
+  if(! mqtt.ping()) {
+    Serial.println(F("MQTT Ping failed."));
+  }
+
+}
+
+// Function to connect and reconnect as necessary to the MQTT server.
+// Should be called in the loop function and it will take care if connecting.
+void MQTT_connect() {
+  int8_t ret;
+
+  // Stop if already connected.
+  if (mqtt.connected()) {
+    return;
+  }
+
+  Serial.print("Connecting to MQTT... ");
+
+  while ((ret = mqtt.connect()) != 0) { // connect will return 0 for connected
+    Serial.println(mqtt.connectErrorString(ret));
+    Serial.println("Retrying MQTT connection in 5 seconds...");
+    mqtt.disconnect();
+    delay(5000);  // wait 5 seconds
+  }
+  Serial.println("MQTT Connected!");
 }
