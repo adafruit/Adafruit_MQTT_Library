@@ -43,6 +43,12 @@ class Adafruit_MQTT_CC3000 : public Adafruit_MQTT {
     cc3000(cc3k)
   {}
 
+  Adafruit_MQTT_CC3000(Adafruit_CC3000 *cc3k, const char *server, uint16_t port,
+                       const char *user, const char *pass):
+    Adafruit_MQTT(server, port, user, pass),
+    cc3000(cc3k)
+  {}
+
   bool connectServer() {
     uint32_t ip = 0;
 
@@ -81,7 +87,7 @@ class Adafruit_MQTT_CC3000 : public Adafruit_MQTT {
     return mqttclient.connected();
   }
 
-  bool disconnect() {
+  bool disconnectServer() {
     if (connected()) {
       return (mqttclient.close() == 0);
     }

@@ -36,14 +36,19 @@
 class Adafruit_MQTT_Client : public Adafruit_MQTT {
  public:
   Adafruit_MQTT_Client(Client *client, const char *server, uint16_t port,
-                       const char *cid, const char *user,
-                       const char *pass):
+                       const char *cid, const char *user, const char *pass):
     Adafruit_MQTT(server, port, cid, user, pass),
     client(client)
   {}
 
+  Adafruit_MQTT_Client(Client *client, const char *server, uint16_t port,
+                       const char *user, const char *pass):
+    Adafruit_MQTT(server, port, user, pass),
+    client(client)
+  {}
+
   bool connectServer();
-  bool disconnect();
+  bool disconnectServer();
   bool connected();
   uint16_t readPacket(uint8_t *buffer, uint8_t maxlen, int16_t timeout,
                       bool checkForValidPubPacket = false);

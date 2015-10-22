@@ -41,6 +41,12 @@ class Adafruit_MQTT_FONA : public Adafruit_MQTT {
     fona(f)
   {}
 
+  Adafruit_MQTT_FONA(Adafruit_FONA *f, const char *server, uint16_t port,
+                     const char *user, const char *pass):
+    Adafruit_MQTT(server, port, user, pass),
+    fona(f)
+  {}
+
   bool connectServer() {
     char server[40];
     strncpy_P(server, servername, 40);
@@ -51,7 +57,7 @@ class Adafruit_MQTT_FONA : public Adafruit_MQTT {
     return fona->TCPconnect(server, portnum);
   }
 
-  bool disconnect() {
+  bool disconnectServer() {
     return fona->TCPclose();
   }
 

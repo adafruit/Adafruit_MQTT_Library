@@ -35,18 +35,14 @@
 // Create an ESP8266 WiFiClient class to connect to the MQTT server.
 WiFiClient client;
 
-// Store the MQTT server, client ID, username, and password in flash memory.
+// Store the MQTT server, username, and password in flash memory.
 // This is required for using the Adafruit MQTT library.
 const char MQTT_SERVER[] PROGMEM    = AIO_SERVER;
-// Set a unique MQTT client ID using the AIO key + the date and time the sketch
-// was compiled (so this should be unique across multiple devices for a user,
-// alternatively you can manually set this to a GUID or other random value).
-const char MQTT_CLIENTID[] PROGMEM  = __TIME__ AIO_USERNAME;
 const char MQTT_USERNAME[] PROGMEM  = AIO_USERNAME;
 const char MQTT_PASSWORD[] PROGMEM  = AIO_KEY;
 
 // Setup the MQTT client class by passing in the WiFi client and MQTT server and login details.
-Adafruit_MQTT_Client mqtt(&client, MQTT_SERVER, AIO_SERVERPORT, MQTT_CLIENTID, MQTT_USERNAME, MQTT_PASSWORD);
+Adafruit_MQTT_Client mqtt(&client, MQTT_SERVER, AIO_SERVERPORT, MQTT_USERNAME, MQTT_PASSWORD);
 
 /****************************** Feeds ***************************************/
 
@@ -94,14 +90,6 @@ void loop() {
   // function definition further below.
   MQTT_connect();
 
-  // Try to ping the MQTT server
-  /*
-  if (! mqtt.ping(3) ) {
-    // MQTT pings failed, lets reconnect
-    Serial.println("Ping fail!");
-  }
-  */
-
   // this is our 'wait for incoming subscription packets' busy subloop
   Adafruit_MQTT_Subscribe *subscription;
   while ((subscription = mqtt.readSubscription(1000))) {
@@ -121,7 +109,13 @@ void loop() {
     Serial.println(F("OK!"));
   }
 
+  // ping the server to keep the mqtt connection alive
+  if(! mqtt.ping()) {
+    mqtt.disconnect();
+  }
+
   delay(1000);
+
 }
 
 // Function to connect and reconnect as necessary to the MQTT server.
