@@ -70,9 +70,11 @@ static uint8_t *stringprint_P(uint8_t *p, const char *s, uint16_t maxlen=0) {
 
 // Adafruit_MQTT Definition ////////////////////////////////////////////////////
 
-Adafruit_MQTT::Adafruit_MQTT(const char *server, uint16_t port,
-                             const char *user, const char *pass,
-                             const char *cid) {
+Adafruit_MQTT::Adafruit_MQTT(const char *server,
+                             uint16_t port,
+                             const char *cid,
+                             const char *user,
+                             const char *pass) {
   servername = server;
   portnum = port;
   clientid = cid;
@@ -85,13 +87,14 @@ Adafruit_MQTT::Adafruit_MQTT(const char *server, uint16_t port,
   }
 
   packet_id_counter = 0;
+
 }
 
 Adafruit_MQTT::Adafruit_MQTT(const __FlashStringHelper *server,
                              uint16_t port,
+                             const __FlashStringHelper *cid,
                              const __FlashStringHelper *user,
-                             const __FlashStringHelper *pass,
-                             const __FlashStringHelper *cid) {
+                             const __FlashStringHelper *pass) {
 
   servername = (const char *)server;
   portnum = port;
@@ -105,6 +108,46 @@ Adafruit_MQTT::Adafruit_MQTT(const __FlashStringHelper *server,
   }
 
   packet_id_counter = 0;
+
+}
+
+Adafruit_MQTT::Adafruit_MQTT(const char *server,
+                             uint16_t port,
+                             const char *user,
+                             const char *pass) {
+  servername = server;
+  portnum = port;
+  clientid = "";
+  username = user;
+  password = pass;
+
+  // reset subscriptions
+  for (uint8_t i=0; i<MAXSUBSCRIPTIONS; i++) {
+    subscriptions[i] = 0;
+  }
+
+  packet_id_counter = 0;
+
+}
+
+Adafruit_MQTT::Adafruit_MQTT(const __FlashStringHelper *server,
+                             uint16_t port,
+                             const __FlashStringHelper *user,
+                             const __FlashStringHelper *pass) {
+
+  servername = (const char *)server;
+  portnum = port;
+  clientid = "";
+  username = (const char *)user;
+  password = (const char *)pass;
+
+  // reset subscriptions
+  for (uint8_t i=0; i<MAXSUBSCRIPTIONS; i++) {
+    subscriptions[i] = 0;
+  }
+
+  packet_id_counter = 0;
+
 }
 
 int8_t Adafruit_MQTT::connect() {

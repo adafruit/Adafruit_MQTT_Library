@@ -37,13 +37,15 @@
 // in the compilation of the library).
 class Adafruit_MQTT_CC3000 : public Adafruit_MQTT {
  public:
-  Adafruit_MQTT_CC3000(Adafruit_CC3000 *cc3k,
-                       const char *server = "io.adafruit.com",
-                       uint16_t port = 1883,
-                       const char *user = "",
-                       const char *pass = "",
-                       const char *cid = ""):
-    Adafruit_MQTT(server, port, user, pass, cid),
+  Adafruit_MQTT_CC3000(Adafruit_CC3000 *cc3k, const char *server, uint16_t port,
+                       const char *cid, const char *user, const char *pass):
+    Adafruit_MQTT(server, port, cid, user, pass),
+    cc3000(cc3k)
+  {}
+
+  Adafruit_MQTT_CC3000(Adafruit_CC3000 *cc3k, const char *server, uint16_t port,
+                       const char *user, const char *pass):
+    Adafruit_MQTT(server, port, user, pass),
     cc3000(cc3k)
   {}
 
