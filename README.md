@@ -21,12 +21,6 @@ Depends on the following other libraries depending on the target platform:
 
 Future todos:
 
-   - QoS > 0 for publication
-
    - Subscription callbacks
-
-   - example with way more timeout/reconnection protection
-
-   - Wills
 
    - remove watchdog
