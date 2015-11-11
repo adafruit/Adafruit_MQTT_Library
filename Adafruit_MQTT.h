@@ -22,10 +22,11 @@
 #ifndef _ADAFRUIT_MQTT_H_
 #define _ADAFRUIT_MQTT_H_
 
-#if ARDUINO >= 100
- #include "Arduino.h"
-#else
- #include "WProgram.h"
+#include "Arduino.h"
+
+#ifdef ARDUINO_SAMD_ZERO
+#define strncpy_P(dest, src, len) strncpy((dest), (src), (len))
+#define strncasecmp_P(f1, f2, len) strncasecmp((f1), (f2), (len))
 #endif
 
 // Uncomment/comment to turn on/off debug output messages.
@@ -33,6 +34,7 @@
 
 // Set where debug messages will be printed.
 #define DEBUG_PRINTER Serial
+// If using something like Zero or Due, change the above to SerialUSB
 
 // Define actual debug output functions when necessary.
 #ifdef MQTT_DEBUG

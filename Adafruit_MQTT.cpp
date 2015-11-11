@@ -21,6 +21,14 @@
 // SOFTWARE.
 #include "Adafruit_MQTT.h"
 
+#ifndef dtostrf
+static char *dtostrf (double val, signed char width, unsigned char prec, char *sout) {
+  char fmt[20];
+  sprintf(fmt, "%%%d.%df", width, prec);
+  sprintf(sout, fmt, val);
+  return sout;
+}
+#endif
 
 void printBuffer(uint8_t *buffer, uint8_t len) {
   for (uint8_t i=0; i<len; i++) {
