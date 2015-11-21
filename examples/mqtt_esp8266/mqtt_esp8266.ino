@@ -57,6 +57,10 @@ Adafruit_MQTT_Subscribe onoffbutton = Adafruit_MQTT_Subscribe(&mqtt, ONOFF_FEED)
 
 /*************************** Sketch Code ************************************/
 
+// Bug workaround for Arduino 1.6.6, it seems to need a function declaration
+// for some reason (only affects ESP8266, likely an arduino-builder bug).
+void MQTT_connect();
+
 void setup() {
   Serial.begin(115200);
   delay(10);
