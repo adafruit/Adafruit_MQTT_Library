@@ -24,7 +24,7 @@
 
 #include "Arduino.h"
 
-#ifdef ARDUINO_SAMD_ZERO
+#if defined(ARDUINO_SAMD_ZERO) || defined(ARDUINO_STM32F2_FEATHER)
 #define strncpy_P(dest, src, len) strncpy((dest), (src), (len))
 #define strncasecmp_P(f1, f2, len) strncasecmp((f1), (f2), (len))
 #endif
