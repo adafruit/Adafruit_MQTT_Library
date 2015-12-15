@@ -490,6 +490,7 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
   return len;
 }
 
+// as per http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718040
 uint8_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic, 
                                      const char *data, uint8_t qos) {
   uint8_t *p = packet;
@@ -498,6 +499,9 @@ uint8_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
   p[0] = MQTT_CTRL_PUBLISH << 4 | qos << 1;
   // fill in packet[1] last
   p+=2;
+
+  // topic comes before packet identifier
+  p = stringprint_P(p, topic);
 
   // add packet identifier. used for checking PUBACK in QOS > 0
   if(qos > 0) {
@@ -508,8 +512,6 @@ uint8_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
     // increment the packet id
     packet_id_counter++;
   }
-
-  p = stringprint_P(p, topic);
 
   memcpy(p, data, strlen(data));
   p+=strlen(data);
