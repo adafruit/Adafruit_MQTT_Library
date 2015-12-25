@@ -95,7 +95,7 @@ void loop() {
 
   // ping the server to keep the mqtt connection alive
   if(! mqtt.ping()) {
-    Serial.println(F("MQTT Ping failed."));
+    Console.println(F("MQTT Ping failed."));
   }
 
   delay(1000);
