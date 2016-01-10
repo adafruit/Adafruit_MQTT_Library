@@ -240,7 +240,18 @@ bool Adafruit_MQTT::publish(const char *topic, const char *data, uint8_t qos) {
     len = readPacket(buffer, 4, PUBLISH_TIMEOUT_MS);
     DEBUG_PRINT(F("Publish QOS1+ reply:\t"));
     DEBUG_PRINTBUFFER(buffer, len);
-    //TODO: Verify response packet?
+    if (len != 4) 
+      return false;
+    if ((buffer[0] >> 4) != MQTT_CTRL_PUBACK) 
+      return false;
+    uint16_t packnum = buffer[2];
+    packnum <<= 8;
+    packnum |= buffer[3];
+
+    // we increment the packet_id_counter right after publishing so inc here too to match
+    packnum++; 
+    if (packnum != packet_id_counter) 
+      return false;
   }
 
   return true;
