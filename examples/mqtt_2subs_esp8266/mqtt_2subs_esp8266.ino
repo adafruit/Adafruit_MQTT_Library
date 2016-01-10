@@ -19,6 +19,11 @@
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_Client.h"
 
+// the on off button feed turns this LED on/off
+#define LED 2  
+// the slider feed sets the PWM output of this pin
+#define PWMOUT 12
+
 /************************* WiFi Access Point *********************************/
 
 #define WLAN_SSID       "...your SSID..."
@@ -47,14 +52,12 @@ Adafruit_MQTT_Client mqtt(&client, MQTT_SERVER, AIO_SERVERPORT, MQTT_USERNAME, M
 
 /****************************** Feeds ***************************************/
 
-// Setup a feed called 'photocell' for publishing.
 // Notice MQTT paths for AIO follow the form: <username>/feeds/<feedname>
-const char PHOTOCELL_FEED[] PROGMEM = AIO_USERNAME "/feeds/photocell";
-Adafruit_MQTT_Publish photocell = Adafruit_MQTT_Publish(&mqtt, PHOTOCELL_FEED);
-
 // Setup a feed called 'onoff' for subscribing to changes.
 const char ONOFF_FEED[] PROGMEM = AIO_USERNAME "/feeds/onoff";
 Adafruit_MQTT_Subscribe onoffbutton = Adafruit_MQTT_Subscribe(&mqtt, ONOFF_FEED);
+const char SLIDER_FEED[] PROGMEM = AIO_USERNAME "/feeds/slider";
+Adafruit_MQTT_Subscribe slider = Adafruit_MQTT_Subscribe(&mqtt, SLIDER_FEED);
 
 /*************************** Sketch Code ************************************/
 
@@ -63,6 +66,9 @@ Adafruit_MQTT_Subscribe onoffbutton = Adafruit_MQTT_Subscribe(&mqtt, ONOFF_FEED)
 void MQTT_connect();
 
 void setup() {
+  pinMode(LED, OUTPUT);
+  pinMode(PWMOUT, OUTPUT);
+
   Serial.begin(115200);
   delay(10);
 
@@ -83,8 +89,9 @@ void setup() {
   Serial.println("WiFi connected");
   Serial.println("IP address: "); Serial.println(WiFi.localIP());
 
-  // Setup MQTT subscription for onoff feed.
+  // Setup MQTT subscription for onoff & slider feed.
   mqtt.subscribe(&onoffbutton);
+  mqtt.subscribe(&slider);
 }
 
 uint32_t x=0;
@@ -100,29 +107,33 @@ void loop() {
 
   Adafruit_MQTT_Subscribe *subscription;
   while ((subscription = mqtt.readSubscription(5000))) {
+    // Check if its the onoff button feed
     if (subscription == &onoffbutton) {
-      Serial.print(F("Got: "));
+      Serial.print(F("On-Off button: "));
       Serial.println((char *)onoffbutton.lastread);
+      
+      if (strcmp((char *)onoffbutton.lastread, "ON") == 0) {
+        digitalWrite(LED, LOW); 
+      }
+      if (strcmp((char *)onoffbutton.lastread, "OFF") == 0) {
+        digitalWrite(LED, HIGH); 
+      }
+    }
+    
+    // check if its the slider feed
+    if (subscription == &slider) {
+      Serial.print(F("Slider: "));
+      Serial.println((char *)slider.lastread);
+      uint16_t sliderval = atoi((char *)slider.lastread);  // convert to a number
+      analogWrite(PWMOUT, sliderval);
     }
   }
 
-  // Now we can publish stuff!
-  Serial.print(F("\nSending photocell val "));
-  Serial.print(x);
-  Serial.print("...");
-  if (! photocell.publish(x++)) {
-    Serial.println(F("Failed"));
-  } else {
-    Serial.println(F("OK!"));
-  }
-
   // ping the server to keep the mqtt connection alive
-  // NOT required if you are publishing once every KEEPALIVE seconds
-  /*
   if(! mqtt.ping()) {
     mqtt.disconnect();
   }
-  */
+
 }
 
 // Function to connect and reconnect as necessary to the MQTT server.
