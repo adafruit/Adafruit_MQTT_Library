@@ -95,8 +95,10 @@ void loop() {
   MQTT_connect();
 
   // this is our 'wait for incoming subscription packets' busy subloop
+  // try to spend your time here
+
   Adafruit_MQTT_Subscribe *subscription;
-  while ((subscription = mqtt.readSubscription(1000))) {
+  while ((subscription = mqtt.readSubscription(5000))) {
     if (subscription == &onoffbutton) {
       Serial.print(F("Got: "));
       Serial.println((char *)onoffbutton.lastread);
@@ -114,12 +116,12 @@ void loop() {
   }
 
   // ping the server to keep the mqtt connection alive
+  // NOT required if you are publishing once every KEEPALIVE seconds
+  /*
   if(! mqtt.ping()) {
     mqtt.disconnect();
   }
-
-  delay(1000);
-
+  */
 }
 
 // Function to connect and reconnect as necessary to the MQTT server.
@@ -134,11 +136,17 @@ void MQTT_connect() {
 
   Serial.print("Connecting to MQTT... ");
 
+  uint8_t retries = 3;
   while ((ret = mqtt.connect()) != 0) { // connect will return 0 for connected
        Serial.println(mqtt.connectErrorString(ret));
        Serial.println("Retrying MQTT connection in 5 seconds...");
        mqtt.disconnect();
        delay(5000);  // wait 5 seconds
+       retries--;
+       if (retries == 0) {
+         // basically die and wait for WDT to reset me
+         while (1);
+       }
   }
   Serial.println("MQTT Connected!");
 }
