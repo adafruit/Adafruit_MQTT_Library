@@ -1,4 +1,5 @@
 #include <Adafruit_SleepyDog.h>
+#include <SoftwareSerial.h>
 #include "Adafruit_FONA.h"
 
 #define halt(s) { Serial.println(F( s )); while(1);  }
@@ -7,7 +8,6 @@ extern Adafruit_FONA fona;
 extern SoftwareSerial fonaSS;
 
 boolean FONAconnect(const __FlashStringHelper *apn, const __FlashStringHelper *username, const __FlashStringHelper *password) {
-  Watchdog.enable(8000);
   Watchdog.reset();
 
   Serial.println(F("Initializing FONA....(May take 3 seconds)"));
@@ -25,6 +25,9 @@ boolean FONAconnect(const __FlashStringHelper *apn, const __FlashStringHelper *u
   while (fona.getNetworkStatus() != 1) {
    delay(500);
   }
+
+  Watchdog.reset();
+  delay(5000);  // wait a few seconds to stabilize connection
   Watchdog.reset();
   
   fona.setGPRSNetworkSettings(apn, username, password);
@@ -33,6 +36,9 @@ boolean FONAconnect(const __FlashStringHelper *apn, const __FlashStringHelper *u
   fona.enableGPRS(false);
   
   Watchdog.reset();
+  delay(5000);  // wait a few seconds to stabilize connection
+  Watchdog.reset();
+
   Serial.println(F("Enabling GPRS"));
   if (!fona.enableGPRS(true)) {
     Serial.println(F("Failed to turn GPRS on"));  
@@ -42,4 +48,3 @@ boolean FONAconnect(const __FlashStringHelper *apn, const __FlashStringHelper *u
 
   return true;
 }
-

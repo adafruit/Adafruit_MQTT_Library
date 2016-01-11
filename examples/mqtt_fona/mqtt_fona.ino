@@ -88,22 +88,28 @@ uint8_t txfailures = 0;
 void setup() {
   while (!Serial);
 
+  // Watchdog is optional!
+  //Watchdog.enable(8000);
+  
   Serial.begin(115200);
 
   Serial.println(F("Adafruit FONA MQTT demo"));
 
-
   mqtt.subscribe(&onoffbutton);
 
+  Watchdog.reset();
+  delay(5000);  // wait a few seconds to stabilize connection
+  Watchdog.reset();
+  
   // Initialise the FONA module
   while (! FONAconnect(F(FONA_APN), F(FONA_USERNAME), F(FONA_PASSWORD))) {
-    halt("Retrying FONA");
+    Serial.println("Retrying FONA");
   }
 
   Serial.println(F("Connected to Cellular!"));
 
   Watchdog.reset();
-  delay(3000);  // wait a few seconds to stabilize connection
+  delay(5000);  // wait a few seconds to stabilize connection
   Watchdog.reset();
 }
 
@@ -118,6 +124,8 @@ void loop() {
   // function definition further below.
   MQTT_connect();
 
+  Watchdog.reset();
+  
   // this is our 'wait for incoming subscription packets' busy subloop
   Adafruit_MQTT_Subscribe *subscription;
   while ((subscription = mqtt.readSubscription(5000))) {
@@ -127,6 +135,7 @@ void loop() {
     }
   }
 
+  Watchdog.reset();
   // Now we can publish stuff!
   Serial.print(F("\nSending photocell val "));
   Serial.print(x);
@@ -139,10 +148,10 @@ void loop() {
     txfailures = 0;
   }
 
-  // ping the server to keep the mqtt connection alive
-  if(! mqtt.ping()) {
-    Serial.println(F("MQTT Ping failed."));
-  }
+  // ping the server to keep the mqtt connection alive, only needed if we're not publishing
+  //if(! mqtt.ping()) {
+  //  Serial.println(F("MQTT Ping failed."));
+  //}
 
 }
 
