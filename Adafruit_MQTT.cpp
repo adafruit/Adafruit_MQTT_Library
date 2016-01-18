@@ -51,7 +51,7 @@ static uint8_t *stringprint(uint8_t *p, char *s) {
   uint16_t len = strlen(s);
   p[0] = len >> 8; p++;
   p[0] = len & 0xFF; p++;
-  memcpy(p, s, len);
+  memmove(p, s, len);
   return p+len;
 }
 */
@@ -240,17 +240,45 @@ bool Adafruit_MQTT::publish(const char *topic, const char *data, uint8_t qos) {
     len = readPacket(buffer, 4, PUBLISH_TIMEOUT_MS);
     DEBUG_PRINT(F("Publish QOS1+ reply:\t"));
     DEBUG_PRINTBUFFER(buffer, len);
-    if (len != 4) 
+    if (len != 4)
       return false;
-    if ((buffer[0] >> 4) != MQTT_CTRL_PUBACK) 
+    if ((buffer[0] >> 4) != MQTT_CTRL_PUBACK)
       return false;
     uint16_t packnum = buffer[2];
     packnum <<= 8;
     packnum |= buffer[3];
 
     // we increment the packet_id_counter right after publishing so inc here too to match
-    packnum++; 
-    if (packnum != packet_id_counter) 
+    packnum++;
+    if (packnum != packet_id_counter)
+      return false;
+  }
+
+  return true;
+}
+
+bool Adafruit_MQTT::publish(const char *topic, uint8_t *sData, uint8_t bLen, uint8_t qos) {
+  // Construct and send publish packet.
+  uint8_t len = publishPacket(buffer, topic, sData, bLen, qos);
+  if (!sendPacket(buffer, len))
+    return false;
+
+  // If QOS level is high enough verify the response packet.
+  if (qos > 0) {
+    len = readPacket(buffer, 4, PUBLISH_TIMEOUT_MS);
+    DEBUG_PRINT(F("Publish QOS1+ reply:\t"));
+    DEBUG_PRINTBUFFER(buffer, len);
+    if (len != 4)
+      return false;
+    if ((buffer[0] >> 4) != MQTT_CTRL_PUBACK)
+      return false;
+    uint16_t packnum = buffer[2];
+    packnum <<= 8;
+    packnum |= buffer[3];
+
+    // we increment the packet_id_counter right after publishing so inc here too to match
+    packnum++;
+    if (packnum != packet_id_counter)
       return false;
   }
 
@@ -378,7 +406,7 @@ Adafruit_MQTT_Subscribe *Adafruit_MQTT::readSubscription(int16_t timeout) {
     datalen = SUBSCRIPTIONDATALEN-1; // cut it off
   }
   // extract out just the data, into the subscription object itself
-  memcpy(subscriptions[i]->lastread, buffer+4+topiclen, datalen);
+  memmove(subscriptions[i]->lastread, buffer+4+topiclen, datalen);
   subscriptions[i]->datalen = datalen;
   DEBUG_PRINT(F("Data len: ")); DEBUG_PRINTLN(datalen);
   DEBUG_PRINT(F("Data: ")); DEBUG_PRINTLN((char *)subscriptions[i]->lastread);
@@ -401,13 +429,13 @@ bool Adafruit_MQTT::ping(uint8_t num) {
     uint8_t len = pingPacket(buffer);
     if (!sendPacket(buffer, len))
       continue;
-    
+
     // Process ping reply.
     len = readPacket(buffer, 2, PING_TIMEOUT_MS);
     if (buffer[0] == (MQTT_CTRL_PINGRESP << 4))
       return true;
   }
-    
+
   return false;
 }
 
@@ -502,7 +530,7 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
 }
 
 // as per http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718040
-uint8_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic, 
+uint8_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
                                      const char *data, uint8_t qos) {
   uint8_t *p = packet;
   uint16_t len;
@@ -524,7 +552,7 @@ uint8_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
     packet_id_counter++;
   }
 
-  memcpy(p, data, strlen(data));
+  memmove(p, data, strlen(data));
   p+=strlen(data);
   len = p - packet;
   packet[1] = len-2; // don't include the 2 bytes of fixed header data
@@ -533,7 +561,39 @@ uint8_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
   return len;
 }
 
-uint8_t Adafruit_MQTT::subscribePacket(uint8_t *packet, const char *topic, 
+// as per http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718040
+uint8_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
+                                     uint8_t *sData, uint8_t bLen, uint8_t qos) {
+  uint8_t *p = packet;
+  uint16_t len;
+
+  p[0] = MQTT_CTRL_PUBLISH << 4 | qos << 1;
+  // fill in packet[1] last
+  p+=2;
+
+  // topic comes before packet identifier
+  p = stringprint_P(p, topic);
+
+  // add packet identifier. used for checking PUBACK in QOS > 0
+  if(qos > 0) {
+    p[0] = (packet_id_counter >> 8) & 0xFF;
+    p[1] = packet_id_counter & 0xFF;
+    p+=2;
+
+    // increment the packet id
+    packet_id_counter++;
+  }
+
+  memmove(p, sData, bLen);
+  p+= bLen;
+  len = p - packet;
+  packet[1] = len-2; // don't include the 2 bytes of fixed header data
+  DEBUG_PRINTLN(F("MQTT publish packet:"));
+  DEBUG_PRINTBUFFER(buffer, len);
+  return len;
+}
+
+uint8_t Adafruit_MQTT::subscribePacket(uint8_t *packet, const char *topic,
                                        uint8_t qos) {
   uint8_t *p = packet;
   uint16_t len;
@@ -561,6 +621,8 @@ uint8_t Adafruit_MQTT::subscribePacket(uint8_t *packet, const char *topic,
   DEBUG_PRINTBUFFER(buffer, len);
   return len;
 }
+
+
 
 uint8_t Adafruit_MQTT::unsubscribePacket(uint8_t *packet, const char *topic) {
 
@@ -607,7 +669,7 @@ uint8_t Adafruit_MQTT::disconnectPacket(uint8_t *packet) {
 
 // Adafruit_MQTT_Publish Definition ////////////////////////////////////////////
 
-Adafruit_MQTT_Publish::Adafruit_MQTT_Publish(Adafruit_MQTT *mqttserver, 
+Adafruit_MQTT_Publish::Adafruit_MQTT_Publish(Adafruit_MQTT *mqttserver,
                                              const char *feed, uint8_t q) {
   mqtt = mqttserver;
   topic = feed;
@@ -643,10 +705,23 @@ bool Adafruit_MQTT_Publish::publish(const char *payload) {
   return mqtt->publish(topic, payload, qos);
 }
 
+bool Adafruit_MQTT_Publish::publish(uint8_t *payload, uint8_t bLen) {
+    /*
+    Serial.print(F("Publish 1\nbLen:\t"));
+    Serial.println(bLen);
+    for(int i = 0; i < bLen; i++){
+   Serial.print(payload[i], HEX);
+ }
+    Serial.println(F("Exit publish 1"));
+    return 0;
+*/
+  return mqtt->publish(topic, payload, bLen, qos);
+}
+
 
 // Adafruit_MQTT_Subscribe Definition //////////////////////////////////////////
 
-Adafruit_MQTT_Subscribe::Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver, 
+Adafruit_MQTT_Subscribe::Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver,
                                                  const char *feed, uint8_t q) {
   mqtt = mqttserver;
   topic = feed;
