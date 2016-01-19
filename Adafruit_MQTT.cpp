@@ -532,38 +532,15 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
 // as per http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718040
 uint8_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
                                      const char *data, uint8_t qos) {
-  uint8_t *p = packet;
-  uint16_t len;
 
-  p[0] = MQTT_CTRL_PUBLISH << 4 | qos << 1;
-  // fill in packet[1] last
-  p+=2;
-
-  // topic comes before packet identifier
-  p = stringprint_P(p, topic);
-
-  // add packet identifier. used for checking PUBACK in QOS > 0
-  if(qos > 0) {
-    p[0] = (packet_id_counter >> 8) & 0xFF;
-    p[1] = packet_id_counter & 0xFF;
-    p+=2;
-
-    // increment the packet id
-    packet_id_counter++;
-  }
-
-  memmove(p, data, strlen(data));
-  p+=strlen(data);
-  len = p - packet;
-  packet[1] = len-2; // don't include the 2 bytes of fixed header data
-  DEBUG_PRINTLN(F("MQTT publish packet:"));
-  DEBUG_PRINTBUFFER(buffer, len);
-  return len;
+  return publishPacket(packet, topic, (uint8_t*)(data), strlen(data), qos);
+ 
 }
+
 
 // as per http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718040
 uint8_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
-                                     uint8_t *sData, uint8_t bLen, uint8_t qos) {
+                                     uint8_t *data, uint8_t bLen, uint8_t qos) {
   uint8_t *p = packet;
   uint16_t len;
 
@@ -584,13 +561,14 @@ uint8_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
     packet_id_counter++;
   }
 
-  memmove(p, sData, bLen);
+  memmove(p, data, bLen);
   p+= bLen;
   len = p - packet;
   packet[1] = len-2; // don't include the 2 bytes of fixed header data
   DEBUG_PRINTLN(F("MQTT publish packet:"));
   DEBUG_PRINTBUFFER(buffer, len);
   return len;
+
 }
 
 uint8_t Adafruit_MQTT::subscribePacket(uint8_t *packet, const char *topic,
@@ -706,7 +684,7 @@ bool Adafruit_MQTT_Publish::publish(const char *payload) {
 }
 
 bool Adafruit_MQTT_Publish::publish(uint8_t *payload, uint8_t bLen) {
-    
+
   return mqtt->publish(topic, payload, bLen, qos);
 }
 
