@@ -706,15 +706,7 @@ bool Adafruit_MQTT_Publish::publish(const char *payload) {
 }
 
 bool Adafruit_MQTT_Publish::publish(uint8_t *payload, uint8_t bLen) {
-    /*
-    Serial.print(F("Publish 1\nbLen:\t"));
-    Serial.println(bLen);
-    for(int i = 0; i < bLen; i++){
-   Serial.print(payload[i], HEX);
- }
-    Serial.println(F("Exit publish 1"));
-    return 0;
-*/
+    
   return mqtt->publish(topic, payload, bLen, qos);
 }
 
