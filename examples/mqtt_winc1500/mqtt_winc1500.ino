@@ -70,10 +70,8 @@ Adafruit_MQTT_Subscribe onoffbutton = Adafruit_MQTT_Subscribe(&mqtt, ONOFF_FEED)
 #define LEDPIN 13
 
 void setup() {
-  pinMode(WINC_EN, OUTPUT);
-  digitalWrite(WINC_EN, HIGH);
-  
-  //while (!Serial);
+
+  while (!Serial);
   Serial.begin(115200);
 
   Serial.println(F("Adafruit MQTT demo for WINC1500"));
