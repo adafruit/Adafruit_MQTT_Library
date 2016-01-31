@@ -58,6 +58,23 @@ Adafruit_MQTT_Publish photocell = Adafruit_MQTT_Publish(&mqtt, PHOTOCELL_FEED);
 const char ONOFF_FEED[] PROGMEM = AIO_USERNAME "/feeds/onoff";
 Adafruit_MQTT_Subscribe onoffbutton = Adafruit_MQTT_Subscribe(&mqtt, ONOFF_FEED);
 
+
+// Arbitrary Payload
+// Union allows for easier interaction of members in struct form with easy publishing
+// of "raw" bytes
+typedef union{
+
+    struct __attribute__((__packed__)){  // packed to eliminate padding for easier parsing.
+        char charAry[10];
+        int16_t val1;
+        unsigned long val2;
+        uint16_t val3;
+        }s;
+
+    uint8_t raw[sizeof(s)];                    // For publishing
+
+} packet_t;
+
 /*************************** Sketch Code ************************************/
 
 // Bug workaround for Arduino 1.6.6, it seems to need a function declaration
