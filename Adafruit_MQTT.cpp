@@ -651,6 +651,7 @@ bool Adafruit_MQTT_Publish::publish(const char *payload) {
   return mqtt->publish(topic, payload, qos);
 }
 
+//publish buffer of arbitrary length
 bool Adafruit_MQTT_Publish::publish(uint8_t *payload, uint8_t bLen) {
 
   return mqtt->publish(topic, payload, bLen, qos);
