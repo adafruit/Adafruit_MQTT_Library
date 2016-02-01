@@ -230,36 +230,12 @@ bool Adafruit_MQTT::disconnect() {
 
 
 bool Adafruit_MQTT::publish(const char *topic, const char *data, uint8_t qos) {
-  // Construct and send publish packet.
-  uint8_t len = publishPacket(buffer, topic, data, qos);
-  if (!sendPacket(buffer, len))
-    return false;
-
-  // If QOS level is high enough verify the response packet.
-  if (qos > 0) {
-    len = readPacket(buffer, 4, PUBLISH_TIMEOUT_MS);
-    DEBUG_PRINT(F("Publish QOS1+ reply:\t"));
-    DEBUG_PRINTBUFFER(buffer, len);
-    if (len != 4)
-      return false;
-    if ((buffer[0] >> 4) != MQTT_CTRL_PUBACK)
-      return false;
-    uint16_t packnum = buffer[2];
-    packnum <<= 8;
-    packnum |= buffer[3];
-
-    // we increment the packet_id_counter right after publishing so inc here too to match
-    packnum++;
-    if (packnum != packet_id_counter)
-      return false;
-  }
-
-  return true;
+    return publish(topic, (uint8_t*)(data), strlen(data), qos);
 }
 
-bool Adafruit_MQTT::publish(const char *topic, uint8_t *sData, uint8_t bLen, uint8_t qos) {
+bool Adafruit_MQTT::publish(const char *topic, uint8_t *data, uint8_t bLen, uint8_t qos) {
   // Construct and send publish packet.
-  uint8_t len = publishPacket(buffer, topic, sData, bLen, qos);
+  uint8_t len = publishPacket(buffer, topic, data, bLen, qos);
   if (!sendPacket(buffer, len))
     return false;
 
@@ -529,14 +505,6 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
   return len;
 }
 
-// as per http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718040
-uint8_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
-                                     const char *data, uint8_t qos) {
-
-  return publishPacket(packet, topic, (uint8_t*)(data), strlen(data), qos);
- 
-}
-
 
 // as per http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718040
 uint8_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
@@ -683,6 +651,7 @@ bool Adafruit_MQTT_Publish::publish(const char *payload) {
   return mqtt->publish(topic, payload, qos);
 }
 
+//publish buffer of arbitrary length
 bool Adafruit_MQTT_Publish::publish(uint8_t *payload, uint8_t bLen) {
 
   return mqtt->publish(topic, payload, bLen, qos);
