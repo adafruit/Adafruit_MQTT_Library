@@ -72,8 +72,6 @@ typedef union{
 
     uint8_t raw[sizeof(s)];                    // For publishing
 
-    } packet_t;
-
     /*
         // Alternate Option with anonymous struct, but manual byte count:
 
@@ -86,10 +84,9 @@ typedef union{
                                             TOTAL =    18 bytes
         };
         uint8_t raw[18];                    // For publishing
-
+*/
 
 } packet_t;
-/*
 
 /*************************** Sketch Code ************************************/
 
