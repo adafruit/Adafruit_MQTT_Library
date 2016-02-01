@@ -227,6 +227,7 @@ class Adafruit_MQTT {
   uint8_t subscribePacket(uint8_t *packet, const char *topic, uint8_t qos);
   uint8_t unsubscribePacket(uint8_t *packet, const char *topic);
   uint8_t pingPacket(uint8_t *packet);
+  uint8_t pubackPacket(uint8_t *packet, uint16_t packetid);
 };
 
 
