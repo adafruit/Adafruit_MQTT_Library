@@ -2,7 +2,7 @@
 
 This example illustrates publishing an arbitrary data packet using the Adafruit MQTT library to an MQTT feed which can then be parsed by the included python subscriber client. Possible usage cases include adding metadata (collection time, sensor info etc) to a datapoint.
 
-![alt-text](https://raw.githubusercontent.com/stuthedew/Adafruit_MQTT_Library/Arbitrary_buffer_publish/examples/mqtt_arbitrary_buffer/python_subscriber/mqtt_figure.png "Arbitrary data flow diagram")
+![alt-text](https://raw.githubusercontent.com/stuthedew/Adafruit_MQTT_Library/Arbitrary_data_publish/examples/mqtt_arbitrary_data/python_subscriber/mqtt_figure.png "Arbitrary data flow diagram")
 
 My motivation for this was wanting to be able to include metadata to a post.
 Specifically, I was playing around with a [Teviso RD3024 radiation sensor](http://www.teviso.com/en/products/radiation-sensor-rd3024.htm), and a salvaged Americium radiation source from a smoke detector, at varying distances from the sensor. I wanted a way to associate the collection time, and distance between the source and sensor with the actual radiation reading itself.
