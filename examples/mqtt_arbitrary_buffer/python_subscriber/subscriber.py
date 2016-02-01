@@ -5,8 +5,6 @@ import struct
 import array
 import sys
 
-feed_id = "RadESP"
-
 return_str =[
     "Connection successful",
     "incorrect protocol version",
@@ -30,9 +28,8 @@ def on_connect(client, userdata, rc):
     # reconnect then subscriptions will be renewed.
     else:
         print(return_str[rc])
-        if(args.dry_run):
-            print("***Dry Run***")
-        client.subscribe(feed_id)
+        client.subscribe(args.topic)
+        print("Subscribed to {}".format(args.topic))
 
 def on_disconnect(client, userdata, rc):
     """Callback for disconnect"""
