@@ -47,9 +47,9 @@ password_file pwfile
 Now `ctrl-x` to save and exit.
 
 You're almost done! We just have to create and populate the password file we just configured. The default user names are:
--Arduino publisher:
-    --Username: TestUser
-    --Password: TestUser
+* Arduino publisher:
+    * Username: TestUser
+    * Password: TestUser
 
 
 ```bash
