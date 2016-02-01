@@ -21,6 +21,8 @@ cd /usr/local/etc/mosquitto
 #See "Both" Setup Instructions Below
 ```
 
+---
+
 ####Configuring Mosquitto broker
 ```bash
 sudo nano mosquitto.conf
