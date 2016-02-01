@@ -2,6 +2,8 @@
 
 This example illustrates Publish an arbitrary data packet using the Adafruit MQTT library to an MQTT feed which can then be parsed by the included python subscriber client.
 
+|[alt-text](https://raw.githubusercontent.com/stuthedew/Adafruit_MQTT_Library/Arbitrary_buffer_publish/examples/mqtt_arbitrary_buffer/python_subscriber/mqtt_figure.png "Arbitrary data flow diagram")
+
 ---
 
 ## Installing and configuring Mosquitto broker (minimal working setup):
