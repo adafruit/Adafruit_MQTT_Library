@@ -2,7 +2,7 @@
 
 This example illustrates Publish an arbitrary data packet using the Adafruit MQTT library to an MQTT feed which can then be parsed by the included python subscriber client.
 
-## Installing and configuring Mosquitto (minimal working setup)
+### Installing and configuring Mosquitto broker (minimal working setup)
 
 ####Installing on Raspberry Pi/Linux:
 
@@ -19,7 +19,7 @@ cd /usr/local/etc/mosquitto
 #See "Both" Setup Instructions Below
 ```
 
-####Configuring Mosquitto
+####Configuring Mosquitto broker
 ```bash
 sudo nano mosquitto.conf
 ```
@@ -62,7 +62,7 @@ mosquitto_passwd pwfile TestPy #Enter and confirm password when prompted
 ```
 
 ---
-## Using Example Python Subscriber:
+### Using Example Python Subscriber:
 
 Install dependencies if haven't already
 ```bash
