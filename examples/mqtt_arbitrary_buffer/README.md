@@ -5,17 +5,17 @@ This example illustrates Publish an arbitrary data packet using the Adafruit MQT
 To run the python subscriber:
 
 Install dependents if haven't already
-'''bash
+```bash
 cd ../Adafruit_MQTT_Library/examples/mqtt_arbitrary_buffer/python_subscriber
 pip install -r requirements.txt
-'''
+```
 
 Run python script with default values
-'''bash
+```bash
 python subscriber.py
-'''
+```
 
 Use help to list the modifiable options
-'''bash
+```bash
 python subscriber.py -h
-'''
+```
