@@ -63,7 +63,6 @@ def argBegin():
 def parseMsg(payload):
     """Parses C struct from MQTT publisher Adafruit MQTT client to Python list"""
 
-    #values = payload    #TODO: remove extraneous values variable?
     arr = array.array('B', payload) #convert python list to C-like array of unsigned char (B)
 
     parsedStruct = struct.Struct('< 10s h L H') #define struct template (see below)
