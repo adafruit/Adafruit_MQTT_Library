@@ -1,5 +1,5 @@
 /***************************************************
-  Adafruit MQTT Library Arbitrary Packet Example
+  Adafruit MQTT Library Arbitrary Data Example
 
   Must use ESP8266 Arduino from:
     https://github.com/esp8266/Arduino
@@ -12,7 +12,8 @@
   please support Adafruit and open-source hardware by purchasing
   products from Adafruit!
 
-  Written by Tony DiCola for Adafruit Industries.
+  Written by Stuart Feichtinger
+  Modifed from the mqtt_esp8266 example written by Tony DiCola for Adafruit Industries.
   MIT license, all text above must be included in any redistribution
  ****************************************************/
 #include <ESP8266WiFi.h>
