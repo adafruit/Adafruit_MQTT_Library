@@ -1,4 +1,4 @@
-# Adafruit MQTT Library example with support
+# Adafruit MQTT Library Arbitrary Data Publish Example
 
 This example illustrates publishing an arbitrary data packet using the Adafruit MQTT library to an MQTT feed which can then be parsed by the included python subscriber client. Possible usage cases include adding metadata (collection time, sensor info etc) to a datapoint.
 
