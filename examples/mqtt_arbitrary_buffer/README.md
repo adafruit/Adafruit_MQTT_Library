@@ -4,7 +4,7 @@ This example illustrates Publish an arbitrary data packet using the Adafruit MQT
 
 ---
 
-### Installing and configuring Mosquitto broker (minimal working setup):
+## Installing and configuring Mosquitto broker (minimal working setup):
 
 ####_Installing on Raspberry Pi/Linux:_
 
@@ -67,7 +67,7 @@ mosquitto_passwd pwfile TestPy #Enter and confirm password when prompted
 
 ---
 
-### Using Example Python Subscriber:
+## Using Example Python Subscriber:
 
 Install dependencies if haven't already
 ```bash
