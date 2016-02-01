@@ -4,26 +4,26 @@ This example illustrates Publish an arbitrary data packet using the Adafruit MQT
 
 
 ## Installing and configuring Mosquitto (minimal working setup)
-####On a Raspberry Pi/Linux:
+####On Raspberry Pi/Linux:
 
 ```bash
 sudo apt-get install mosquitto
 cd /etc/mosquitto/
-#See Common Setup Instructions Below
+#See "Both" Setup Instructions Below
 ```
 
 ####On a Mac:
 ```bash
 brew install mosquitto
 cd /usr/local/etc/mosquitto
-#See Common Setup Instructions Below
+#See "Both" Setup Instructions Below
 ```
 
-####Common
+####Both
 ```bash
 sudo nano mosquitto.conf
 ```
-scroll about two thirds of the way down until you see:
+Now we have to enable a password file to correctly interface with the Adafruit MQTT library. Scroll about two thirds of the way down until you see:
 
 ```bash
 # -----------------------------------------------------------------
@@ -46,15 +46,26 @@ password_file pwfile
 
 Now `ctrl-x` to save and exit.
 
+You're almost done! We just have to create and populate the password file we just configured. The default user names are:
+-#####Arduino publisher:
+    --Username: TestUser
+    --Password: TestUser
+
+
+```bash
+touch pwfile #create the password file
+```
+
+
 ## Using Example Python Subscriber:
 
-Install dependents if haven't already
+Install dependencies if haven't already
 ```bash
 cd ../Adafruit_MQTT_Library/examples/mqtt_arbitrary_buffer/python_subscriber
 pip install -r requirements.txt
 ```
 
-Run python script with default values
+Run python script with default values and watch your parsed data print out.
 ```bash
 python subscriber.py
 ```
