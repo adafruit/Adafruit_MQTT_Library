@@ -1,5 +1,5 @@
 /***************************************************
-  Adafruit MQTT Library ESP8266 Example
+  Adafruit MQTT Library Arbitrary Packet Example
 
   Must use ESP8266 Arduino from:
     https://github.com/esp8266/Arduino
@@ -26,10 +26,11 @@
 
 /************************* Adafruit.io Setup *********************************/
 
-#define AIO_SERVER      "io.adafruit.com"
-#define AIO_SERVERPORT  1883                   // use 8883 for SSL
-#define AIO_USERNAME    "...your AIO username (see https://accounts.adafruit.com)..."
-#define AIO_KEY         "...your AIO key..."
+#define ARB_SERVER      "...host computer ip address..."
+#define ARB_SERVERPORT  1883                   // use 8883 for SSL
+#define ARB_USERNAME    "testUser"
+#define ARB_PW         "testPassword"
+
 
 /************ Global State (you don't need to change this!) ******************/
 
@@ -40,40 +41,54 @@ WiFiClient client;
 
 // Store the MQTT server, username, and password in flash memory.
 // This is required for using the Adafruit MQTT library.
-const char MQTT_SERVER[] PROGMEM    = AIO_SERVER;
-const char MQTT_USERNAME[] PROGMEM  = AIO_USERNAME;
-const char MQTT_PASSWORD[] PROGMEM  = AIO_KEY;
+const char MQTT_SERVER[] PROGMEM    = ARB_SERVER;
+const char MQTT_USERNAME[] PROGMEM  = ARB_USERNAME;
+const char MQTT_PASSWORD[] PROGMEM  = ARB_PW;
 
 // Setup the MQTT client class by passing in the WiFi client and MQTT server and login details.
-Adafruit_MQTT_Client mqtt(&client, MQTT_SERVER, AIO_SERVERPORT, MQTT_USERNAME, MQTT_PASSWORD);
+Adafruit_MQTT_Client mqtt(&client, MQTT_SERVER, ARB_SERVERPORT, MQTT_USERNAME, MQTT_PASSWORD);
 
 /****************************** Feeds ***************************************/
 
-// Setup a feed called 'photocell' for publishing.
+// Setup a feed called 'arb_packet' for publishing.
 // Notice MQTT paths for AIO follow the form: <username>/feeds/<feedname>
-const char PHOTOCELL_FEED[] PROGMEM = AIO_USERNAME "/feeds/photocell";
-Adafruit_MQTT_Publish photocell = Adafruit_MQTT_Publish(&mqtt, PHOTOCELL_FEED);
-
-// Setup a feed called 'onoff' for subscribing to changes.
-const char ONOFF_FEED[] PROGMEM = AIO_USERNAME "/feeds/onoff";
-Adafruit_MQTT_Subscribe onoffbutton = Adafruit_MQTT_Subscribe(&mqtt, ONOFF_FEED);
+const char ARB_FEED[] PROGMEM = "/feeds/arb_packet";
+Adafruit_MQTT_Publish ap = Adafruit_MQTT_Publish(&mqtt, ARB_FEED);
 
 
 // Arbitrary Payload
 // Union allows for easier interaction of members in struct form with easy publishing
 // of "raw" bytes
 typedef union{
+    //Customize struct with whatever variables/types you like.
 
     struct __attribute__((__packed__)){  // packed to eliminate padding for easier parsing.
         char charAry[10];
         int16_t val1;
         unsigned long val2;
         uint16_t val3;
-        }s;
+    }s;
 
     uint8_t raw[sizeof(s)];                    // For publishing
 
+    } packet_t;
+
+    /*
+        // Alternate Option with anonymous struct, but manual byte count:
+
+        struct __attribute__((__packed__)){  // packed to eliminate padding for easier parsing.
+            char charAry[10];       // 10 x 1 byte  =   10 bytes
+            int16_t val1;           // 1 x  2 bytes =   2 bytes
+            unsigned long val2;     // 1 x  4 bytes =   4 bytes
+            uint16_t val3;          // 1 x  2 bytes =   2 bytes
+                                            -------------------
+                                            TOTAL =    18 bytes
+        };
+        uint8_t raw[18];                    // For publishing
+
+
 } packet_t;
+/*
 
 /*************************** Sketch Code ************************************/
 
@@ -102,11 +117,11 @@ void setup() {
   Serial.println(F("WiFi connected"));
   Serial.println(F("IP address: ")); Serial.println(WiFi.localIP());
 
-  // Setup MQTT subscription for onoff feed.
-  mqtt.subscribe(&onoffbutton);
 }
 
-uint32_t x=0;
+packet_t arbPac;
+
+const char strVal[] PROGMEM = "Hello!";
 
 void loop() {
   // Ensure the connection to the MQTT server is alive (this will make the first
@@ -114,26 +129,30 @@ void loop() {
   // function definition further below.
   MQTT_connect();
 
-  // this is our 'wait for incoming subscription packets' busy subloop
-  // try to spend your time here
+  //Update arbitrary packet values
+  strcpy_P(arbPac.s.charAry, strVal);
+  arbPac.s.val1 = -4533;
+  arbPac.s.val2 = millis();
+  arbPac.s.val3 = 3354;
 
-  Adafruit_MQTT_Subscribe *subscription;
-  while ((subscription = mqtt.readSubscription(5000))) {
-    if (subscription == &onoffbutton) {
-      Serial.println(F("Got: "));
-      Serial.println((char *)onoffbutton.lastread);
-    }
-  }
+  /*
+    // Alternate Union with anonymous struct
 
-  // Now we can publish stuff!
-  Serial.print(F("\nSending photocell val "));
-  Serial.print(x);
-  Serial.print(F("..."));
-  if (! photocell.publish(x++)) {
-    Serial.println(F("Failed"));
-  } else {
-    Serial.println(F("OK!"));
-  }
+     strcpy_P(arbPac.charAry, strVal);
+     arbPac.val1 = -4533;
+     arbPac.val2 = millis();
+     arbPac.val3 = 3354;
+  */
+
+  if (! ap.publish(arbPac.raw, sizeof(packet_t)))
+        Serial.println(F("Publish Failed."));
+      else {
+        Serial.println(F("Publish Success!"));
+        delay(500);
+      }
+
+      delay(10000);
+
 
   // ping the server to keep the mqtt connection alive
   // NOT required if you are publishing once every KEEPALIVE seconds
