@@ -137,7 +137,8 @@ void loop() {
   arbPac.s.val3 = 3354;
 
   /*
-    // Alternate Union with anonymous struct
+   // Alternate Union with anonymous struct
+   // (see union declaration above)
 
      strcpy_P(arbPac.charAry, strVal);
      arbPac.val1 = -4533;
