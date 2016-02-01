@@ -2,7 +2,7 @@
 
 This example illustrates Publish an arbitrary data packet using the Adafruit MQTT library to an MQTT feed which can then be parsed by the included python subscriber client.
 
-To run the python subscriber:
+## Using Example Python Subscriber:
 
 Install dependents if haven't already
 ```bash
@@ -15,7 +15,7 @@ Run python script with default values
 python subscriber.py
 ```
 
-Use help to list the modifiable options
+Use help to see a list of modifiable options
 ```bash
 python subscriber.py -h
 ```
