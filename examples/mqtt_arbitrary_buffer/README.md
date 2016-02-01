@@ -65,6 +65,7 @@ mosquitto_passwd pwfile TestUser #Enter and confirm password when prompted
 mosquitto_passwd pwfile TestPy #Enter and confirm password when prompted
 ```
 
+####Running Mosquitto broker
 Now run Mosquitto broker to allow Arduino publisher and Python subscriber to communicate
 
 ```bash
@@ -75,18 +76,27 @@ mosquitto
 
 ## Using Example Python Subscriber:
 
-Install dependencies if haven't already
+####Installing Python subscriber
+Install dependencies if you haven't already
 ```bash
 cd ../Adafruit_MQTT_Library/examples/mqtt_arbitrary_buffer/python_subscriber
 pip install -r requirements.txt
 ```
 
+
+####Installing Python subscriber
 Run python script with default values and watch your parsed data print out.
 ```bash
-python subscriber.py
+python subscriber.py #Add -h flag to see modifiable options
 ```
 
-Use help to see a list of modifiable options
+Assuming that the Mosquitto broker is running in the background and the Adafruit_MQTT client (Arduino) is publishing, you should see the example data print out every 10 seconds.
+
 ```bash
-python subscriber.py -h
+MQTT:  Connection successful
+Connection successful
+Subscribed to /feeds/arb_packet
+Received char Array: "Hello!", val1: -4533, val2: 73102, val3: 3354...
+Received char Array: "Hello!", val1: -4533, val2: 83611, val3: 3354...
+Received char Array: "Hello!", val1: -4533, val2: 94115, val3: 3354...
 ```
