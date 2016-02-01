@@ -17,14 +17,14 @@ Specifically, I was playing around with a [Teviso RD3024 radiation sensor](http:
 ```bash
 sudo apt-get install mosquitto
 cd /etc/mosquitto/
-#See "Both" Setup Instructions Below
+#See "Configuring Mosquitto Broker below"
 ```
 
 ####_Installing On a Mac:_
 ```bash
 brew install mosquitto
 cd /usr/local/etc/mosquitto
-#See "Both" Setup Instructions Below
+#See "Configuring Mosquitto Broker below"
 ```
 
 ---
