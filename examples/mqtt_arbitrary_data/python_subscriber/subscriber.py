@@ -74,10 +74,10 @@ def parseMsg(payload):
 
              Var NAME   | C TYPE (python symbol)    | size of member x bytes
              -------------------------------------------------------------------
-              "charAry" |   uchar (s)               |   10s x 1 = 10 bytes
-              "val1"    |   int16 / short (h)       |   1h  x 2 =  2 bytes
-              "val2"    |   unsigned long (L)       |   1L  x 4 =  4 bytes
-              "val3"    |   uint16 / unsigned short |   1H  x 2 =  2 bytes
+              "charAry" |  uchar (s)               |   10s x 1 = 10 bytes
+              "val1"    |  int16 / short (h)       |   1h  x 2 =  2 bytes
+              "val2"    |  unsigned long (L)       |   1L  x 4 =  4 bytes
+              "val3"    |  uint16/unsigned short(H)|   1H  x 2 =  2 bytes
               ------------------------------------------------------------------
                                     Total packet size =         | 18 bytes |
 
