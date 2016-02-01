@@ -55,7 +55,9 @@ def argBegin():
     parser = argparse.ArgumentParser(description='MQTT subscriber for Adafruit MQTT library mqtt_arbitrary_buffer example')
     parser.add_argument("--host", default="localhost", help='mqtt host to connect to. Defaults to localhost.')
     parser.add_argument("-p", "--port", default=1883, help='network port to connect to. Defaults to 1883.')
-    parser.add_argument("-t", "--topic", nargs='*', required=True, help="mqtt topic to subscribe to. May be repeated multiple times.")
+    parser.add_argument("-t", "--topic", nargs='*', default="/feeds/arb_packet", help="mqtt topic to subscribe to. May be repeated multiple times.")
+    parser.add_argument("-u", "--username", default="testPy", help="provide a username (requires MQTT 3.1 broker)")
+    parser.add_argument("-P", "--password", default="testPy", help="provide a password (requires MQTT 3.1 broker)")
     parser.add_argument("-k", "--keepalive", default=60, help="keep alive in seconds for this client. Defaults to 60.")
 
     return parser.parse_args()
@@ -98,6 +100,7 @@ def main():
     client = mqtt.Client()
     client.on_connect = on_connect
     client.on_message = on_message
+    client.username_pw_set(args.username, args.password)
     client.connect(args.host, args.port, args.keepalive)
 
     # Blocking call that processes network traffic, dispatches callbacks and
