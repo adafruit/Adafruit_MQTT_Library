@@ -52,8 +52,8 @@ You're almost done! We just have to create and populate the password file we jus
     * Password: TestUser
 
 * Python Subscriber:
-    * Username: TestPy
-    * Password: TestPy
+    *Username: TestPy
+    *Password: TestPy
 
 
 ```bash
