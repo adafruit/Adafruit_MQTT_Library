@@ -65,6 +65,12 @@ mosquitto_passwd pwfile TestUser #Enter and confirm password when prompted
 mosquitto_passwd pwfile TestPy #Enter and confirm password when prompted
 ```
 
+Now run Mosquitto broker to allow Arduino publisher and Python subscriber to communicate
+
+```bash
+mosquitto
+```
+
 ---
 
 ## Using Example Python Subscriber:
