@@ -3,17 +3,48 @@
 This example illustrates Publish an arbitrary data packet using the Adafruit MQTT library to an MQTT feed which can then be parsed by the included python subscriber client.
 
 
-## Installing and running Mosquitto
-####On a Raspberry Pi:
+## Installing and configuring Mosquitto (minimal working setup)
+####On a Raspberry Pi/Linux:
+
 ```bash
 sudo apt-get install mosquitto
+cd /etc/mosquitto/
+#See Common Setup Instructions Below
 ```
 
 ####On a Mac:
 ```bash
 brew install mosquitto
+cd /usr/local/etc/mosquitto
+#See Common Setup Instructions Below
 ```
 
+####Common
+```bash
+sudo nano mosquitto.conf
+```
+scroll about two thirds of the way down until you see:
+
+```bash
+# -----------------------------------------------------------------
+# Default authentication and topic access control
+# -----------------------------------------------------------------
+```
+
+You should see `#password_file` about a paragraph after that.
+Change
+
+```bash
+#password_file
+```
+
+To
+
+```bash
+password_file pwfile
+```
+
+Now `ctrl-x` to save and exit.
 
 ## Using Example Python Subscriber:
 
