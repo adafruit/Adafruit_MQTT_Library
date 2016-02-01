@@ -28,8 +28,8 @@
 
 #define ARB_SERVER      "...host computer ip address..."
 #define ARB_SERVERPORT  1883                   // use 8883 for SSL
-#define ARB_USERNAME    "testUser"
-#define ARB_PW         "testPassword"
+#define ARB_USERNAME    "TestUser"
+#define ARB_PW         "TestUser"
 
 
 /************ Global State (you don't need to change this!) ******************/
