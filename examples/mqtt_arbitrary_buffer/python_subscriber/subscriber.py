@@ -85,9 +85,14 @@ def parseMsg(payload):
         https://docs.python.org/2/library/struct.html
     '''
 
-    charAry, val1, val2, val3 = parsedStruct.unpack_from(arr)
+    charAry, val1, val2, val3 = parsedStruct.unpack_from(arr)  #convert byte array to formatted struct
     charAry = charAry.rstrip(' \t\r\n\0') #remove trailing white space from buffer
     return charAry, val1, val2, val3
+
+
+
+
+
 
 
 def main():
