@@ -4,7 +4,7 @@ This example illustrates Publish an arbitrary data packet using the Adafruit MQT
 
 
 ## Installing and configuring Mosquitto (minimal working setup)
-####On Raspberry Pi/Linux:
+####Installing on Raspberry Pi/Linux:
 
 ```bash
 sudo apt-get install mosquitto
@@ -12,14 +12,14 @@ cd /etc/mosquitto/
 #See "Both" Setup Instructions Below
 ```
 
-####On a Mac:
+####Installing On a Mac:
 ```bash
 brew install mosquitto
 cd /usr/local/etc/mosquitto
 #See "Both" Setup Instructions Below
 ```
 
-####Both
+####Configuring Mosquitto
 ```bash
 sudo nano mosquitto.conf
 ```
@@ -55,14 +55,13 @@ You're almost done! We just have to create and populate the password file we jus
     * Username: TestPy
     * Password: TestPy
 
-
 ```bash
 touch pwfile #create the password file
 mosquitto_passwd pwfile TestUser #Enter and confirm password when prompted
 mosquitto_passwd pwfile TestPy #Enter and confirm password when prompted
 ```
 
-
+---
 ## Using Example Python Subscriber:
 
 Install dependencies if haven't already
