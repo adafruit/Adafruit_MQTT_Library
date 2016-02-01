@@ -6,7 +6,7 @@ This example illustrates Publish an arbitrary data packet using the Adafruit MQT
 
 ### Installing and configuring Mosquitto broker (minimal working setup):
 
-####__Installing on Raspberry Pi/Linux:__
+####_Installing on Raspberry Pi/Linux:_
 
 ```bash
 sudo apt-get install mosquitto
@@ -14,7 +14,7 @@ cd /etc/mosquitto/
 #See "Both" Setup Instructions Below
 ```
 
-####__Installing On a Mac:__
+####_Installing On a Mac:_
 ```bash
 brew install mosquitto
 cd /usr/local/etc/mosquitto
