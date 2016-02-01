@@ -47,13 +47,13 @@ password_file pwfile
 Now `ctrl-x` to save and exit.
 
 You're almost done! We just have to create and populate the password file we just configured. The default user info is:
-* Arduino Subscriber:
+* **Arduino Subscriber:**
     * Username: TestUser
     * Password: TestUser
 
-* Python Subscriber:
-    *Username: TestPy
-    *Password: TestPy
+* **Python Subscriber:**
+    * Username: TestPy
+    * Password: TestPy
 
 
 ```bash
