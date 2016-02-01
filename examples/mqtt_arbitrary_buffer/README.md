@@ -4,12 +4,12 @@ This example illustrates Publish an arbitrary data packet using the Adafruit MQT
 
 
 ## Installing and running Mosquitto
-###On a Raspberry Pi:
+####On a Raspberry Pi:
 ```bash
 sudo apt-get install mosquitto
 ```
 
-###On a Mac:
+####On a Mac:
 ```bash
 brew install mosquitto
 ```
