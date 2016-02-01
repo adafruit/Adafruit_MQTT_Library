@@ -46,14 +46,20 @@ password_file pwfile
 
 Now `ctrl-x` to save and exit.
 
-You're almost done! We just have to create and populate the password file we just configured. The default user names are:
-* Arduino publisher:
+You're almost done! We just have to create and populate the password file we just configured. The default user info is:
+* Arduino Subscriber:
     * Username: TestUser
     * Password: TestUser
+
+* Python Subscriber:
+    * Username: TestPy
+    * Password: TestPy
 
 
 ```bash
 touch pwfile #create the password file
+mosquitto_passwd pwfile TestUser #Enter and confirm password when prompted
+mosquitto_passwd pwfile TestPy #Enter and confirm password when prompted
 ```
 
 
