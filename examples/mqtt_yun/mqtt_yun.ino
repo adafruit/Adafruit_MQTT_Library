@@ -18,7 +18,7 @@
  ****************************************************/
 #include <Bridge.h>
 #include <Console.h>
-#include <YunClient.h>
+#include <BridgeClient.h>
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_Client.h"
 
@@ -32,8 +32,8 @@
 
 /************ Global State (you don't need to change this!) ******************/
 
-// Create a YunClient instance to communicate using the Yun's brighe & Linux OS.
-YunClient client;
+// Create a BridgeClient instance to communicate using the Yun's Bridge & Linux OS.
+BridgeClient client;
 
 // Store the MQTT server, username, and password in flash memory.
 // This is required for using the Adafruit MQTT library.
@@ -59,6 +59,7 @@ Adafruit_MQTT_Subscribe onoffbutton = Adafruit_MQTT_Subscribe(&mqtt, ONOFF_FEED)
 
 void setup() {
   Bridge.begin();
+  // SSH into your Yun and "nc localhost 6571" to see the output
   Console.begin();
   Console.println(F("Adafruit MQTT demo"));
 
