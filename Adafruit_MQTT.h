@@ -95,6 +95,9 @@
 // eg max-subscription-payload-size
 #define SUBSCRIPTIONDATALEN 20
 
+//Function pointer called CallbackType that takes a float
+//and returns an int
+typedef void (*SubscribeCallbackType)(char *);  
 
 extern void printBuffer(uint8_t *buffer, uint8_t len);
 
@@ -202,6 +205,11 @@ class Adafruit_MQTT {
   virtual uint16_t readPacket(uint8_t *buffer, uint8_t maxlen, int16_t timeout,
                               bool checkForValidPubPacket = false) = 0;
 
+  // Read a full packet, keeping note of the correct length
+  uint16_t readFullPacket(uint8_t *buffer, uint16_t timeout);
+  // Properly process packets until you get to one you want
+  uint16_t processPacketsUntil(uint8_t *buffer, uint8_t waitforpackettype, uint16_t timeout);
+
   // Shared state that subclasses can use:
   const char *servername;
   int16_t portnum;
@@ -255,7 +263,8 @@ class Adafruit_MQTT_Subscribe {
   Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver, const char *feedname, uint8_t q=0);
   Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver, const __FlashStringHelper *feedname, uint8_t q=0);
 
-  bool setCallback(void (*callback)(char *));
+  void setCallback(SubscribeCallbackType callb);
+  void removeCallback(void);
 
   const char *topic;
   uint8_t qos;
@@ -265,6 +274,7 @@ class Adafruit_MQTT_Subscribe {
   // ensure nul terminating lastread.
   uint8_t datalen;
  private:
+  SubscribeCallbackType callback;
   Adafruit_MQTT *mqtt;
 };
 
