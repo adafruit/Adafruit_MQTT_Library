@@ -583,8 +583,9 @@ uint8_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
                                      uint8_t *data, uint8_t bLen, uint8_t qos) {
   uint8_t *p = packet;
   uint16_t len;
+  uint8_t retain = 0x1;
 
-  p[0] = MQTT_CTRL_PUBLISH << 4 | qos << 1;
+  p[0] = MQTT_CTRL_PUBLISH << 4 | qos << 1 | retain << 0;
   // fill in packet[1] last
   p+=2;
 
