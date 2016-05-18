@@ -200,10 +200,8 @@ class Adafruit_MQTT {
 
   // Read MQTT packet from the server.  Will read up to maxlen bytes and store
   // the data in the provided buffer.  Waits up to the specified timeout (in
-  // milliseconds) for data to be available.  If checkForValidPubPacket is true
-  // then the received data is verified to make sure it's a complete packet.
-  virtual uint16_t readPacket(uint8_t *buffer, uint8_t maxlen, int16_t timeout,
-                              bool checkForValidPubPacket = false) = 0;
+  // milliseconds) for data to be available. 
+  virtual uint16_t readPacket(uint8_t *buffer, uint8_t maxlen, int16_t timeout) = 0;
 
   // Read a full packet, keeping note of the correct length
   uint16_t readFullPacket(uint8_t *buffer, uint16_t timeout);

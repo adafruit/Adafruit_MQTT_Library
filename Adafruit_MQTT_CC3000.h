@@ -100,8 +100,7 @@ class Adafruit_MQTT_CC3000 : public Adafruit_MQTT {
     return mqttclient.connected();
   }
 
-  uint16_t readPacket(uint8_t *buffer, uint8_t maxlen, int16_t timeout,
-                      bool checkForValidPubPacket = false) {
+  uint16_t readPacket(uint8_t *buffer, uint8_t maxlen, int16_t timeout) {
     /* Read data until either the connection is closed, or the idle timeout is reached. */
     uint16_t len = 0;
     int16_t t = timeout;
@@ -119,16 +118,6 @@ class Adafruit_MQTT_CC3000 : public Adafruit_MQTT {
           DEBUG_PRINT(F("Read packet:\t"));
           DEBUG_PRINTBUFFER(buffer, len);
           return len;
-        }
-
-        // special case where we just one one publication packet at a time
-        if (checkForValidPubPacket) {
-          if ((buffer[0] == (MQTT_CTRL_PUBLISH << 4)) && (buffer[1] == len-2)) {
-            // oooh a valid publish packet!
-            DEBUG_PRINT(F("Read PUBLISH packet:\t"));
-            DEBUG_PRINTBUFFER(buffer, len);
-            return len;
-          }
         }
       }
       Watchdog.reset();

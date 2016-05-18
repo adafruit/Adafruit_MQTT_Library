@@ -169,7 +169,7 @@ int8_t Adafruit_MQTT::connect() {
     return -1;
 
   // Read connect response packet and verify it
-  len = readPacket(buffer, 4, CONNECT_TIMEOUT_MS);
+  len = readFullPacket(buffer, CONNECT_TIMEOUT_MS);
   if (len != 4)
     return -1;
   if ((buffer[0] != (MQTT_CTRL_CONNECTACK << 4)) || (buffer[1] != 2))
@@ -182,23 +182,27 @@ int8_t Adafruit_MQTT::connect() {
     // Ignore subscriptions that aren't defined.
     if (subscriptions[i] == 0) continue;
 
-    // Construct and send subscription packet.
-    uint8_t len = subscribePacket(buffer, subscriptions[i]->topic, subscriptions[i]->qos);
-    if (!sendPacket(buffer, len))
-      return -1;
+    boolean success = false;
+    for (uint8_t retry=0; (retry<3) && !success; retry++) { // retry until we get a suback    
+      // Construct and send subscription packet.
+      uint8_t len = subscribePacket(buffer, subscriptions[i]->topic, subscriptions[i]->qos);
+      if (!sendPacket(buffer, len))
+	return -1;
 
-    // Check for SUBACK if using MQTT 3.1.1 or higher
-    // TODO: The Server is permitted to start sending PUBLISH packets matching the
-    // Subscription before the Server sends the SUBACK Packet. (will really need to use callbacks - ada)
-    if(MQTT_PROTOCOL_LEVEL > 3) {
-       len = processPacketsUntil(buffer, MQTT_CTRL_SUBACK, CONNECT_TIMEOUT_MS);
-       DEBUG_PRINT(F("SubAck:\t"));
-       DEBUG_PRINTBUFFER(buffer, len);
-       if ((len != 5) || (buffer[0] != (MQTT_CTRL_SUBACK << 4))) {
-         return 6;  // failure to subscribe
-       }
+      if(MQTT_PROTOCOL_LEVEL < 3) // older versions didn't suback
+	break;
+
+      // Check for SUBACK if using MQTT 3.1.1 or higher
+      // TODO: The Server is permitted to start sending PUBLISH packets matching the
+      // Subscription before the Server sends the SUBACK Packet. (will really need to use callbacks - ada)
+
+      len = processPacketsUntil(buffer, MQTT_CTRL_SUBACK, CONNECT_TIMEOUT_MS);
+      if ((len != 5) || (buffer[0] != (MQTT_CTRL_SUBACK << 4))) {
+	continue; // retry!
+      }
+      success = true;
     }
-
+    if (! success) return 6; // failed to sub for some reason
   }
 
   return 0;
@@ -208,7 +212,8 @@ uint16_t Adafruit_MQTT::processPacketsUntil(uint8_t *buffer, uint8_t waitforpack
   uint16_t len;
   while (len = readFullPacket(buffer, timeout)) {
 
-    // TODO: add subscription reading & processing here
+    //DEBUG_PRINT("Packet read size: "); DEBUG_PRINTLN(len);
+    // TODO: add subscription reading & call back processing here
 
     if ((buffer[0] >> 4) == waitforpackettype) {
       //DEBUG_PRINTLN(F("Found right packet")); 
@@ -251,7 +256,7 @@ uint16_t Adafruit_MQTT::readFullPacket(uint8_t *buffer, uint16_t timeout) {
     }
   } while (encodedByte & 0x80);
 
-  //DEBUG_PRINT(F("Packet Length:\t")); DEBUG_PRINTLN(value);
+  DEBUG_PRINT(F("Packet Length:\t")); DEBUG_PRINTLN(value);
   
   rlen = readPacket(pbuff, value, timeout);
   //DEBUG_PRINT(F("Remaining packet:\t")); DEBUG_PRINTBUFFER(pbuff, rlen);
@@ -296,7 +301,7 @@ bool Adafruit_MQTT::publish(const char *topic, uint8_t *data, uint8_t bLen, uint
 
   // If QOS level is high enough verify the response packet.
   if (qos > 0) {
-    len = readPacket(buffer, 4, PUBLISH_TIMEOUT_MS);
+    len = readFullPacket(buffer, PUBLISH_TIMEOUT_MS);
     DEBUG_PRINT(F("Publish QOS1+ reply:\t"));
     DEBUG_PRINTBUFFER(buffer, len);
     if (len != 4)
@@ -377,7 +382,7 @@ bool Adafruit_MQTT::unsubscribe(Adafruit_MQTT_Subscribe *sub) {
       if(subscriptions[i]->qos > 0 && MQTT_PROTOCOL_LEVEL > 3) {
 
         // wait for UNSUBACK
-        len = readPacket(buffer, 5, CONNECT_TIMEOUT_MS);
+        len = readFullPacket(buffer, CONNECT_TIMEOUT_MS);
         DEBUG_PRINT(F("UNSUBACK:\t"));
         DEBUG_PRINTBUFFER(buffer, len);
 
@@ -401,9 +406,10 @@ Adafruit_MQTT_Subscribe *Adafruit_MQTT::readSubscription(int16_t timeout) {
   uint8_t i, topiclen, datalen;
 
   // Check if data is available to read.
-  uint16_t len = readPacket(buffer, MAXBUFFERSIZE, timeout, true); // return one full packet
+  uint16_t len = readFullPacket(buffer, timeout); // return one full packet
   if (!len)
     return NULL;  // No data available, just quit.
+  DEBUG_PRINT("Packet len: "); DEBUG_PRINTLN(len); 
   DEBUG_PRINTBUFFER(buffer, len);
 
   // Parse out length of packet.
