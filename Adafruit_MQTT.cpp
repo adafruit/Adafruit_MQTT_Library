@@ -94,6 +94,11 @@ Adafruit_MQTT::Adafruit_MQTT(const char *server,
     subscriptions[i] = 0;
   }
 
+  will_topic = 0;
+  will_payload = 0;
+  will_qos = 0;
+  will_retain = 0;
+
   packet_id_counter = 0;
 
 }
@@ -115,6 +120,11 @@ Adafruit_MQTT::Adafruit_MQTT(const __FlashStringHelper *server,
     subscriptions[i] = 0;
   }
 
+  will_topic = 0;
+  will_payload = 0;
+  will_qos = 0;
+  will_retain = 0;
+
   packet_id_counter = 0;
 
 }
@@ -133,6 +143,11 @@ Adafruit_MQTT::Adafruit_MQTT(const char *server,
   for (uint8_t i=0; i<MAXSUBSCRIPTIONS; i++) {
     subscriptions[i] = 0;
   }
+
+  will_topic = 0;
+  will_payload = 0;
+  will_qos = 0;
+  will_retain = 0;
 
   packet_id_counter = 0;
 
@@ -153,6 +168,11 @@ Adafruit_MQTT::Adafruit_MQTT(const __FlashStringHelper *server,
   for (uint8_t i=0; i<MAXSUBSCRIPTIONS; i++) {
     subscriptions[i] = 0;
   }
+
+  will_topic = 0;
+  will_payload = 0;
+  will_qos = 0;
+  will_retain = 0;
 
   packet_id_counter = 0;
 
@@ -753,6 +773,7 @@ Adafruit_MQTT_Subscribe::Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver,
   mqtt = mqttserver;
   topic = feed;
   qos = q;
+  datalen = 0;
   callback = 0;
 }
 
@@ -761,6 +782,7 @@ Adafruit_MQTT_Subscribe::Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver,
   mqtt = mqttserver;
   topic = (const char *)feed;
   qos = q;
+  datalen = 0;
   callback = 0;
 }
 
