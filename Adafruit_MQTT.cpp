@@ -21,7 +21,7 @@
 // SOFTWARE.
 #include "Adafruit_MQTT.h"
 
-#ifdef ARDUINO_SAMD_ZERO
+#ifndef dtostrf
 static char *dtostrf (double val, signed char width, unsigned char prec, char *sout) {
   char fmt[20];
   sprintf(fmt, "%%%d.%df", width, prec);
