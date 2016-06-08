@@ -70,7 +70,7 @@ class Adafruit_MQTT_FONA : public Adafruit_MQTT {
 
   uint16_t readPacket(uint8_t *buffer, uint8_t maxlen, int16_t timeout) {
     uint8_t *buffp = buffer;
-    DEBUG_PRINTLN(F("Reading a packet.."));
+    DEBUG_PRINTLN(F("Reading data.."));
 
     if (!fona->TCPconnected()) return 0;
 
@@ -81,9 +81,9 @@ class Adafruit_MQTT_FONA : public Adafruit_MQTT {
     uint16_t avail;
 
     while (fona->TCPconnected() && (timeout >= 0)) {
-      DEBUG_PRINT('.');
+      //DEBUG_PRINT('.');
       while (avail = fona->TCPavailable()) {
-        DEBUG_PRINT('!');
+        //DEBUG_PRINT('!');
 
         if (len + avail > maxlen) {
 	  avail = maxlen - len;
@@ -101,7 +101,7 @@ class Adafruit_MQTT_FONA : public Adafruit_MQTT {
         //DEBUG_PRINTLN((uint8_t)c, HEX);
 
         if (len == maxlen) {  // we read all we want, bail
-          DEBUG_PRINT(F("Read packet:\t"));
+          DEBUG_PRINT(F("Read:\t"));
           DEBUG_PRINTBUFFER(buffer, len);
 	  return len;
         }

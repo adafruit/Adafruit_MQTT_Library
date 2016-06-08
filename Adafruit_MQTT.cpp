@@ -253,7 +253,7 @@ uint16_t Adafruit_MQTT::readFullPacket(uint8_t *buffer, uint16_t timeout) {
   rlen = readPacket(pbuff, 1, timeout);
   if (rlen != 1) return 0;
 
-  //DEBUG_PRINT(F("Packet Type:\t")); DEBUG_PRINTBUFFER(pbuff, rlen);
+  DEBUG_PRINT(F("Packet Type:\t")); DEBUG_PRINTBUFFER(pbuff, rlen);
   pbuff++;
 
   uint32_t value = 0;
@@ -265,12 +265,11 @@ uint16_t Adafruit_MQTT::readFullPacket(uint8_t *buffer, uint16_t timeout) {
     if (rlen != 1) return 0;
     encodedByte = pbuff[0]; // save the last read val
     pbuff++; // get ready for reading the next byte
-
     uint32_t intermediate = encodedByte & 0x7F;
     intermediate *= multiplier;
     value += intermediate;
     multiplier *= 128;
-    if (multiplier > 128*128*128) {
+    if (multiplier > (128UL*128UL*128UL)) {
       DEBUG_PRINT(F("Malformed packet len\n"));
       return 0;
     }
