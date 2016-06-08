@@ -68,8 +68,7 @@ class Adafruit_MQTT_FONA : public Adafruit_MQTT {
     return fona->TCPconnected();
   }
 
-  uint16_t readPacket(uint8_t *buffer, uint8_t maxlen, int16_t timeout,
-                      bool checkForValidPubPacket = false) {
+  uint16_t readPacket(uint8_t *buffer, uint8_t maxlen, int16_t timeout) {
     uint8_t *buffp = buffer;
     DEBUG_PRINTLN(F("Reading a packet.."));
 
@@ -104,19 +103,8 @@ class Adafruit_MQTT_FONA : public Adafruit_MQTT {
         if (len == maxlen) {  // we read all we want, bail
           DEBUG_PRINT(F("Read packet:\t"));
           DEBUG_PRINTBUFFER(buffer, len);
-    return len;
+	  return len;
         }
-
-        // special case where we just one one publication packet at a time
-        if (checkForValidPubPacket) {
-          if ((buffer[0] == (MQTT_CTRL_PUBLISH << 4)) && (buffer[1] == len-2)) {
-            // oooh a valid publish packet!
-            DEBUG_PRINT(F("Read PUBLISH packet:\t"));
-            DEBUG_PRINTBUFFER(buffer, len);
-            return len;
-          }
-        }
-
       }
 #ifdef ADAFRUIT_SLEEPYDOG_H
       Watchdog.reset();
@@ -125,7 +113,7 @@ class Adafruit_MQTT_FONA : public Adafruit_MQTT {
       timeout -= MQTT_FONA_QUERYDELAY; // this is how long it takes to query the FONA for avail()
       delay(MQTT_FONA_INTERAVAILDELAY);
     }
-
+    
     return len;
   }
 
