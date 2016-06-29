@@ -222,7 +222,7 @@ int8_t Adafruit_MQTT::connect() {
       }
       success = true;
     }
-    if (! success) return 6; // failed to sub for some reason
+    if (! success) return -2; // failed to sub for some reason
   }
 
   return 0;
@@ -285,13 +285,15 @@ uint16_t Adafruit_MQTT::readFullPacket(uint8_t *buffer, uint16_t timeout) {
 
 const __FlashStringHelper* Adafruit_MQTT::connectErrorString(int8_t code) {
    switch (code) {
-      case 1: return F("Wrong protocol");
-      case 2: return F("ID rejected");
-      case 3: return F("Server unavail");
-      case 4: return F("Bad user/pass");
-      case 5: return F("Not authed");
-      case 6: return F("Failed to subscribe");
+      case 1: return F("The Server does not support the level of the MQTT protocol requested");
+      case 2: return F("The Client identifier is correct UTF-8 but not allowed by the Server");
+      case 3: return F("The MQTT service is unavailable");
+      case 4: return F("The data in the user name or password is malformed");
+      case 5: return F("Not authorized to connect");
+      case 6: return F("Exceeded reconnect rate limit. Please try again later.");
+      case 7: return F("You have been banned from connecting. Please contact the MQTT server administrator for more details.");
       case -1: return F("Connection failed");
+      case -2: return F("Failed to subscribe");
       default: return F("Unknown error");
    }
 }
