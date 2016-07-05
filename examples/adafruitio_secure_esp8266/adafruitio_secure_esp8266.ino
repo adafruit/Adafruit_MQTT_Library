@@ -111,6 +111,9 @@ void loop() {
     Serial.println(F("OK!"));
   }
 
+  // wait a couple seconds to avoid rate limit
+  delay(2000);
+
 }
 
 
