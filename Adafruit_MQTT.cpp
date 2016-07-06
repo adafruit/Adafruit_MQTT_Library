@@ -768,7 +768,7 @@ bool Adafruit_MQTT_Publish::publish(int32_t i) {
 }
 
 bool Adafruit_MQTT_Publish::publish(double f, uint8_t precision) {
-  char payload[40];  // Need to technically hold float max, 39 digits and minus sign.
+  char payload[41];  // Need to technically hold float max, 39 digits and minus sign.
   dtostrf(f, 0, precision, payload);
   return mqtt->publish(topic, payload, qos);
 }
