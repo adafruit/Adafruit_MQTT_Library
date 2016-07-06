@@ -88,7 +88,7 @@ bool Adafruit_MQTT_Client::sendPacket(uint8_t *buffer, uint16_t len) {
       len -= ret;
 
       if (ret != sendlen) {
-	DEBUG_PRINTLN("Failed to send complete packet.");
+	DEBUG_PRINTLN("Failed to send packet.");
 	return false;
       }
     } else {
