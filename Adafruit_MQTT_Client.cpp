@@ -74,17 +74,27 @@ uint16_t Adafruit_MQTT_Client::readPacket(uint8_t *buffer, uint16_t maxlen,
   return len;
 }
 
-bool Adafruit_MQTT_Client::sendPacket(uint8_t *buffer, uint8_t len) {
-  if (client->connected()) {
-    uint16_t ret = client->write(buffer, len);
-    DEBUG_PRINT(F("sendPacket returned: ")); DEBUG_PRINTLN(ret);
-    if (ret != len) {
-      DEBUG_PRINTLN("Failed to send complete packet.")
+bool Adafruit_MQTT_Client::sendPacket(uint8_t *buffer, uint16_t len) {
+  uint16_t ret = 0;
+
+  while (len > 0) {
+    if (client->connected()) {
+      // send 250 bytes at most at a time, can adjust this later based on Client
+
+      uint16_t sendlen = min(len, 250);
+      Serial.print("Sending: "); Serial.println(sendlen);
+      ret = client->write(buffer, sendlen);
+      DEBUG_PRINT(F("Client sendPacket returned: ")); DEBUG_PRINTLN(ret);
+      len -= ret;
+
+      if (ret != sendlen) {
+	DEBUG_PRINTLN("Failed to send complete packet.");
+	return false;
+      }
+    } else {
+      DEBUG_PRINTLN(F("Connection failed!"));
       return false;
     }
-  } else {
-    DEBUG_PRINTLN(F("Connection failed!"));
-    return false;
   }
   return true;
 }

@@ -163,7 +163,7 @@ class Adafruit_MQTT {
   // The topic must be stored in PROGMEM. It can either be a
   // char*, or a __FlashStringHelper* (the result of the F() macro).
   bool publish(const char *topic, const char *payload, uint8_t qos = 0);
-  bool publish(const char *topic, uint8_t *payload, uint8_t bLen, uint8_t qos = 0);
+  bool publish(const char *topic, uint8_t *payload, uint16_t bLen, uint8_t qos = 0);
   bool publish(const __FlashStringHelper *topic, const char *payload, uint8_t qos = 0) {
     return publish((const char *)topic, payload, qos);
   }
@@ -196,7 +196,7 @@ class Adafruit_MQTT {
   virtual bool disconnectServer() = 0;  // Subclasses need to fill this in!
 
   // Send data to the server specified by the buffer and length of data.
-  virtual bool sendPacket(uint8_t *buffer, uint8_t len) = 0;
+  virtual bool sendPacket(uint8_t *buffer, uint16_t len) = 0;
 
   // Read MQTT packet from the server.  Will read up to maxlen bytes and store
   // the data in the provided buffer.  Waits up to the specified timeout (in
@@ -229,7 +229,7 @@ class Adafruit_MQTT {
   // Functions to generate MQTT packets.
   uint8_t connectPacket(uint8_t *packet);
   uint8_t disconnectPacket(uint8_t *packet);
-  uint8_t publishPacket(uint8_t *packet, const char *topic, uint8_t *payload, uint8_t bLen, uint8_t qos);
+  uint16_t publishPacket(uint8_t *packet, const char *topic, uint8_t *payload, uint16_t bLen, uint8_t qos);
   uint8_t subscribePacket(uint8_t *packet, const char *topic, uint8_t qos);
   uint8_t unsubscribePacket(uint8_t *packet, const char *topic);
   uint8_t pingPacket(uint8_t *packet);
@@ -247,7 +247,7 @@ class Adafruit_MQTT_Publish {
                                                 // This might be ignored and a higher precision value sent.
   bool publish(int32_t i);
   bool publish(uint32_t i);
-  bool publish(uint8_t *b, uint8_t bLen);
+  bool publish(uint8_t *b, uint16_t bLen);
 
 
 private:

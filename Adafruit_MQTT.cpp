@@ -319,9 +319,9 @@ bool Adafruit_MQTT::publish(const char *topic, const char *data, uint8_t qos) {
     return publish(topic, (uint8_t*)(data), strlen(data), qos);
 }
 
-bool Adafruit_MQTT::publish(const char *topic, uint8_t *data, uint8_t bLen, uint8_t qos) {
+bool Adafruit_MQTT::publish(const char *topic, uint8_t *data, uint16_t bLen, uint8_t qos) {
   // Construct and send publish packet.
-  uint8_t len = publishPacket(buffer, topic, data, bLen, qos);
+  uint16_t len = publishPacket(buffer, topic, data, bLen, qos);
   if (!sendPacket(buffer, len))
     return false;
 
@@ -611,14 +611,34 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
 
 
 // as per http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718040
-uint8_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
-                                     uint8_t *data, uint8_t bLen, uint8_t qos) {
+uint16_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
+                                     uint8_t *data, uint16_t bLen, uint8_t qos) {
   uint8_t *p = packet;
-  uint16_t len;
+  uint16_t len=0;
 
+  // calc length of non-header data
+  len += 2;               // two bytes to set the topic size
+  len += strlen_P(topic); // topic length
+  if(qos > 0) { 
+    len += 2; // qos packet id
+  }
+  len += bLen; // payload length
+
+  // Now you can start generating the packet!
   p[0] = MQTT_CTRL_PUBLISH << 4 | qos << 1;
+  p++;
+
   // fill in packet[1] last
-  p+=2;
+  do {
+    uint8_t encodedByte = len % 128;
+    len /= 128;
+    // if there are more data to encode, set the top bit of this byte
+    if ( len > 0 ) {
+      encodedByte |= 0x80;
+    }
+    p[0] = encodedByte;
+    p++;
+  } while ( len > 0 );
 
   // topic comes before packet identifier
   p = stringprint_P(p, topic);
@@ -636,11 +656,9 @@ uint8_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
   memmove(p, data, bLen);
   p+= bLen;
   len = p - packet;
-  packet[1] = len-2; // don't include the 2 bytes of fixed header data
   DEBUG_PRINTLN(F("MQTT publish packet:"));
   DEBUG_PRINTBUFFER(buffer, len);
   return len;
-
 }
 
 uint8_t Adafruit_MQTT::subscribePacket(uint8_t *packet, const char *topic,
@@ -766,7 +784,7 @@ bool Adafruit_MQTT_Publish::publish(const char *payload) {
 }
 
 //publish buffer of arbitrary length
-bool Adafruit_MQTT_Publish::publish(uint8_t *payload, uint8_t bLen) {
+bool Adafruit_MQTT_Publish::publish(uint8_t *payload, uint16_t bLen) {
 
   return mqtt->publish(topic, payload, bLen, qos);
 }
