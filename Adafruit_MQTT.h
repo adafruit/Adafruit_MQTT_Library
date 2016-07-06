@@ -78,7 +78,7 @@
 // Largest full packet we're able to send.
 // Need to be able to store at least ~90 chars for a connect packet with full
 // 23 char client ID.
-#define MAXBUFFERSIZE (125)
+#define MAXBUFFERSIZE (150)
 
 #define MQTT_CONN_USERNAMEFLAG    0x80
 #define MQTT_CONN_PASSWORDFLAG    0x40
@@ -99,7 +99,7 @@
 //and returns an int
 typedef void (*SubscribeCallbackType)(char *);  
 
-extern void printBuffer(uint8_t *buffer, uint8_t len);
+extern void printBuffer(uint8_t *buffer, uint16_t len);
 
 class Adafruit_MQTT_Subscribe;  // forward decl
 
@@ -201,10 +201,10 @@ class Adafruit_MQTT {
   // Read MQTT packet from the server.  Will read up to maxlen bytes and store
   // the data in the provided buffer.  Waits up to the specified timeout (in
   // milliseconds) for data to be available. 
-  virtual uint16_t readPacket(uint8_t *buffer, uint8_t maxlen, int16_t timeout) = 0;
+  virtual uint16_t readPacket(uint8_t *buffer, uint16_t maxlen, int16_t timeout) = 0;
 
   // Read a full packet, keeping note of the correct length
-  uint16_t readFullPacket(uint8_t *buffer, uint16_t timeout);
+  uint16_t readFullPacket(uint8_t *buffer, uint16_t maxsize, uint16_t timeout);
   // Properly process packets until you get to one you want
   uint16_t processPacketsUntil(uint8_t *buffer, uint8_t waitforpackettype, uint16_t timeout);
 

@@ -100,7 +100,7 @@ class Adafruit_MQTT_CC3000 : public Adafruit_MQTT {
     return mqttclient.connected();
   }
 
-  uint16_t readPacket(uint8_t *buffer, uint8_t maxlen, int16_t timeout) {
+  uint16_t readPacket(uint8_t *buffer, uint16_t maxlen, int16_t timeout) {
     /* Read data until either the connection is closed, or the idle timeout is reached. */
     uint16_t len = 0;
     int16_t t = timeout;

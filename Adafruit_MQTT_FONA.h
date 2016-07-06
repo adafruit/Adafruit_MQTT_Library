@@ -68,7 +68,7 @@ class Adafruit_MQTT_FONA : public Adafruit_MQTT {
     return fona->TCPconnected();
   }
 
-  uint16_t readPacket(uint8_t *buffer, uint8_t maxlen, int16_t timeout) {
+  uint16_t readPacket(uint8_t *buffer, uint16_t maxlen, int16_t timeout) {
     uint8_t *buffp = buffer;
     DEBUG_PRINTLN(F("Reading data.."));
 

@@ -47,7 +47,7 @@ bool Adafruit_MQTT_Client::connected() {
   return client->connected();
 }
 
-uint16_t Adafruit_MQTT_Client::readPacket(uint8_t *buffer, uint8_t maxlen,
+uint16_t Adafruit_MQTT_Client::readPacket(uint8_t *buffer, uint16_t maxlen,
                                           int16_t timeout) {
   /* Read data until either the connection is closed, or the idle timeout is reached. */
   uint16_t len = 0;
