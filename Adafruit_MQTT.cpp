@@ -242,6 +242,8 @@ uint16_t Adafruit_MQTT::processPacketsUntil(uint8_t *buffer, uint8_t waitforpack
     if ((buffer[0] >> 4) == waitforpackettype) {
       //DEBUG_PRINTLN(F("Found right packet")); 
       return len;
+    } else {
+      ERROR_PRINTLN(F("Dropped a packet"));
     }
   }
   return 0;

@@ -49,6 +49,16 @@
   #define DEBUG_PRINTBUFFER(buffer, len) {}
 #endif
 
+#ifdef MQTT_ERROR
+  #define ERROR_PRINT(...) { DEBUG_PRINTER.print(__VA_ARGS__); }
+  #define ERROR_PRINTLN(...) { DEBUG_PRINTER.println(__VA_ARGS__); }
+  #define ERROR_PRINTBUFFER(buffer, len) { printBuffer(buffer, len); }
+#else
+  #define ERROR_PRINT(...) {}
+  #define ERROR_PRINTLN(...) {}
+  #define ERROR_PRINTBUFFER(buffer, len) {}
+#endif
+
 // Use 3 (MQTT 3.0) or 4 (MQTT 3.1.1)
 #define MQTT_PROTOCOL_LEVEL 4
 
