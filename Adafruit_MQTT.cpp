@@ -31,6 +31,7 @@ static char *dtostrf (double val, signed char width, unsigned char prec, char *s
 #endif
 
 void printBuffer(uint8_t *buffer, uint16_t len) {
+  DEBUG_PRINTER.print('\t');
   for (uint16_t i=0; i<len; i++) {
     if (isprint(buffer[i]))
       DEBUG_PRINTER.write(buffer[i]);
@@ -41,7 +42,9 @@ void printBuffer(uint8_t *buffer, uint16_t len) {
       DEBUG_PRINTER.print("0");
     DEBUG_PRINTER.print(buffer[i],HEX);
     DEBUG_PRINTER.print("], ");
-    if (i % 8 == 7) DEBUG_PRINTER.println();
+    if (i % 8 == 7) {
+      DEBUG_PRINTER.print("\n\t");
+    }
   }
   DEBUG_PRINTER.println();
 }
@@ -216,7 +219,7 @@ int8_t Adafruit_MQTT::connect() {
       // TODO: The Server is permitted to start sending PUBLISH packets matching the
       // Subscription before the Server sends the SUBACK Packet. (will really need to use callbacks - ada)
 
-      len = processPacketsUntil(buffer, MQTT_CTRL_SUBACK, CONNECT_TIMEOUT_MS);
+      len = processPacketsUntil(buffer, MQTT_CTRL_SUBACK, SUBACK_TIMEOUT_MS);
       if ((len != 5) || (buffer[0] != (MQTT_CTRL_SUBACK << 4))) {
 	continue; // retry!
       }

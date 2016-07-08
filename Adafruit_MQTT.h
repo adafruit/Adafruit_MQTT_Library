@@ -30,7 +30,9 @@
 #endif
 
 // Uncomment/comment to turn on/off debug output messages.
-//#define MQTT_DEBUG
+#define MQTT_DEBUG
+// Uncomment/comment to turn on/off error output messages.
+#define MQTT_ERROR
 
 // Set where debug messages will be printed.
 #define DEBUG_PRINTER Serial
@@ -71,6 +73,7 @@
 #define CONNECT_TIMEOUT_MS 6000
 #define PUBLISH_TIMEOUT_MS 500
 #define PING_TIMEOUT_MS    500
+#define SUBACK_TIMEOUT_MS  500
 
 // Adjust as necessary, in seconds.  Default to 5 minutes.
 #define MQTT_CONN_KEEPALIVE 300
