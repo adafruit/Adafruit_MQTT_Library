@@ -30,7 +30,7 @@
 #endif
 
 // Uncomment/comment to turn on/off debug output messages.
-#define MQTT_DEBUG
+//#define MQTT_DEBUG
 // Uncomment/comment to turn on/off error output messages.
 #define MQTT_ERROR
 
@@ -98,9 +98,12 @@
 // eg max-subscription-payload-size
 #define SUBSCRIPTIONDATALEN 20
 
-//Function pointer called CallbackType that takes a float
-//and returns an int
-typedef void (*SubscribeCallbackType)(char *);  
+//Function pointer that returns an int
+typedef void (*SubscribeCallbackUInt32Type)(uint32_t);
+// returns a double
+typedef void (*SubscribeCallbackDoubleType)(double);
+// returns a chunk of raw data
+typedef void (*SubscribeCallbackBufferType)(char *str, uint16_t len);
 
 extern void printBuffer(uint8_t *buffer, uint16_t len);
 
@@ -186,6 +189,8 @@ class Adafruit_MQTT {
   // that subscribe should be called first for each topic that receives messages!
   Adafruit_MQTT_Subscribe *readSubscription(int16_t timeout=0);
 
+  void processPackets(int16_t timeout);
+
   // Ping the server to ensure the connection is still alive.
   bool ping(uint8_t n = 1);
 
@@ -264,7 +269,9 @@ class Adafruit_MQTT_Subscribe {
   Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver, const char *feedname, uint8_t q=0);
   Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver, const __FlashStringHelper *feedname, uint8_t q=0);
 
-  void setCallback(SubscribeCallbackType callb);
+  void setCallback(SubscribeCallbackUInt32Type callb);
+  void setCallback(SubscribeCallbackDoubleType callb);
+  void setCallback(SubscribeCallbackBufferType callb);
   void removeCallback(void);
 
   const char *topic;
@@ -273,9 +280,13 @@ class Adafruit_MQTT_Subscribe {
   uint8_t lastread[SUBSCRIPTIONDATALEN];
   // Number valid bytes in lastread. Limited to SUBSCRIPTIONDATALEN-1 to
   // ensure nul terminating lastread.
-  uint8_t datalen;
+  uint16_t datalen;
+
+  SubscribeCallbackUInt32Type callback_uint32t;
+  SubscribeCallbackDoubleType callback_double;
+  SubscribeCallbackBufferType callback_buffer;
+
  private:
-  SubscribeCallbackType callback;
   Adafruit_MQTT *mqtt;
 };
 

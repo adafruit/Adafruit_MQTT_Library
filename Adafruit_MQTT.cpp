@@ -219,11 +219,12 @@ int8_t Adafruit_MQTT::connect() {
       // TODO: The Server is permitted to start sending PUBLISH packets matching the
       // Subscription before the Server sends the SUBACK Packet. (will really need to use callbacks - ada)
 
-      len = processPacketsUntil(buffer, MQTT_CTRL_SUBACK, SUBACK_TIMEOUT_MS);
-      if ((len != 5) || (buffer[0] != (MQTT_CTRL_SUBACK << 4))) {
-	continue; // retry!
+      //Serial.println("\t**looking for suback");
+      if (processPacketsUntil(buffer, MQTT_CTRL_SUBACK, SUBACK_TIMEOUT_MS)) {
+	success = true;
+	break;
       }
-      success = true;
+      //Serial.println("\t**failed, retrying!");
     }
     if (! success) return -2; // failed to sub for some reason
   }
@@ -431,8 +432,48 @@ bool Adafruit_MQTT::unsubscribe(Adafruit_MQTT_Subscribe *sub) {
 
 }
 
+void Adafruit_MQTT::processPackets(int16_t timeout) {
+  uint16_t len;
+
+  uint32_t elapsed = 0, endtime, starttime = millis();
+
+  while (elapsed < (uint32_t)timeout) {
+    Adafruit_MQTT_Subscribe *sub = readSubscription(timeout - elapsed);
+    
+    if (sub) {
+      //Serial.println("**** sub packet received");
+      if (sub->callback_uint32t != NULL) {
+	// huh lets do the callback in integer mode
+	uint32_t data = 0;
+	data = atoi((char *)sub->lastread);
+	//Serial.print("*** calling int callback with : "); Serial.println(data);
+	sub->callback_uint32t(data);
+      } 
+      else if (sub->callback_double != NULL) {
+	// huh lets do the callback in doublefloat mode
+	double data = 0;
+	data = atof((char *)sub->lastread);
+	//Serial.print("*** calling double callback with : "); Serial.println(data);
+	sub->callback_double(data);
+      }
+      else if (sub->callback_buffer != NULL) {
+	// huh lets do the callback in buffer mode
+	//Serial.print("*** calling buffer callback with : "); Serial.println(data);
+	sub->callback_buffer((char *)sub->lastread, sub->datalen);
+      }
+    }
+
+    // keep track over elapsed time
+    endtime = millis();
+    if (endtime < starttime) {
+      starttime = endtime; // looped around!")
+    }
+    elapsed += (endtime - starttime);
+  }
+}
+
 Adafruit_MQTT_Subscribe *Adafruit_MQTT::readSubscription(int16_t timeout) {
-  uint8_t i, topiclen, datalen;
+  uint16_t i, topiclen, datalen;
 
   // Check if data is available to read.
   uint16_t len = readFullPacket(buffer, MAXBUFFERSIZE, timeout); // return one full packet
@@ -801,7 +842,9 @@ Adafruit_MQTT_Subscribe::Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver,
   topic = feed;
   qos = q;
   datalen = 0;
-  callback = 0;
+  callback_uint32t = 0;
+  callback_buffer = 0;
+  callback_double = 0;
 }
 
 Adafruit_MQTT_Subscribe::Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver,
@@ -810,13 +853,25 @@ Adafruit_MQTT_Subscribe::Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver,
   topic = (const char *)feed;
   qos = q;
   datalen = 0;
-  callback = 0;
+  callback_uint32t = 0;
+  callback_buffer = 0;
+  callback_double = 0;
 }
 
-void Adafruit_MQTT_Subscribe::setCallback(SubscribeCallbackType cb) {
-  callback = cb;
+void Adafruit_MQTT_Subscribe::setCallback(SubscribeCallbackUInt32Type cb) {
+  callback_uint32t = cb;
+}
+
+void Adafruit_MQTT_Subscribe::setCallback(SubscribeCallbackDoubleType cb) {
+  callback_double = cb;
+}
+
+void Adafruit_MQTT_Subscribe::setCallback(SubscribeCallbackBufferType cb) {
+  callback_buffer = cb;
 }
 
 void Adafruit_MQTT_Subscribe::removeCallback(void) {
-  callback = 0;
+  callback_uint32t = 0;
+  callback_buffer = 0;
+  callback_double = 0;
 }
