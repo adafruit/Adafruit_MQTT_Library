@@ -51,9 +51,47 @@ Adafruit_MQTT_Subscribe onoffbutton = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAM
 
 /*************************** Sketch Code ************************************/
 
-void timecallback(uint32_t x) {
-  Serial.print("Hey we're in a time callback, the epoch time is: ");
-  Serial.println(x);
+int sec;
+int min;
+int hour;
+
+int timeZone = -4; // utc-4 eastern daylight time (nyc)
+
+void timecallback(uint32_t current) {
+
+  // adjust to local time zone
+  current += (timeZone * 60 * 60);
+
+  // calculate current time
+  sec = current % 60;
+  current /= 60;
+  min = current % 60;
+  current /= 60;
+  hour = current % 24;
+
+  // print hour
+  if(hour == 0 || hour == 12)
+    Serial.print("12");
+  if(hour < 12)
+    Serial.print(hour);
+  else
+    Serial.print(hour - 12);
+
+  // print mins
+  Serial.print(":");
+  if(min < 10) Serial.print("0");
+  Serial.print(min);
+
+  // print seconds
+  Serial.print(":");
+  if(sec < 10) Serial.print("0");
+  Serial.print(sec);
+
+  if(hour < 12)
+    Serial.println(" am");
+  else
+    Serial.println(" pm");
+
 }
 
 void slidercallback(double x) {
