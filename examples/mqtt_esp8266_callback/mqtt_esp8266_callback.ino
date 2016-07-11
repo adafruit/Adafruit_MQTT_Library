@@ -41,13 +41,13 @@ Adafruit_MQTT_Client mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO
 /****************************** Feeds ***************************************/
 
 // Setup a feed called 'time' for subscribing to current time
-Adafruit_MQTT_Subscribe timefeed = Adafruit_MQTT_Subscribe(&mqtt, "time/seconds");
+Adafruit_MQTT_Subscribe timefeed = Adafruit_MQTT_Subscribe("time/seconds");
 
 // Setup a feed called 'slider' for subscribing to changes on the slider
-Adafruit_MQTT_Subscribe slider = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/slider", MQTT_QOS_1);
+Adafruit_MQTT_Subscribe slider = Adafruit_MQTT_Subscribe(AIO_USERNAME "/feeds/slider", MQTT_QOS_1);
 
 // Setup a feed called 'onoff' for subscribing to changes to the button
-Adafruit_MQTT_Subscribe onoffbutton = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/onoff", MQTT_QOS_1);
+Adafruit_MQTT_Subscribe onoffbutton = Adafruit_MQTT_Subscribe(AIO_USERNAME "/feeds/onoff", MQTT_QOS_1);
 
 /*************************** Sketch Code ************************************/
 
