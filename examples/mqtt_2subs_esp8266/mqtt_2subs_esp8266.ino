@@ -57,9 +57,9 @@ Adafruit_MQTT_Client mqtt(&client, MQTT_SERVER, AIO_SERVERPORT, MQTT_USERNAME, M
 // Notice MQTT paths for AIO follow the form: <username>/feeds/<feedname>
 // Setup a feed called 'onoff' for subscribing to changes.
 const char ONOFF_FEED[] PROGMEM = AIO_USERNAME "/feeds/onoff";
-Adafruit_MQTT_Subscribe onoffbutton = Adafruit_MQTT_Subscribe(&mqtt, ONOFF_FEED);
+Adafruit_MQTT_Subscribe onoffbutton = Adafruit_MQTT_Subscribe(ONOFF_FEED);
 const char SLIDER_FEED[] PROGMEM = AIO_USERNAME "/feeds/slider";
-Adafruit_MQTT_Subscribe slider = Adafruit_MQTT_Subscribe(&mqtt, SLIDER_FEED);
+Adafruit_MQTT_Subscribe slider = Adafruit_MQTT_Subscribe(SLIDER_FEED);
 
 /*************************** Sketch Code ************************************/
 
