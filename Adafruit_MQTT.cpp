@@ -794,16 +794,16 @@ uint8_t Adafruit_MQTT::disconnectPacket(uint8_t *packet) {
 // Adafruit_MQTT_Publish Definition ////////////////////////////////////////////
 
 Adafruit_MQTT_Publish::Adafruit_MQTT_Publish(Adafruit_MQTT *mqttserver,
-                                             const char *feed, uint8_t q) {
+                                             const char *t, uint8_t q) {
   mqtt = mqttserver;
-  topic = feed;
+  topic = t;
   qos = q;
 }
 
 Adafruit_MQTT_Publish::Adafruit_MQTT_Publish(Adafruit_MQTT *mqttserver,
-                                             const __FlashStringHelper *feed, uint8_t q) {
+                                             const __FlashStringHelper *t, uint8_t q) {
   mqtt = mqttserver;
-  topic = (const char *)feed;
+  topic = (const char *)t;
   qos = q;
 }
 
@@ -838,10 +838,8 @@ bool Adafruit_MQTT_Publish::publish(uint8_t *payload, uint16_t bLen) {
 
 // Adafruit_MQTT_Subscribe Definition //////////////////////////////////////////
 
-Adafruit_MQTT_Subscribe::Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver,
-                                                 const char *feed, uint8_t q) {
-  mqtt = mqttserver;
-  topic = feed;
+Adafruit_MQTT_Subscribe::Adafruit_MQTT_Subscribe(const char *t, uint8_t q) {
+  topic = t;
   qos = q;
   datalen = 0;
   callback_uint32t = 0;
@@ -849,10 +847,8 @@ Adafruit_MQTT_Subscribe::Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver,
   callback_double = 0;
 }
 
-Adafruit_MQTT_Subscribe::Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver,
-                                                 const __FlashStringHelper *feed, uint8_t q) {
-  mqtt = mqttserver;
-  topic = (const char *)feed;
+Adafruit_MQTT_Subscribe::Adafruit_MQTT_Subscribe(const __FlashStringHelper *t, uint8_t q) {
+  topic = (const char *)t;
   qos = q;
   datalen = 0;
   callback_uint32t = 0;
