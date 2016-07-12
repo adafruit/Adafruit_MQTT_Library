@@ -1,3 +1,21 @@
+/***************************************************
+  Adafruit MQTT Library ESP8266 Adafruit IO SSL/TLS example
+
+  Must use the latest version of ESP8266 Arduino from:
+    https://github.com/esp8266/Arduino
+
+  Works great with Adafruit's Huzzah ESP board & Feather
+  ----> https://www.adafruit.com/product/2471
+  ----> https://www.adafruit.com/products/2821
+
+  Adafruit invests time and resources providing this open source code,
+  please support Adafruit and open-source hardware by purchasing
+  products from Adafruit!
+
+  Written by Tony DiCola for Adafruit Industries.
+  Time additions by Todd Treece for Adafruit Industries.
+  MIT license, all text above must be included in any redistribution
+ ****************************************************/
 #include <ESP8266WiFi.h>
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_Client.h"
@@ -61,21 +79,44 @@ void setup() {
 
 void loop() {
 
-  int8_t code;
+  // Ensure the connection to the MQTT server is alive (this will make the first
+  // connection and automatically reconnect when disconnected).  See the MQTT_connect
+  // function definition further below.
+  MQTT_connect();
 
-  // connect to adafruit io if not connected
-  if(! mqtt.connected()) {
+  // wait 10 seconds for subscription messages
+  // since we have no other tasks in this example.
+  mqtt.processPackets(10000);
 
-    Serial.print("Connecting to Adafruit IO... ");
-    if((code = mqtt.connect()) != 0) {
-      Serial.println(mqtt.connectErrorString(code));
-      while(1);
-    }
-    Serial.println("connected!");
-
-  }
-
-  mqtt.processPackets(1000);
+  // keep the connection alive
   mqtt.ping();
 
+}
+
+// Function to connect and reconnect as necessary to the MQTT server.
+// Should be called in the loop function and it will take care if connecting.
+void MQTT_connect() {
+  int8_t ret;
+
+  // Stop if already connected.
+  if (mqtt.connected()) {
+    return;
+  }
+
+  Serial.print("Connecting to MQTT... ");
+
+  uint8_t retries = 3;
+  while ((ret = mqtt.connect()) != 0) { // connect will return 0 for connected
+       Serial.println(mqtt.connectErrorString(ret));
+       Serial.println("Retrying MQTT connection in 5 seconds...");
+       mqtt.disconnect();
+       delay(5000);  // wait 5 seconds
+       retries--;
+       if (retries == 0) {
+         // basically die and wait for WDT to reset me
+         while (1);
+       }
+  }
+
+  Serial.println("MQTT Connected!");
 }
