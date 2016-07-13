@@ -44,7 +44,7 @@ class Adafruit_MQTT_CC3000 : public Adafruit_MQTT {
   {}
 
   Adafruit_MQTT_CC3000(Adafruit_CC3000 *cc3k, const char *server, uint16_t port,
-                       const char *user, const char *pass):
+                       const char *user = "", const char *pass = ""):
     Adafruit_MQTT(server, port, user, pass),
     cc3000(cc3k)
   {}

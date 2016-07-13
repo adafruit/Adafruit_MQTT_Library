@@ -232,6 +232,20 @@ int8_t Adafruit_MQTT::connect() {
   return 0;
 }
 
+int8_t Adafruit_MQTT::connect(const char *user, const char *pass)
+{
+  username = user;
+  password = pass;
+  return connect();
+}
+
+int8_t Adafruit_MQTT::connect(const __FlashStringHelper *user, const __FlashStringHelper *pass)
+{
+  username = (const char*)user;
+  password = (const char*)pass;
+  return connect();
+}
+
 uint16_t Adafruit_MQTT::processPacketsUntil(uint8_t *buffer, uint8_t waitforpackettype, uint16_t timeout) {
   uint16_t len;
   while (len = readFullPacket(buffer, MAXBUFFERSIZE, timeout)) {

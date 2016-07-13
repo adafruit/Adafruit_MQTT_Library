@@ -42,7 +42,7 @@ class Adafruit_MQTT_Client : public Adafruit_MQTT {
   {}
 
   Adafruit_MQTT_Client(Client *client, const char *server, uint16_t port,
-                       const char *user, const char *pass):
+                       const char *user="", const char *pass=""):
     Adafruit_MQTT(server, port, user, pass),
     client(client)
   {}

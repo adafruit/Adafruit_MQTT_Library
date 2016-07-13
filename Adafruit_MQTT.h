@@ -133,8 +133,8 @@ class Adafruit_MQTT {
                 const __FlashStringHelper *pass);
   Adafruit_MQTT(const char *server,
                 uint16_t port,
-                const char *user,
-                const char *pass);
+                const char *user = "",
+                const char *pass = "");
   Adafruit_MQTT(const __FlashStringHelper *server,
                 uint16_t port,
                 const __FlashStringHelper *user,
@@ -153,6 +153,8 @@ class Adafruit_MQTT {
   // Use connectErrorString() to get a printable string version of the
   // error.
   int8_t connect();
+  int8_t connect(const char *user, const char *pass);
+  int8_t connect(const __FlashStringHelper *user, const __FlashStringHelper *pass);
 
   // Return a printable string version of the error code returned by
   // connect(). This returns a __FlashStringHelper*, which points to a
