@@ -808,20 +808,20 @@ Adafruit_MQTT_Publish::Adafruit_MQTT_Publish(Adafruit_MQTT *mqttserver,
 }
 
 bool Adafruit_MQTT_Publish::publish(int32_t i) {
-  char payload[18];
-  itoa(i, payload, 10);
+  char payload[12];
+  ltoa(i, payload, 10);
+  return mqtt->publish(topic, payload, qos);
+}
+
+bool Adafruit_MQTT_Publish::publish(uint32_t i) {
+  char payload[11];
+  ultoa(i, payload, 10);
   return mqtt->publish(topic, payload, qos);
 }
 
 bool Adafruit_MQTT_Publish::publish(double f, uint8_t precision) {
   char payload[41];  // Need to technically hold float max, 39 digits and minus sign.
   dtostrf(f, 0, precision, payload);
-  return mqtt->publish(topic, payload, qos);
-}
-
-bool Adafruit_MQTT_Publish::publish(uint32_t i) {
-  char payload[18];
-  itoa(i, payload, 10);
   return mqtt->publish(topic, payload, qos);
 }
 
