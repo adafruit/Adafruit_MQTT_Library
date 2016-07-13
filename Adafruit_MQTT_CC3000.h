@@ -129,7 +129,7 @@ class Adafruit_MQTT_CC3000 : public Adafruit_MQTT {
 
   bool sendPacket(uint8_t *buffer, uint16_t len) {
     if (mqttclient.connected()) {
-      uint16_t ret = mqttclient.write(buffer, len);
+      uint16_t ret = mqttclient.write(buffer, (size_t)len);
       DEBUG_PRINT(F("sendPacket returned: ")); DEBUG_PRINTLN(ret);
       if (ret != len) {
         DEBUG_PRINTLN("Failed to send complete packet.")
