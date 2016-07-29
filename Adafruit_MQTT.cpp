@@ -472,15 +472,15 @@ void Adafruit_MQTT::processPackets(int16_t timeout) {
 	//Serial.print("*** calling double callback with : "); Serial.println(data);
 	sub->callback_double(data);
       }
-      else if (sub->callback_buffer != null) {
+      else if (sub->callback_buffer != NULL) {
 	// huh lets do the callback in buffer mode
 	//serial.print("*** calling buffer callback with : "); serial.println(data);
 	sub->callback_buffer((char *)sub->lastread, sub->datalen);
       }
-      else if (sub->callback_io != null) {
+      else if (sub->callback_io != NULL) {
         // huh lets do the callback in io mode
         //serial.print("*** calling io instance callback with : "); serial.println(data);
-        sub->callback_io((char *)sub->lastread, sub->datalen);
+        sub->*callback_io((char *)sub->lastread, sub->datalen);
       }
     }
 
