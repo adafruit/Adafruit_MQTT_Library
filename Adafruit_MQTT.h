@@ -288,7 +288,7 @@ class Adafruit_MQTT_Subscribe {
   void setCallback(SubscribeCallbackUInt32Type callb);
   void setCallback(SubscribeCallbackDoubleType callb);
   void setCallback(SubscribeCallbackBufferType callb);
-  void setCallback(SubscribeCallbackIOType callb);
+  void setCallback(AdafruitIO_Feed *io, SubscribeCallbackIOType callb);
   void removeCallback(void);
 
   const char *topic;
@@ -303,6 +303,8 @@ class Adafruit_MQTT_Subscribe {
   SubscribeCallbackDoubleType callback_double;
   SubscribeCallbackBufferType callback_buffer;
   SubscribeCallbackIOType     callback_io;
+
+  AdafruitIO_Feed *io_feed;
 
  private:
   Adafruit_MQTT *mqtt;
