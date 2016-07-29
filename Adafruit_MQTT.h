@@ -108,12 +108,16 @@
 // eg max-subscription-payload-size
 #define SUBSCRIPTIONDATALEN 20
 
+class AdafruitIO_Feed;  // forward decl
+
 //Function pointer that returns an int
 typedef void (*SubscribeCallbackUInt32Type)(uint32_t);
 // returns a double
 typedef void (*SubscribeCallbackDoubleType)(double);
 // returns a chunk of raw data
 typedef void (*SubscribeCallbackBufferType)(char *str, uint16_t len);
+// returns an io data wrapper instance
+typedef void (AdafruitIO_Feed::*SubscribeCallbackIOType)(char *str, uint16_t len);
 
 extern void printBuffer(uint8_t *buffer, uint16_t len);
 
@@ -284,6 +288,7 @@ class Adafruit_MQTT_Subscribe {
   void setCallback(SubscribeCallbackUInt32Type callb);
   void setCallback(SubscribeCallbackDoubleType callb);
   void setCallback(SubscribeCallbackBufferType callb);
+  void setCallback(SubscribeCallbackIOType callb);
   void removeCallback(void);
 
   const char *topic;
@@ -297,6 +302,7 @@ class Adafruit_MQTT_Subscribe {
   SubscribeCallbackUInt32Type callback_uint32t;
   SubscribeCallbackDoubleType callback_double;
   SubscribeCallbackBufferType callback_buffer;
+  SubscribeCallbackIOType     callback_io;
 
  private:
   Adafruit_MQTT *mqtt;

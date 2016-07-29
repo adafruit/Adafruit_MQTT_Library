@@ -472,10 +472,15 @@ void Adafruit_MQTT::processPackets(int16_t timeout) {
 	//Serial.print("*** calling double callback with : "); Serial.println(data);
 	sub->callback_double(data);
       }
-      else if (sub->callback_buffer != NULL) {
+      else if (sub->callback_buffer != null) {
 	// huh lets do the callback in buffer mode
-	//Serial.print("*** calling buffer callback with : "); Serial.println(data);
+	//serial.print("*** calling buffer callback with : "); serial.println(data);
 	sub->callback_buffer((char *)sub->lastread, sub->datalen);
+      }
+      else if (sub->callback_io != null) {
+        // huh lets do the callback in io mode
+        //serial.print("*** calling io instance callback with : "); serial.println(data);
+        sub->callback_io((char *)sub->lastread, sub->datalen);
       }
     }
 
@@ -861,6 +866,7 @@ Adafruit_MQTT_Subscribe::Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver,
   callback_uint32t = 0;
   callback_buffer = 0;
   callback_double = 0;
+  callback_io = 0;
 }
 
 Adafruit_MQTT_Subscribe::Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver,
@@ -871,7 +877,7 @@ Adafruit_MQTT_Subscribe::Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver,
   datalen = 0;
   callback_uint32t = 0;
   callback_buffer = 0;
-  callback_double = 0;
+  callback_io = 0;
 }
 
 void Adafruit_MQTT_Subscribe::setCallback(SubscribeCallbackUInt32Type cb) {
@@ -886,8 +892,13 @@ void Adafruit_MQTT_Subscribe::setCallback(SubscribeCallbackBufferType cb) {
   callback_buffer = cb;
 }
 
+void Adafruit_MQTT_Subscribe::setCallback(SubscribeCallbackIOType cb) {
+  callback_io = cb;
+}
+
 void Adafruit_MQTT_Subscribe::removeCallback(void) {
   callback_uint32t = 0;
   callback_buffer = 0;
   callback_double = 0;
+  callback_io = 0;
 }
