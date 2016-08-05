@@ -29,6 +29,10 @@
 #define strncasecmp_P(f1, f2, len) strncasecmp((f1), (f2), (len))
 #endif
 
+#define ADAFRUIT_MQTT_VERSION_MAJOR 0
+#define ADAFRUIT_MQTT_VERSION_MINOR 15
+#define ADAFRUIT_MQTT_VERSION_PATCH 0
+
 // Uncomment/comment to turn on/off debug output messages.
 //#define MQTT_DEBUG
 // Uncomment/comment to turn on/off error output messages.
