@@ -25,8 +25,9 @@
 
 /*************************** FONA Pins ***********************************/
 
-#define FONA_RX 2
-#define FONA_TX 3
+// Default pins for Feather 32u4 FONA
+#define FONA_RX  9
+#define FONA_TX  8
 #define FONA_RST 4
 SoftwareSerial fonaSS = SoftwareSerial(FONA_TX, FONA_RX);
 
@@ -52,14 +53,8 @@ Adafruit_FONA fona = Adafruit_FONA(FONA_RST);
 
 /************ Global State (you don't need to change this!) ******************/
 
-// Store the MQTT server, username, and password in flash memory.
-// This is required for using the Adafruit MQTT library.
-const char MQTT_SERVER[] PROGMEM    = AIO_SERVER;
-const char MQTT_USERNAME[] PROGMEM  = AIO_USERNAME;
-const char MQTT_PASSWORD[] PROGMEM  = AIO_KEY;
-
 // Setup the FONA MQTT class by passing in the FONA class and MQTT server and login details.
-Adafruit_MQTT_FONA mqtt(&fona, MQTT_SERVER, AIO_SERVERPORT, MQTT_USERNAME, MQTT_PASSWORD);
+Adafruit_MQTT_FONA mqtt(&fona, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
 
 // You don't need to change anything below this line!
 #define halt(s) { Serial.println(F( s )); while(1);  }
@@ -72,11 +67,11 @@ boolean FONAconnect(const __FlashStringHelper *apn, const __FlashStringHelper *u
 
 // Setup a feed called 'photocell' for publishing.
 // Notice MQTT paths for AIO follow the form: <username>/feeds/<feedname>
-const char PHOTOCELL_FEED[] PROGMEM = AIO_USERNAME "/feeds/photocell";
+const char PHOTOCELL_FEED[]     = AIO_USERNAME "/feeds/photocell";
 Adafruit_MQTT_Publish photocell = Adafruit_MQTT_Publish(&mqtt, PHOTOCELL_FEED);
 
 // Setup a feed called 'onoff' for subscribing to changes.
-const char ONOFF_FEED[] PROGMEM = AIO_USERNAME "/feeds/onoff";
+const char ONOFF_FEED[]            = AIO_USERNAME "/feeds/onoff";
 Adafruit_MQTT_Subscribe onoffbutton = Adafruit_MQTT_Subscribe(&mqtt, ONOFF_FEED);
 
 /*************************** Sketch Code ************************************/
@@ -125,17 +120,6 @@ void loop() {
   MQTT_connect();
 
   Watchdog.reset();
-  
-  // this is our 'wait for incoming subscription packets' busy subloop
-  Adafruit_MQTT_Subscribe *subscription;
-  while ((subscription = mqtt.readSubscription(5000))) {
-    if (subscription == &onoffbutton) {
-      Serial.print(F("Got: "));
-      Serial.println((char *)onoffbutton.lastread);
-    }
-  }
-
-  Watchdog.reset();
   // Now we can publish stuff!
   Serial.print(F("\nSending photocell val "));
   Serial.print(x);
@@ -146,6 +130,16 @@ void loop() {
   } else {
     Serial.println(F("OK!"));
     txfailures = 0;
+  }
+
+  Watchdog.reset();  
+  // this is our 'wait for incoming subscription packets' busy subloop
+  Adafruit_MQTT_Subscribe *subscription;
+  while ((subscription = mqtt.readSubscription(5000))) {
+    if (subscription == &onoffbutton) {
+      Serial.print(F("Got: "));
+      Serial.println((char *)onoffbutton.lastread);
+    }
   }
 
   // ping the server to keep the mqtt connection alive, only needed if we're not publishing
