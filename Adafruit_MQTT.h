@@ -34,7 +34,7 @@
 #define ADAFRUIT_MQTT_VERSION_PATCH 0
 
 // Uncomment/comment to turn on/off debug output messages.
-//#define MQTT_DEBUG
+#define MQTT_DEBUG
 // Uncomment/comment to turn on/off error output messages.
 #define MQTT_ERROR
 
@@ -134,19 +134,11 @@ class Adafruit_MQTT {
                 const char *cid,
                 const char *user,
                 const char *pass);
-  Adafruit_MQTT(const __FlashStringHelper *server,
-                uint16_t port,
-                const __FlashStringHelper *cid,
-                const __FlashStringHelper *user,
-                const __FlashStringHelper *pass);
+
   Adafruit_MQTT(const char *server,
                 uint16_t port,
                 const char *user = "",
                 const char *pass = "");
-  Adafruit_MQTT(const __FlashStringHelper *server,
-                uint16_t port,
-                const __FlashStringHelper *user,
-                const __FlashStringHelper *pass);
   virtual ~Adafruit_MQTT() {}
 
   // Connect to the MQTT server.  Returns 0 on success, otherwise an error code

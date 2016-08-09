@@ -106,31 +106,6 @@ Adafruit_MQTT::Adafruit_MQTT(const char *server,
 
 }
 
-Adafruit_MQTT::Adafruit_MQTT(const __FlashStringHelper *server,
-                             uint16_t port,
-                             const __FlashStringHelper *cid,
-                             const __FlashStringHelper *user,
-                             const __FlashStringHelper *pass) {
-
-  servername = (const char *)server;
-  portnum = port;
-  clientid = (const char *)cid;
-  username = (const char *)user;
-  password = (const char *)pass;
-
-  // reset subscriptions
-  for (uint8_t i=0; i<MAXSUBSCRIPTIONS; i++) {
-    subscriptions[i] = 0;
-  }
-
-  will_topic = 0;
-  will_payload = 0;
-  will_qos = 0;
-  will_retain = 0;
-
-  packet_id_counter = 0;
-
-}
 
 Adafruit_MQTT::Adafruit_MQTT(const char *server,
                              uint16_t port,
@@ -141,31 +116,6 @@ Adafruit_MQTT::Adafruit_MQTT(const char *server,
   clientid = "";
   username = user;
   password = pass;
-
-  // reset subscriptions
-  for (uint8_t i=0; i<MAXSUBSCRIPTIONS; i++) {
-    subscriptions[i] = 0;
-  }
-
-  will_topic = 0;
-  will_payload = 0;
-  will_qos = 0;
-  will_retain = 0;
-
-  packet_id_counter = 0;
-
-}
-
-Adafruit_MQTT::Adafruit_MQTT(const __FlashStringHelper *server,
-                             uint16_t port,
-                             const __FlashStringHelper *user,
-                             const __FlashStringHelper *pass) {
-
-  servername = (const char *)server;
-  portnum = port;
-  clientid = "";
-  username = (const char *)user;
-  password = (const char *)pass;
 
   // reset subscriptions
   for (uint8_t i=0; i<MAXSUBSCRIPTIONS; i++) {
