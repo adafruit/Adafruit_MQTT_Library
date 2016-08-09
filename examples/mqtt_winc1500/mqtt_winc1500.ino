@@ -18,6 +18,7 @@
 #define WINC_CS   8
 #define WINC_IRQ  7
 #define WINC_RST  4
+#define WINC_EN   2     // or, tie EN to VCC
 
 Adafruit_WINC1500 WiFi(WINC_CS, WINC_IRQ, WINC_RST);
 
@@ -31,25 +32,15 @@ int status = WL_IDLE_STATUS;
 
 #define AIO_SERVER      "io.adafruit.com"
 #define AIO_SERVERPORT  1883
-#define AIO_USERNAME    "adafruit2"
-#define AIO_KEY         "3e148db54389a8b7c3efa9ddd2cd388317bcbf58"
+#define AIO_USERNAME    "adafruitiousername"
+#define AIO_KEY         "adafruitiokey"
 
 /************ Global State (you don't need to change this!) ******************/
 
 //Set up the wifi client
 Adafruit_WINC1500Client client;
 
-// Store the MQTT server, client ID, username, and password in flash memory.
-// This is required for using the Adafruit MQTT library.
-const char MQTT_SERVER[] PROGMEM    = AIO_SERVER;
-// Set a unique MQTT client ID using the AIO key + the date and time the sketch
-// was compiled (so this should be unique across multiple devices for a user,
-// alternatively you can manually set this to a GUID or other random value).
-const char MQTT_CLIENTID[] PROGMEM  = __TIME__ AIO_USERNAME;
-const char MQTT_USERNAME[] PROGMEM  = AIO_USERNAME;
-const char MQTT_PASSWORD[] PROGMEM  = AIO_KEY;
-
-Adafruit_MQTT_Client mqtt(&client, MQTT_SERVER, AIO_SERVERPORT, MQTT_CLIENTID, MQTT_USERNAME, MQTT_PASSWORD);
+Adafruit_MQTT_Client mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
 
 // You don't need to change anything below this line!
 #define halt(s) { Serial.println(F( s )); while(1);  }
@@ -58,18 +49,21 @@ Adafruit_MQTT_Client mqtt(&client, MQTT_SERVER, AIO_SERVERPORT, MQTT_CLIENTID, M
 
 // Setup a feed called 'photocell' for publishing.
 // Notice MQTT paths for AIO follow the form: <username>/feeds/<feedname>
-const char PHOTOCELL_FEED[] PROGMEM = AIO_USERNAME "/feeds/photocell";
-Adafruit_MQTT_Publish photocell = Adafruit_MQTT_Publish(&mqtt, PHOTOCELL_FEED);
+Adafruit_MQTT_Publish photocell = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/photocell");
 
 // Setup a feed called 'onoff' for subscribing to changes.
-const char ONOFF_FEED[] PROGMEM = AIO_USERNAME "/feeds/onoff";
-Adafruit_MQTT_Subscribe onoffbutton = Adafruit_MQTT_Subscribe(&mqtt, ONOFF_FEED);
+Adafruit_MQTT_Subscribe onoffbutton = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/onoff");
 
 /*************************** Sketch Code ************************************/
 
 #define LEDPIN 13
 
+
 void setup() {
+#ifdef WINC_EN
+  pinMode(WINC_EN, OUTPUT);
+  digitalWrite(WINC_EN, HIGH);
+#endif
 
   while (!Serial);
   Serial.begin(115200);
