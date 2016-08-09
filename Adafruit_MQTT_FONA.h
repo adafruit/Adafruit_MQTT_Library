@@ -49,7 +49,7 @@ class Adafruit_MQTT_FONA : public Adafruit_MQTT {
 
   bool connectServer() {
     char server[40];
-    strncpy_P(server, servername, 40);
+    strncpy(server, servername, 40);
 #ifdef ADAFRUIT_SLEEPYDOG_H
     Watchdog.reset();
 #endif
