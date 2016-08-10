@@ -25,7 +25,7 @@
 bool Adafruit_MQTT_Client::connectServer() {
   // Grab server name from flash and copy to buffer for name resolution.
   memset(buffer, 0, sizeof(buffer));
-  strcpy_P((char *)buffer, servername);
+  strcpy((char *)buffer, servername);
   DEBUG_PRINT(F("Connecting to: ")); DEBUG_PRINTLN((char *)buffer);
   // Connect and check for success (0 result).
   int r = client->connect((char *)buffer, portnum);
