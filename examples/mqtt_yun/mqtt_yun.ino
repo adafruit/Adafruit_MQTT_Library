@@ -18,7 +18,7 @@
  ****************************************************/
 #include <Bridge.h>
 #include <Console.h>
-#include <YunClient.h>
+#include <BridgeClient.h>
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_Client.h"
 
@@ -32,8 +32,8 @@
 
 /************ Global State (you don't need to change this!) ******************/
 
-// Create a YunClient instance to communicate using the Yun's bridge & Linux OS.
-YunClient client;
+// Create a BridgeClient instance to communicate using the Yun's bridge & Linux OS.
+BridgeClient client;
 
 // Setup the MQTT client class by passing in the WiFi client and MQTT server and login details.
 Adafruit_MQTT_Client mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
