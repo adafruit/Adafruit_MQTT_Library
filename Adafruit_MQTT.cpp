@@ -30,6 +30,21 @@ static char *dtostrf (double val, signed char width, unsigned char prec, char *s
 }
 #endif
 
+#if defined(ESP8266)
+int strncasecmp(const char * str1, const char * str2, int len) {
+    int d = 0;
+    while(len--) {
+        int c1 = tolower(*str1++);
+        int c2 = tolower(*str2++);
+        if(((d = c1 - c2) != 0) || (c2 == '\0')) {
+	  return d;
+        }
+    }
+    return 0;
+}
+#endif
+
+
 void printBuffer(uint8_t *buffer, uint16_t len) {
   DEBUG_PRINTER.print('\t');
   for (uint16_t i=0; i<len; i++) {
