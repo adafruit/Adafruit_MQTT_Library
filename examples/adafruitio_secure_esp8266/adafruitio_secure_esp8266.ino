@@ -37,14 +37,8 @@
 // WiFiFlientSecure for SSL/TLS support
 WiFiClientSecure client;
 
-// Store the MQTT server, username, and password in flash memory.
-// This is required for using the Adafruit MQTT library.
-const char MQTT_SERVER[] PROGMEM    = AIO_SERVER;
-const char MQTT_USERNAME[] PROGMEM  = AIO_USERNAME;
-const char MQTT_PASSWORD[] PROGMEM  = AIO_KEY;
-
 // Setup the MQTT client class by passing in the WiFi client and MQTT server and login details.
-Adafruit_MQTT_Client mqtt(&client, MQTT_SERVER, AIO_SERVERPORT, MQTT_USERNAME, MQTT_PASSWORD);
+Adafruit_MQTT_Client mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
 
 // io.adafruit.com SHA1 fingerprint
 const char* fingerprint = "26 96 1C 2A 51 07 FD 15 80 96 93 AE F7 32 CE B9 0D 01 55 C4";
@@ -53,7 +47,7 @@ const char* fingerprint = "26 96 1C 2A 51 07 FD 15 80 96 93 AE F7 32 CE B9 0D 01
 
 // Setup a feed called 'photocell' for publishing.
 // Notice MQTT paths for AIO follow the form: <username>/feeds/<feedname>
-const char TEST_FEED[] PROGMEM = AIO_USERNAME "/feeds/test";
+#define TEST_FEED AIO_USERNAME "/feeds/test"
 Adafruit_MQTT_Publish test = Adafruit_MQTT_Publish(&mqtt, TEST_FEED);
 
 /*************************** Sketch Code ************************************/

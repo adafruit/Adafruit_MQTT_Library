@@ -204,13 +204,6 @@ int8_t Adafruit_MQTT::connect(const char *user, const char *pass)
   return connect();
 }
 
-int8_t Adafruit_MQTT::connect(const __FlashStringHelper *user, const __FlashStringHelper *pass)
-{
-  username = (const char*)user;
-  password = (const char*)pass;
-  return connect();
-}
-
 uint16_t Adafruit_MQTT::processPacketsUntil(uint8_t *buffer, uint8_t waitforpackettype, uint16_t timeout) {
   uint16_t len;
   while (len = readFullPacket(buffer, MAXBUFFERSIZE, timeout)) {
@@ -782,14 +775,6 @@ Adafruit_MQTT_Publish::Adafruit_MQTT_Publish(Adafruit_MQTT *mqttserver,
   topic = feed;
   qos = q;
 }
-
-Adafruit_MQTT_Publish::Adafruit_MQTT_Publish(Adafruit_MQTT *mqttserver,
-                                             const __FlashStringHelper *feed, uint8_t q) {
-  mqtt = mqttserver;
-  topic = (const char *)feed;
-  qos = q;
-}
-
 bool Adafruit_MQTT_Publish::publish(int32_t i) {
   char payload[12];
   ltoa(i, payload, 10);
@@ -830,18 +815,6 @@ Adafruit_MQTT_Subscribe::Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver,
   callback_uint32t = 0;
   callback_buffer = 0;
   callback_double = 0;
-  callback_io = 0;
-  io_feed = 0;
-}
-
-Adafruit_MQTT_Subscribe::Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver,
-                                                 const __FlashStringHelper *feed, uint8_t q) {
-  mqtt = mqttserver;
-  topic = (const char *)feed;
-  qos = q;
-  datalen = 0;
-  callback_uint32t = 0;
-  callback_buffer = 0;
   callback_io = 0;
   io_feed = 0;
 }
