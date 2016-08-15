@@ -40,20 +40,14 @@ WiFiClient client;
 // or... use WiFiFlientSecure for SSL
 //WiFiClientSecure client;
 
-// Store the MQTT server, username, and password in flash memory.
-// This is required for using the Adafruit MQTT library.
-const char MQTT_SERVER[] PROGMEM    = ARB_SERVER;
-const char MQTT_USERNAME[] PROGMEM  = ARB_USERNAME;
-const char MQTT_PASSWORD[] PROGMEM  = ARB_PW;
-
 // Setup the MQTT client class by passing in the WiFi client and MQTT server and login details.
-Adafruit_MQTT_Client mqtt(&client, MQTT_SERVER, ARB_SERVERPORT, MQTT_USERNAME, MQTT_PASSWORD);
+Adafruit_MQTT_Client mqtt(&client, ARB_SERVER, ARB_SERVERPORT, ARB_USERNAME, ARB_PW);
 
 /****************************** Feeds ***************************************/
 
 // Setup a feed called 'arb_packet' for publishing.
 // Notice MQTT paths for AIO follow the form: <username>/feeds/<feedname>
-const char ARB_FEED[] PROGMEM = "/feeds/arb_packet";
+#define ARB_FEED "/feeds/arb_packet"
 Adafruit_MQTT_Publish ap = Adafruit_MQTT_Publish(&mqtt, ARB_FEED);
 
 

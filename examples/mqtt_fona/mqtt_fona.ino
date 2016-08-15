@@ -67,11 +67,11 @@ boolean FONAconnect(const __FlashStringHelper *apn, const __FlashStringHelper *u
 
 // Setup a feed called 'photocell' for publishing.
 // Notice MQTT paths for AIO follow the form: <username>/feeds/<feedname>
-const char PHOTOCELL_FEED[]     = AIO_USERNAME "/feeds/photocell";
+#define PHOTOCELL_FEED AIO_USERNAME "/feeds/photocell"
 Adafruit_MQTT_Publish photocell = Adafruit_MQTT_Publish(&mqtt, PHOTOCELL_FEED);
 
 // Setup a feed called 'onoff' for subscribing to changes.
-const char ONOFF_FEED[]            = AIO_USERNAME "/feeds/onoff";
+#define ONOFF_FEED AIO_USERNAME "/feeds/onoff"
 Adafruit_MQTT_Subscribe onoffbutton = Adafruit_MQTT_Subscribe(&mqtt, ONOFF_FEED);
 
 /*************************** Sketch Code ************************************/
