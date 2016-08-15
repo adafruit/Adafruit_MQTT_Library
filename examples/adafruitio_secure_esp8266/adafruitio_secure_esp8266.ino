@@ -45,10 +45,9 @@ const char* fingerprint = "26 96 1C 2A 51 07 FD 15 80 96 93 AE F7 32 CE B9 0D 01
 
 /****************************** Feeds ***************************************/
 
-// Setup a feed called 'photocell' for publishing.
+// Setup a feed called 'test' for publishing.
 // Notice MQTT paths for AIO follow the form: <username>/feeds/<feedname>
-#define TEST_FEED AIO_USERNAME "/feeds/test"
-Adafruit_MQTT_Publish test = Adafruit_MQTT_Publish(&mqtt, TEST_FEED);
+Adafruit_MQTT_Publish test = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/test");
 
 /*************************** Sketch Code ************************************/
 

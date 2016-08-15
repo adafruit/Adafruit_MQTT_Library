@@ -59,12 +59,10 @@ boolean CC3000connect(const char* wlan_ssid, const char* wlan_pass, uint8_t wlan
 
 // Setup a feed called 'photocell' for publishing.
 // Notice MQTT paths for AIO follow the form: <username>/feeds/<feedname>
-#define PHOTOCELL_FEED AIO_USERNAME "/feeds/photocell"
-Adafruit_MQTT_Publish photocell = Adafruit_MQTT_Publish(&mqtt, PHOTOCELL_FEED);
+Adafruit_MQTT_Publish photocell = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/photocell");
 
 // Setup a feed called 'onoff' for subscribing to changes.
-#define ONOFF_FEED AIO_USERNAME "/feeds/onoff"
-Adafruit_MQTT_Subscribe onoffbutton = Adafruit_MQTT_Subscribe(&mqtt, ONOFF_FEED);
+Adafruit_MQTT_Subscribe onoffbutton = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/onoff");
 
 /*************************** Sketch Code ************************************/
 

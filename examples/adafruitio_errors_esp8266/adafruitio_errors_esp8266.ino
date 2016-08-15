@@ -46,20 +46,15 @@ Adafruit_MQTT_Client mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO
 
 // Setup a feed called 'photocell' for publishing.
 // Notice MQTT paths for AIO follow the form: <username>/feeds/<feedname>
-#define PHOTOCELL_FEED AIO_USERNAME "/feeds/photocell"
-Adafruit_MQTT_Publish photocell = Adafruit_MQTT_Publish(&mqtt, PHOTOCELL_FEED);
+Adafruit_MQTT_Publish photocell = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/photocell");
 
 // Setup a feed called 'onoff' for subscribing to changes.
-#define ONOFF_FEED AIO_USERNAME "/feeds/onoff"
-Adafruit_MQTT_Subscribe onoffbutton = Adafruit_MQTT_Subscribe(&mqtt, ONOFF_FEED);
+Adafruit_MQTT_Subscribe onoffbutton = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/feeds/onoff");
 
 /*************************** Error Reporting *********************************/
 
-#define ERROR_FEED AIO_USERNAME "/errors"
-Adafruit_MQTT_Subscribe errors = Adafruit_MQTT_Subscribe(&mqtt, ERROR_FEED);
-
-#define THROTTLE_FEED AIO_USERNAME "/throttle"
-Adafruit_MQTT_Subscribe throttle = Adafruit_MQTT_Subscribe(&mqtt, THROTTLE_FEED);
+Adafruit_MQTT_Subscribe errors = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/errors");
+Adafruit_MQTT_Subscribe throttle = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAME "/throttle");
 
 /*************************** Sketch Code ************************************/
 
