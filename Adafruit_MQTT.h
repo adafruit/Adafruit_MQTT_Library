@@ -31,7 +31,7 @@
 
 #define ADAFRUIT_MQTT_VERSION_MAJOR 0
 #define ADAFRUIT_MQTT_VERSION_MINOR 16
-#define ADAFRUIT_MQTT_VERSION_PATCH 0
+#define ADAFRUIT_MQTT_VERSION_PATCH 1
 
 // Uncomment/comment to turn on/off debug output messages.
 //#define MQTT_DEBUG
