@@ -105,9 +105,6 @@
 #define MQTT_CONN_WILLFLAG        0x04
 #define MQTT_CONN_CLEANSESSION    0x02
 
-// how many subscriptions we want to be able to track
-#define MAXSUBSCRIPTIONS 5
-
 // how much data we save in a subscription object
 // eg max-subscription-payload-size
 #define SUBSCRIPTIONDATALEN 20
@@ -233,7 +230,7 @@ class Adafruit_MQTT {
   uint16_t packet_id_counter;
 
  private:
-  Adafruit_MQTT_Subscribe *subscriptions[MAXSUBSCRIPTIONS];
+  Adafruit_MQTT_Subscribe *subscriptions; //linked list of subscriptions
 
   void    flushIncoming(uint16_t timeout);
 
@@ -276,6 +273,7 @@ class Adafruit_MQTT_Subscribe {
   void setCallback(AdafruitIO_Feed *io, SubscribeCallbackIOType callb);
   void removeCallback(void);
 
+  Adafruit_MQTT_Subscribe *next_sub; 
   const char *topic;
   uint8_t qos;
 
