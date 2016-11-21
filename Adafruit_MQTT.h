@@ -110,7 +110,11 @@
 
 // how much data we save in a subscription object
 // eg max-subscription-payload-size
-#define SUBSCRIPTIONDATALEN 20
+#if defined  (__AVR_ATmega32U4__) || defined(__AVR_ATmega328P__)
+  #define SUBSCRIPTIONDATALEN 20
+#else
+  #define SUBSCRIPTIONDATALEN 100
+#endif
 
 class AdafruitIO_Feed;  // forward decl
 
