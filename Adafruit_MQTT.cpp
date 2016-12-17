@@ -675,6 +675,14 @@ uint16_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
     packet_id_counter++;
   }
 
+  // Truncates payload if it doesn't fit in buffer
+  uint16_t used_buffer = p - packet;
+  uint16_t unused_buffer = MAXBUFFERSIZE - used_buffer;
+  if (bLen > unused_buffer) {
+    bLen = unused_buffer;
+    DEBUG_PRINTLN(F("Payload truncated to fit MAXBUFFERSIZE"));
+  }
+
   memmove(p, data, bLen);
   p+= bLen;
   len = p - packet;
