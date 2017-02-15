@@ -437,7 +437,7 @@ void Adafruit_MQTT::processPackets(int16_t timeout) {
       else if (sub->callback_io != NULL) {
         // huh lets do the callback in io mode
         //Serial.print("*** calling io instance callback with : "); Serial.println((char *)sub->lastread);
-        ((sub->io_feed)->*(sub->callback_io))((char *)sub->lastread, sub->datalen);
+        ((sub->io_mqtt)->*(sub->callback_io))((char *)sub->lastread, sub->datalen);
       }
     }
 
@@ -816,7 +816,7 @@ Adafruit_MQTT_Subscribe::Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver,
   callback_buffer = 0;
   callback_double = 0;
   callback_io = 0;
-  io_feed = 0;
+  io_mqtt = 0;
 }
 
 void Adafruit_MQTT_Subscribe::setCallback(SubscribeCallbackUInt32Type cb) {
@@ -831,9 +831,9 @@ void Adafruit_MQTT_Subscribe::setCallback(SubscribeCallbackBufferType cb) {
   callback_buffer = cb;
 }
 
-void Adafruit_MQTT_Subscribe::setCallback(AdafruitIO_Feed *f, SubscribeCallbackIOType cb) {
+void Adafruit_MQTT_Subscribe::setCallback(AdafruitIO_MQTT *io, SubscribeCallbackIOType cb) {
   callback_io = cb;
-  io_feed = f;
+  io_mqtt= io;
 }
 
 void Adafruit_MQTT_Subscribe::removeCallback(void) {
@@ -841,5 +841,5 @@ void Adafruit_MQTT_Subscribe::removeCallback(void) {
   callback_buffer = 0;
   callback_double = 0;
   callback_io = 0;
-  io_feed = 0;
+  io_mqtt = 0;
 }
