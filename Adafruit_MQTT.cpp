@@ -460,9 +460,25 @@ Adafruit_MQTT_Subscribe *Adafruit_MQTT::readSubscription(int16_t timeout) {
   DEBUG_PRINT("Packet len: "); DEBUG_PRINTLN(len); 
   DEBUG_PRINTBUFFER(buffer, len);
 
+//  ***** added code kmatch98 11/11/2017
+// The packet header information includes a set of length bytes.  
+// The first bit indicates if additional data is present.
+// Need to adjust the byte extraction based on how many of these length bytes are present
+
+// If 128 bytes or less, uses 1 byte and so forth.
+
+   uint8_t numberOfLengthBytes=len / 128;
+
+/// **** maybe this is a problem because it is skipping the wrong number of bytes for the length?
+//   *********  Problem!!!!  Bug here!  I think 11/11/2017
+
+
+
   // Parse out length of packet.
-  topiclen = buffer[3];
-  DEBUG_PRINT(F("Looking for subscription len ")); DEBUG_PRINTLN(topiclen);
+  // determine the location of the topic length based on the number of Length Bytes present
+//  topiclen = buffer[3];
+  topiclen = buffer[3+numberOfLengthBytes];
+   DEBUG_PRINT(F("Looking for subscription len ")); DEBUG_PRINTLN(topiclen);
 
   // Find subscription associated with this packet.
   for (i=0; i<MAXSUBSCRIPTIONS; i++) {
@@ -473,7 +489,7 @@ Adafruit_MQTT_Subscribe *Adafruit_MQTT::readSubscription(int16_t timeout) {
         continue;
       // Stop if the subscription topic matches the received topic. Be careful
       // to make comparison case insensitive.
-      if (strncasecmp((char*)buffer+4, subscriptions[i]->topic, topiclen) == 0) {
+      if (strncasecmp((char*)buffer+4+numberOfLengthBytes, subscriptions[i]->topic, topiclen) == 0) {
         DEBUG_PRINT(F("Found sub #")); DEBUG_PRINTLN(i);
         break;
       }
@@ -485,10 +501,12 @@ Adafruit_MQTT_Subscribe *Adafruit_MQTT::readSubscription(int16_t timeout) {
   uint16_t packetid;
   // Check if it is QoS 1, TODO: we dont support QoS 2
   if ((buffer[0] & 0x6) == 0x2) {
-    packet_id_len = 2;
-    packetid = buffer[topiclen+4];
+//    packetid = buffer[topiclen+4];
+    packetid = buffer[topiclen+4+numberOfLengthBytes];
     packetid <<= 8;
-    packetid |= buffer[topiclen+5];
+ //   packetid |= buffer[topiclen+5];
+    packetid |= buffer[topiclen+5+numberOfLengthBytes];
+
   }
 
   // zero out the old data
@@ -499,7 +517,8 @@ Adafruit_MQTT_Subscribe *Adafruit_MQTT::readSubscription(int16_t timeout) {
     datalen = SUBSCRIPTIONDATALEN-1; // cut it off
   }
   // extract out just the data, into the subscription object itself
-  memmove(subscriptions[i]->lastread, buffer+4+topiclen+packet_id_len, datalen);
+//  memmove(subscriptions[i]->lastread, buffer+4+topiclen+packet_id_len, datalen);
+  memmove(subscriptions[i]->lastread, buffer+4+numberOfLengthBytes+topiclen+packet_id_len, datalen); 
   subscriptions[i]->datalen = datalen;
   DEBUG_PRINT(F("Data len: ")); DEBUG_PRINTLN(datalen);
   DEBUG_PRINT(F("Data: ")); DEBUG_PRINTLN((char *)subscriptions[i]->lastread);
