@@ -77,7 +77,7 @@ uint16_t Adafruit_MQTT_Client::readPacket(uint8_t *buffer, uint16_t maxlen,
 bool Adafruit_MQTT_Client::sendPacket(uint8_t *buffer, uint16_t len) {
   uint16_t ret = 0;
   uint16_t bufferOffset = 0;
-  //Serial.print("Buffer recieved : "); DebugPrinter::println(len);
+  //Serial.print("Buffer recieved : ");
   while (len > 0) {
     if (client->connected()) {
       // send 250 bytes at most at a time, can adjust this later based on Client
@@ -86,7 +86,6 @@ bool Adafruit_MQTT_Client::sendPacket(uint8_t *buffer, uint16_t len) {
 
       ret = client->write(buffer + bufferOffset, sendlen);
 	  client->flush();
-	  //DebugPrinter::println("Sent");
       DEBUG_PRINT(F("Client sendPacket returned: ")); DEBUG_PRINTLN(ret);
       len -= ret;
 	  bufferOffset += ret;
