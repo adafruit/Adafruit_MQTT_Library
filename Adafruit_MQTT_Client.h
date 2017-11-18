@@ -28,6 +28,7 @@
 
 // How long to delay waiting for new data to be available in readPacket.
 #define MQTT_CLIENT_READINTERVAL_MS 10
+#define MAX_SINGLE_PACKET_SIZE 1200
 
 
 // MQTT client implementation for a generic Arduino Client interface.  Can work
