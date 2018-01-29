@@ -11,16 +11,13 @@
 #include <SPI.h>
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_Client.h"
-#include <Adafruit_WINC1500.h>
-
+#include <WiFi101.h>
 
 /************************* WiFI Setup *****************************/
 #define WINC_CS   8
 #define WINC_IRQ  7
 #define WINC_RST  4
 #define WINC_EN   2     // or, tie EN to VCC
-
-Adafruit_WINC1500 WiFi(WINC_CS, WINC_IRQ, WINC_RST);
 
 char ssid[] = "yournetwork";     //  your network SSID (name)
 char pass[] = "yourpassword";    // your network password (use for WPA, or use as key for WEP)
@@ -38,7 +35,7 @@ int status = WL_IDLE_STATUS;
 /************ Global State (you don't need to change this!) ******************/
 
 //Set up the wifi client
-Adafruit_WINC1500Client client;
+WiFiClient client;
 
 Adafruit_MQTT_Client mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
 
@@ -60,10 +57,7 @@ Adafruit_MQTT_Subscribe onoffbutton = Adafruit_MQTT_Subscribe(&mqtt, AIO_USERNAM
 
 
 void setup() {
-#ifdef WINC_EN
-  pinMode(WINC_EN, OUTPUT);
-  digitalWrite(WINC_EN, HIGH);
-#endif
+  WiFi.setPins(WINC_CS, WINC_IRQ, WINC_RST, WINC_EN);
 
   while (!Serial);
   Serial.begin(115200);
