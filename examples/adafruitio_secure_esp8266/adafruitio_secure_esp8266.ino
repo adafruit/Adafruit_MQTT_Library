@@ -32,6 +32,11 @@
 #define AIO_USERNAME    "...your AIO username (see https://accounts.adafruit.com)..."
 #define AIO_KEY         "...your AIO key..."
 
+/***************************** Time of Day ***********************************/
+
+#define GMT_OFFSET -5      // Number of hours your timezone is offset from GMT.
+#define DST_OFFSET_SECS 0  // Number of seconds to add when DST is in effect.
+
 /************ Global State (you don't need to change this!) ******************/
 
 // WiFiFlientSecure for SSL/TLS support
@@ -56,6 +61,7 @@ Adafruit_MQTT_Publish test = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/t
 // for some reason (only affects ESP8266, likely an arduino-builder bug).
 void MQTT_connect();
 void verifyFingerprint();
+void verifyCaCert();
 
 void setup() {
   Serial.begin(115200);
@@ -80,11 +86,20 @@ void setup() {
   Serial.println();
 
   Serial.println("WiFi connected");
-  Serial.println("IP address: "); Serial.println(WiFi.localIP());
+  Serial.print("IP address: "); Serial.println(WiFi.localIP());
+
+  // SSL certificate validation depends upon setting system time of day.
+  configTime(GMT_OFFSET * 3600,
+                   DST_OFFSET_SECS,
+                   "time.nist.gov",
+                   "pool.ntp.org");
 
   // check the fingerprint of io.adafruit.com's SSL cert
   verifyFingerprint();
 
+  // Validate the Chain of Authority (CA) for io.adafruit.com's SSL cert
+  verifyCaCert();
+  
 }
 
 uint32_t x=0;
@@ -123,13 +138,31 @@ void verifyFingerprint() {
     while(1);
   }
 
-  if (client.verify(fingerprint, host)) {
+  if (client.verify(AIO_SSL_FINGERPRINT, host)) {
     Serial.println("Connection secure.");
   } else {
     Serial.println("Connection insecure! Halting execution.");
     while(1);
   }
 
+}
+
+void verifyCaCert() {
+  const char* host = AIO_SERVER;
+
+  // Load root certificate in DER format into WiFiClientSecure object.
+  bool res = client.setCACert_P(caCert, caCertLen);
+  if (!res) {
+      Serial.println("Failed to load root CA certificate!");
+  }
+  // Verify validity of server's SSL certificate.
+  if (client.verifyCertChain(host)) {
+      Serial.println("Server SSL certificate verified.");
+  } else {
+      Serial.println("ERROR: Server SSL certificate verification failed!");
+      Serial.println("Connection insecure! Halting execution.");
+      while(1);
+  }
 }
 
 // Function to connect and reconnect as necessary to the MQTT server.
