@@ -311,11 +311,11 @@ bool Adafruit_MQTT::disconnect() {
 }
 
 bool Adafruit_MQTT::publish(const char *topic, const char *data, uint8_t qos) {
-  return publish(topic, (uint8_t *)(data), strlen(data), qos);
+  return publish(topic, (const uint8_t *)(data), strlen(data), qos);
 }
 
-bool Adafruit_MQTT::publish(const char *topic, uint8_t *data, uint16_t bLen,
-                            uint8_t qos) {
+bool Adafruit_MQTT::publish(const char *topic, const uint8_t *data,
+                            uint16_t bLen, uint8_t qos) {
   // Construct and send publish packet.
   uint16_t len =
       publishPacket(buffer, topic, data, bLen, qos, (uint16_t)sizeof(buffer));
@@ -680,8 +680,8 @@ uint16_t Adafruit_MQTT::packetAdditionalLen(uint16_t currLen) {
 // as per
 // http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718040
 uint16_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
-                                      uint8_t *data, uint16_t bLen, uint8_t qos,
-                                      uint16_t maxPacketLen) {
+                                      const uint8_t *data, uint16_t bLen,
+                                      uint8_t qos, uint16_t maxPacketLen) {
   uint8_t *p = packet;
   uint16_t len = 0;
 
@@ -857,7 +857,7 @@ bool Adafruit_MQTT_Publish::publish(const char *payload) {
 }
 
 // publish buffer of arbitrary length
-bool Adafruit_MQTT_Publish::publish(uint8_t *payload, uint16_t bLen) {
+bool Adafruit_MQTT_Publish::publish(const uint8_t *payload, uint16_t bLen) {
 
   return mqtt->publish(topic, payload, bLen, qos);
 }
