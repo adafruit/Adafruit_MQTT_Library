@@ -143,6 +143,7 @@ Adafruit_MQTT::Adafruit_MQTT(const char *server,
   will_retain = 0;
 
   packet_id_counter = 0;
+  mqtt_protocol_level = 4;
 
 }
 
@@ -159,7 +160,11 @@ int8_t Adafruit_MQTT::connect() {
   // Read connect response packet and verify it
   len = readFullPacket(buffer, MAXBUFFERSIZE, CONNECT_TIMEOUT_MS);
   if (len != 4)
-    return -1;
+	  if(mqtt_protocol_level == 4) {
+		mqtt_protocol_level = 3;
+		return connect();
+	  } else 
+		  return -1;
   if ((buffer[0] != (MQTT_CTRL_CONNECTACK << 4)) || (buffer[1] != 2))
     return -1;
   if (buffer[3] != 0)
@@ -177,7 +182,7 @@ int8_t Adafruit_MQTT::connect() {
       if (!sendPacket(buffer, len))
 	return -1;
 
-      if(MQTT_PROTOCOL_LEVEL < 3) // older versions didn't suback
+      if(mqtt_protocol_level < 3) // older versions didn't suback
 	break;
 
       // Check for SUBACK if using MQTT 3.1.1 or higher
@@ -383,7 +388,7 @@ bool Adafruit_MQTT::unsubscribe(Adafruit_MQTT_Subscribe *sub) {
 
       // if QoS for this subscription is 1 or 2, we need
       // to wait for the unsuback to confirm unsubscription
-      if(subscriptions[i]->qos > 0 && MQTT_PROTOCOL_LEVEL > 3) {
+      if(subscriptions[i]->qos > 0 && mqtt_protocol_level > 3) {
 
         // wait for UNSUBACK
         len = readFullPacket(buffer, MAXBUFFERSIZE, CONNECT_TIMEOUT_MS);
@@ -504,7 +509,7 @@ Adafruit_MQTT_Subscribe *Adafruit_MQTT::readSubscription(int16_t timeout) {
   DEBUG_PRINT(F("Data len: ")); DEBUG_PRINTLN(datalen);
   DEBUG_PRINT(F("Data: ")); DEBUG_PRINTLN((char *)subscriptions[i]->lastread);
 
-  if ((MQTT_PROTOCOL_LEVEL > 3) &&(buffer[0] & 0x6) == 0x2) {
+  if ((mqtt_protocol_level > 3) &&(buffer[0] & 0x6) == 0x2) {
     uint8_t ackpacket[4];
     
     // Construct and send puback packet.
@@ -557,15 +562,13 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
   p+=2;
   // fill in packet[1] last
 
-#if MQTT_PROTOCOL_LEVEL == 3
+  if(mqtt_protocol_level == 3) {
     p = stringprint(p, "MQIsdp");
-#elif MQTT_PROTOCOL_LEVEL == 4
+  } else {
     p = stringprint(p, "MQTT");
-#else
-    #error "MQTT level not supported"
-#endif
+  }
 
-  p[0] = MQTT_PROTOCOL_LEVEL;
+  p[0] = mqtt_protocol_level;
   p++;
 
   // always clean the session
@@ -597,7 +600,7 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
   p[0] = MQTT_CONN_KEEPALIVE & 0xFF;
   p++;
 
-  if(MQTT_PROTOCOL_LEVEL == 3) {
+  if(mqtt_protocol_level == 3) {
     p = stringprint(p, clientid, 23);  // Limit client ID to first 23 characters.
   } else {
     if (pgm_read_byte(clientid) != 0) {
