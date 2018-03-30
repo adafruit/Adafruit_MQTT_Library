@@ -123,7 +123,7 @@ void verifyFingerprint() {
     while(1);
   }
 
-  if (client.verify(fingerprint, host)) {
+  if (client.verify(AIO_SSL_FINGERPRINT, host)) {
     Serial.println("Connection secure.");
   } else {
     Serial.println("Connection insecure! Halting execution.");
