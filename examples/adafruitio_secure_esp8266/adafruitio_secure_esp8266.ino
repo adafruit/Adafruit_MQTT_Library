@@ -114,6 +114,7 @@ void loop() {
 void verifyFingerprint() {
 
   const char* host = AIO_SERVER;
+  const char* fingerprint = AIO_SSL_FINGERPRINT;
 
   Serial.print("Connecting to ");
   Serial.println(host);
