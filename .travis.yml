@@ -3,9 +3,11 @@ sudo: false
 before_install:
   - source <(curl -SLs https://raw.githubusercontent.com/adafruit/travis-ci-arduino/master/install.sh)
 install:
-  - arduino --install-library "Adafruit SleepyDog Library,Adafruit FONA Library,Adafruit CC3000 Library,Adafruit_WINC1500"
+  - arduino --install-library "Adafruit SleepyDog Library","Adafruit FONA Library"
 script:
-  - build_main_platforms
+  - build_platform esp8266
+  - arduino --install-library "WiFi101"
+  - build_platform zero
 notifications:
   email:
     on_success: change

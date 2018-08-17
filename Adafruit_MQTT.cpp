@@ -189,7 +189,6 @@ int8_t Adafruit_MQTT::connect() {
 	success = true;
 	break;
       }
-      //Serial.println("\t**failed, retrying!");
     }
     if (! success) return -2; // failed to sub for some reason
   }
@@ -206,15 +205,20 @@ int8_t Adafruit_MQTT::connect(const char *user, const char *pass)
 
 uint16_t Adafruit_MQTT::processPacketsUntil(uint8_t *buffer, uint8_t waitforpackettype, uint16_t timeout) {
   uint16_t len;
-  while (len = readFullPacket(buffer, MAXBUFFERSIZE, timeout)) {
 
-    //DEBUG_PRINT("Packet read size: "); DEBUG_PRINTLN(len);
-    // TODO: add subscription reading & call back processing here
+  while(true) {
+    len = readFullPacket(buffer, MAXBUFFERSIZE, timeout);
 
-    if ((buffer[0] >> 4) == waitforpackettype) {
-      //DEBUG_PRINTLN(F("Found right packet")); 
+    if(len == 0){
+      break;
+    }
+
+    if ((buffer[0] >> 4) == waitforpackettype)
+    {
       return len;
-    } else {
+    }
+    else
+    {
       ERROR_PRINTLN(F("Dropped a packet"));
     }
   }
@@ -407,7 +411,6 @@ bool Adafruit_MQTT::unsubscribe(Adafruit_MQTT_Subscribe *sub) {
 }
 
 void Adafruit_MQTT::processPackets(int16_t timeout) {
-  uint16_t len;
 
   uint32_t elapsed = 0, endtime, starttime = millis();
 
@@ -482,7 +485,7 @@ Adafruit_MQTT_Subscribe *Adafruit_MQTT::readSubscription(int16_t timeout) {
   if (i==MAXSUBSCRIPTIONS) return NULL; // matching sub not found ???
 
   uint8_t packet_id_len = 0;
-  uint16_t packetid;
+  uint16_t packetid = 0;
   // Check if it is QoS 1, TODO: we dont support QoS 2
   if ((buffer[0] & 0x6) == 0x2) {
     packet_id_len = 2;
