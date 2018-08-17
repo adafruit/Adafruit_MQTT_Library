@@ -7,7 +7,7 @@ install:
 script:
   - build_platform esp8266
   - arduino --install-library "WiFi101"
-  - build platform zero
+  - build_platform zero
 notifications:
   email:
     on_success: change
