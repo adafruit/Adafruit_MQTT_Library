@@ -552,6 +552,7 @@ bool Adafruit_MQTT::ping(uint8_t num) {
 // small differences in the protocol):
 //   http://public.dhe.ibm.com/software/dw/webservices/ws-mqtt/mqtt-v3r1.html#connect
 uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
+  String nullString = "";
   uint8_t *p = packet;
   uint16_t len;
 
@@ -589,10 +590,12 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
 
   }
 
-  if (pgm_read_byte(username) != 0)
+  if (!(nullString.equals(username)) && pgm_read_byte(username) != 0){
     p[0] |= MQTT_CONN_USERNAMEFLAG;
-  if (pgm_read_byte(password) != 0)
+  }
+  if (!(nullString.equals(password)) && pgm_read_byte(password) != 0){
     p[0] |= MQTT_CONN_PASSWORDFLAG;
+  }
   p++;
 
   p[0] = MQTT_CONN_KEEPALIVE >> 8;
@@ -619,10 +622,10 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
     p = stringprint(p, will_payload);
   }
 
-  if (pgm_read_byte(username) != 0) {
+  if (!(nullString.equals(username)) && pgm_read_byte(username) != 0) {
     p = stringprint(p, username);
   }
-  if (pgm_read_byte(password) != 0) {
+  if (!(nullString.equals(password)) && pgm_read_byte(password) != 0) {
     p = stringprint(p, password);
   }
 
