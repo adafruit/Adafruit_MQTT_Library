@@ -105,14 +105,13 @@
 #define MQTT_CONN_WILLFLAG        0x04
 #define MQTT_CONN_CLEANSESSION    0x02
 
-// how many subscriptions we want to be able to track
-#define MAXSUBSCRIPTIONS 5
-
 // how much data we save in a subscription object
-// eg max-subscription-payload-size
+// and how many subscriptions we want to be able to track.
 #if defined  (__AVR_ATmega32U4__) || defined(__AVR_ATmega328P__)
+  #define MAXSUBSCRIPTIONS 5
   #define SUBSCRIPTIONDATALEN 20
 #else
+  #define MAXSUBSCRIPTIONS 15
   #define SUBSCRIPTIONDATALEN 100
 #endif
 
