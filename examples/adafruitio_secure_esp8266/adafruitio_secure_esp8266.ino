@@ -22,15 +22,18 @@
 
 /************************* WiFi Access Point *********************************/
 
-#define WLAN_SSID       "...your SSID..."
-#define WLAN_PASS       "...your password..."
+#define WLAN_SSID       "WLAN_SSID"
+#define WLAN_PASS       "WIFI_PASSWORD
 
 /************************* Adafruit.io Setup *********************************/
 
 #define AIO_SERVER      "io.adafruit.com"
-#define AIO_SERVERPORT  8883                   // 8883 for MQTTS
-#define AIO_USERNAME    "...your AIO username (see https://accounts.adafruit.com)..."
-#define AIO_KEY         "...your AIO key..."
+// Using port 8883 for MQTTS
+#define AIO_SERVERPORT  8883
+// Adafruit IO Account Configuration
+// (to obtain these values, visit https://io.adafruit.com and click on Active Key)
+#define AIO_USERNAME    "YOUR_ADAFRUIT_IO_USERNAME"
+#define AIO_KEY         "YOUR_ADAFRUIT_IO_KEY"
 
 /************ Global State (you don't need to change this!) ******************/
 
@@ -41,7 +44,7 @@ WiFiClientSecure client;
 Adafruit_MQTT_Client mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
 
 // io.adafruit.com SHA1 fingerprint
-const char* fingerprint = "AD 4B 64 B3 67 40 B5 FC 0E 51 9B BD 25 E9 7F 88 B6 2A A3 5B";
+const char *fingerprint = "77 00 54 2D DA E7 D8 03 27 31 23 99 EB 27 DB CB A5 4C 57 18";
 
 /****************************** Feeds ***************************************/
 
