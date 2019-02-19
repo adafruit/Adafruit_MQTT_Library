@@ -1,5 +1,5 @@
 /***************************************************
-  Adafruit MQTT Library ESP8266 Example
+  Adafruit_led_SSL_esp8266 Example
 
   Must use ESP8266 Arduino from:
     https://github.com/esp8266/Arduino
@@ -12,7 +12,7 @@
   please support Adafruit and open-source hardware by purchasing
   products from Adafruit!
 
-  Written by Tony DiCola for Adafruit Industries.
+  Written by aandroide (GitHub)
   MIT license, all text above must be included in any redistribution
  ****************************************************/
 #include <ESP8266WiFi.h>
@@ -20,7 +20,7 @@
 #include "Adafruit_MQTT_Client.h"
 
 // the on off button feed turns this LED on/off
-#define LED D6  //example pin for d1 mini
+#define LED 13
 
 /************************* WiFi Access Point *********************************/
 
@@ -87,8 +87,6 @@ void setup() {
   verifyFingerprint();
  }
 
-uint32_t x=0;
-
 void loop() {
   // Ensure the connection to the MQTT server is alive (this will make the first
   // connection and automatically reconnect when disconnected).  See the MQTT_connect
@@ -102,7 +100,7 @@ void loop() {
   while ((subscription = mqtt.readSubscription(5000))) {
     // Check if its the onoff button feed
     if (subscription == &onoffbutton) {
-      Serial.print(F("On-Off button: "));
+      Serial.print(F("Button: "));
       Serial.println((char *)onoffbutton.lastread);
       
       if (strcmp((char *)onoffbutton.lastread, "ON") == 0) {
@@ -128,9 +126,6 @@ void verifyFingerprint() {
   Serial.print("Connecting to ");
   Serial.println(host);
 
-  Serial.printf("Using fingerprint '%s'\n", fingerprint);
-  client.setFingerprint(fingerprint);
-  
   if (! client.connect(host, AIO_SERVERPORT)) {
     Serial.println("Connection failed. Halting execution.");
     while(1);
