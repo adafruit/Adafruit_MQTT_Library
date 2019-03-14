@@ -463,6 +463,9 @@ Adafruit_MQTT_Subscribe *Adafruit_MQTT::readSubscription(int16_t timeout) {
   DEBUG_PRINT("Packet len: "); DEBUG_PRINTLN(len); 
   DEBUG_PRINTBUFFER(buffer, len);
 
+	if (len<3) return NULL;
+	if ((buffer[0] & 0xF0) != (MQTT_CTRL_PUBLISH) << 4) return NULL;
+	
   // Parse out length of packet.
   topiclen = buffer[3];
   DEBUG_PRINT(F("Looking for subscription len ")); DEBUG_PRINTLN(topiclen);
