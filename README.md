@@ -1,4 +1,4 @@
-# Adafruit MQTT Library [![Build Status](https://travis-ci.org/adafruit/Adafruit_MQTT_Library.svg?branch=master)](https://travis-ci.org/adafruit/Adafruit_MQTT_Library)
+# Adafruit MQTT Library [![Build Status](https://travis-ci.com/adafruit/Adafruit_MQTT_Library.svg?branch=master)](https://travis-ci.com/adafruit/Adafruit_MQTT_Library)
 
 Arduino library for MQTT support, including access to Adafruit IO.  Works with
 the Adafruit FONA, Arduino Yun, ESP8266 Arduino platforms, and anything that supports
@@ -36,9 +36,10 @@ ESP8266            |             |             |     X       |
 Atmega2560 @ 16MHz |             |             |     X       | 
 ATSAM3X8E          |             |             |     X       | 
 ATSAM21D           |             |             |     X       | 
+ATSAMD51J20        |             |             |     X       |
 ATtiny85 @ 16MHz   |             |             |     X       | 
 ATtiny85 @ 8MHz    |             |             |     X       | 
-Intel Curie @ 32MHz |             |             |     X       | 
+Intel Curie @ 32MHz |            |             |     X       | 
 STM32F2            |             |             |     X       | 
 
   * ATmega328 @ 16MHz : Arduino UNO, Adafruit Pro Trinket 5V, Adafruit Metro 328, Adafruit Metro Mini
@@ -49,6 +50,7 @@ STM32F2            |             |             |     X       |
   * ATmega2560 @ 16MHz : Arduino Mega
   * ATSAM3X8E : Arduino Due
   * ATSAM21D : Arduino Zero, M0 Pro
+  * ATSAMD51J20: Adafruit PyPortal
   * ATtiny85 @ 16MHz : Adafruit Trinket 5V
   * ATtiny85 @ 8MHz : Adafruit Gemma, Arduino Gemma, Adafruit Trinket 3V
 
