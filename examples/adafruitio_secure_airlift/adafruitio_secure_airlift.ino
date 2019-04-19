@@ -76,7 +76,6 @@ void setup()
 
   // if the AirLift's pins were defined above...
   #ifdef SET_PINS
-    Serial.println("Setting pins...");
     WiFi.setPins(SPIWIFI_SS, SPIWIFI_ACK, ESP32_RESETN, ESP32_GPIO0, &SPIWIFI);
   #endif
 
