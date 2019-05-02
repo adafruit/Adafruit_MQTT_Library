@@ -1,10 +1,12 @@
-/***************************************************
-  Adafruit MQTT Library PyPortal Adafruit IO SSL/TLS Example
+/****************************************************************
+  Adafruit MQTT Library, Adafruit IO SSL/TLS Example for AirLift
 
   Must use the latest version of nina-fw from:
     https://github.com/adafruit/nina-fw
 
-  Adafruit PyPortal: https://www.adafruit.com/product/4116
+  Works great with Adafruit AirLift ESP32 Co-Processors!
+    --> https://www.adafruit.com/product/4201
+    --> https://www.adafruit.com/product/4116
 
   Adafruit invests time and resources providing this open source code,
   please support Adafruit and open-source hardware by purchasing
@@ -12,16 +14,29 @@
 
   Written by Brent Rubell for Adafruit Industries.
   MIT license, all text above must be included in any redistribution
- ****************************************************/
+ *******************************************************************/
+
 #include <WiFiNINA.h>
 #include <SPI.h>
+
+// For AirLift Breakout/Wing/Shield: Configure the following to match the ESP32 Pins!
+#if !defined(SPIWIFI_SS)
+  // Don't change the names of these #define's! they match the variant ones
+  #define SPIWIFI SPI
+  #define SPIWIFI_SS 11  // Chip select pin
+  #define SPIWIFI_ACK 10 // a.k.a BUSY or READY pin
+  #define ESP32_RESETN 9 // Reset pin
+  #define ESP32_GPIO0 -1 // Not connected
+  #define SET_PINS 1     // Pins were set using this IFNDEF
+#endif
+
 #include "Adafruit_MQTT.h"
 #include "Adafruit_MQTT_Client.h"
 
 /************************* WiFi Access Point *********************************/
 
 #define WLAN_SSID "WLAN_SSID"
-#define WLAN_PASS "WLAN_PASSWORD"
+#define WLAN_PASS "WIFI_PASSWORD"
 int keyIndex = 0; // your network key Index number (needed only for WEP)
 
 int status = WL_IDLE_STATUS;
@@ -59,13 +74,16 @@ void setup()
     ; // wait for serial port to connect. Needed for native USB port only
   }
 
-  // check for the WiFi module:
-  if (WiFi.status() == WL_NO_MODULE)
+  // if the AirLift's pins were defined above...
+  #ifdef SET_PINS
+    WiFi.setPins(SPIWIFI_SS, SPIWIFI_ACK, ESP32_RESETN, ESP32_GPIO0, &SPIWIFI);
+  #endif
+
+  // check for the wifi module
+  while (WiFi.status() == WL_NO_MODULE)
   {
     Serial.println("Communication with WiFi module failed!");
-    // don't continue
-    while (true)
-      ;
+    delay(1000);
   }
 
   String fv = WiFi.firmwareVersion();
@@ -74,17 +92,15 @@ void setup()
     Serial.println("Please upgrade the firmware");
   }
 
-  // attempt to connect to WiFi network:
-  while (status != WL_CONNECTED)
+  // attempt to connect to Wifi network:
+  Serial.print("Attempting to connect to SSID: ");
+  Serial.println(WLAN_SSID);
+  // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
+  do
   {
-    Serial.print("Attempting to connect to WLAN_SSID: ");
-    Serial.println(WLAN_SSID);
-    // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
     status = WiFi.begin(WLAN_SSID, WLAN_PASS);
-
-    // wait 10 seconds for connection:
-    delay(10000);
-  }
+    delay(100); // wait until connected
+  } while (status != WL_CONNECTED);
   Serial.println("Connected to wifi");
   printWiFiStatus();
 }
