@@ -44,7 +44,7 @@ WiFiClientSecure client;
 Adafruit_MQTT_Client mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO_KEY);
 
 // io.adafruit.com SHA1 fingerprint
-const char *fingerprint = "77 00 54 2D DA E7 D8 03 27 31 23 99 EB 27 DB CB A5 4C 57 18";
+static const char *fingerprint PROGMEM = "77 00 54 2D DA E7 D8 03 27 31 23 99 EB 27 DB CB A5 4C 57 18";
 
 /****************************** Feeds ***************************************/
 
@@ -53,11 +53,6 @@ const char *fingerprint = "77 00 54 2D DA E7 D8 03 27 31 23 99 EB 27 DB CB A5 4C
 Adafruit_MQTT_Publish test = Adafruit_MQTT_Publish(&mqtt, AIO_USERNAME "/feeds/test");
 
 /*************************** Sketch Code ************************************/
-
-// Bug workaround for Arduino 1.6.6, it seems to need a function declaration
-// for some reason (only affects ESP8266, likely an arduino-builder bug).
-void MQTT_connect();
-void verifyFingerprint();
 
 void setup() {
   Serial.begin(115200);
@@ -85,8 +80,7 @@ void setup() {
   Serial.println("IP address: "); Serial.println(WiFi.localIP());
 
   // check the fingerprint of io.adafruit.com's SSL cert
-  verifyFingerprint();
-
+  client.setFingerprint(fingerprint);
 }
 
 uint32_t x=0;
@@ -109,28 +103,6 @@ void loop() {
 
   // wait a couple seconds to avoid rate limit
   delay(2000);
-
-}
-
-
-void verifyFingerprint() {
-
-  const char* host = AIO_SERVER;
-
-  Serial.print("Connecting to ");
-  Serial.println(host);
-
-  if (! client.connect(host, AIO_SERVERPORT)) {
-    Serial.println("Connection failed. Halting execution.");
-    while(1);
-  }
-
-  if (client.verify(fingerprint, host)) {
-    Serial.println("Connection secure.");
-  } else {
-    Serial.println("Connection insecure! Halting execution.");
-    while(1);
-  }
 
 }
 
