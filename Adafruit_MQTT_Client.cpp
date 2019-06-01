@@ -85,9 +85,14 @@ bool Adafruit_MQTT_Client::sendPacket(uint8_t *buffer, uint16_t len) {
 
   while (len > 0) {
     if (client->connected()) {
+		
       // send 250 bytes at most at a time, can adjust this later based on Client
+#ifdef ESP8266
+		uint16_t sendlen = len; //ESP8266's implementation can handle large packets by itself.
+#else
+		uint16_t sendlen = len > 250 ? 250 : len;
+#endif
 
-      uint16_t sendlen = len > 250 ? 250 : len;
       //Serial.print("Sending: "); Serial.println(sendlen);
       ret = client->write(buffer, sendlen);
       DEBUG_PRINT(F("Client sendPacket returned: ")); DEBUG_PRINTLN(ret);
