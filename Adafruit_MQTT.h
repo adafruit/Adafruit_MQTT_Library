@@ -63,9 +63,6 @@
   #define ERROR_PRINTBUFFER(buffer, len) {}
 #endif
 
-// Use 3 (MQTT 3.0) or 4 (MQTT 3.1.1)
-#define MQTT_PROTOCOL_LEVEL 4
-
 #define MQTT_CTRL_CONNECT     0x1
 #define MQTT_CTRL_CONNECTACK  0x2
 #define MQTT_CTRL_PUBLISH     0x3
@@ -234,6 +231,7 @@ class Adafruit_MQTT {
   uint8_t will_retain;
   uint8_t buffer[MAXBUFFERSIZE];  // one buffer, used for all incoming/outgoing
   uint16_t packet_id_counter;
+  uint8_t mqtt_protocol_level;
 
  private:
   Adafruit_MQTT_Subscribe *subscriptions[MAXSUBSCRIPTIONS];
