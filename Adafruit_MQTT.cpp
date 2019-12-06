@@ -172,6 +172,9 @@ int8_t Adafruit_MQTT::connect() {
 
     boolean success = false;
     for (uint8_t retry=0; (retry<3) && !success; retry++) { // retry until we get a suback    
+      // read possible retain packets - sent after two or more subscriptions
+      processPackets(SUBACK_TIMEOUT_MS);
+
       // Construct and send subscription packet.
       uint8_t len = subscribePacket(buffer, subscriptions[i]->topic, subscriptions[i]->qos);
       if (!sendPacket(buffer, len))
