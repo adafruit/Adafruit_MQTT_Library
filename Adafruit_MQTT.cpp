@@ -297,13 +297,13 @@ bool Adafruit_MQTT::disconnect() {
 }
 
 
-bool Adafruit_MQTT::publish(const char *topic, const char *data, uint8_t qos) {
-    return publish(topic, (uint8_t*)(data), strlen(data), qos);
+bool Adafruit_MQTT::publish(const char *topic, const char *data, uint8_t qos, bool retain) {
+    return publish(topic, (uint8_t*)(data), strlen(data), qos, retain);
 }
 
-bool Adafruit_MQTT::publish(const char *topic, uint8_t *data, uint16_t bLen, uint8_t qos) {
+bool Adafruit_MQTT::publish(const char *topic, uint8_t *data, uint16_t bLen, uint8_t qos, bool retain) {
   // Construct and send publish packet.
-  uint16_t len = publishPacket(buffer, topic, data, bLen, qos);
+  uint16_t len = publishPacket(buffer, topic, data, bLen, qos, retain);
   if (!sendPacket(buffer, len))
     return false;
 
@@ -640,7 +640,7 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
 
 // as per http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718040
 uint16_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
-                                     uint8_t *data, uint16_t bLen, uint8_t qos) {
+                                     uint8_t *data, uint16_t bLen, uint8_t qos, bool retain) {
   uint8_t *p = packet;
   uint16_t len=0;
 
@@ -653,7 +653,7 @@ uint16_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
   len += bLen; // payload length
 
   // Now you can start generating the packet!
-  p[0] = MQTT_CTRL_PUBLISH << 4 | qos << 1;
+  p[0] = MQTT_CTRL_PUBLISH << 4 | qos << 1 | retain;
   p++;
 
   // fill in packet[1] last
