@@ -195,6 +195,9 @@ class Adafruit_MQTT {
   // that subscribe should be called first for each topic that receives messages!
   Adafruit_MQTT_Subscribe *readSubscription(int16_t timeout=0);
 
+  // Handle any data coming in for subscriptions and fires them off to the appropriate callback
+  Adafruit_MQTT_Subscribe *handleSubscriptionPacket(uint16_t len);
+
   void processPackets(int16_t timeout);
 
   // Ping the server to ensure the connection is still alive.
