@@ -229,11 +229,11 @@ uint16_t Adafruit_MQTT::processPacketsUntil(uint8_t *buffer, uint8_t waitforpack
         if (packetType == waitforpackettype) {
             return len;
         } else {
-//            if (packetType == MQTT_CTRL_PUBLISH) {
-//                handleSubscriptionPacket(len);
-//            } else {
+            if (packetType == MQTT_CTRL_PUBLISH) {
+                handleSubscriptionPacket(len);
+            } else {
                 ERROR_PRINTLN(F("Dropped a packet"));
-//            }
+            }
         }
     }
     return 0;
