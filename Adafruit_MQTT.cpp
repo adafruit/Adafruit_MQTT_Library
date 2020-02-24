@@ -229,9 +229,21 @@ uint16_t Adafruit_MQTT::processPacketsUntil(uint8_t *buffer, uint8_t waitforpack
         if (packetType == waitforpackettype) {
             return len;
         } else {
+//            Serial.print("Packet Types: ");
+//            Serial.print(packetType);
+//            Serial.print(" ");
+//            Serial.println(waitforpackettype);
             if (packetType == MQTT_CTRL_PUBLISH) {
                 handleSubscriptionPacket(len);
             } else {
+                Serial.print("Packet dropped: ");
+                Serial.print(len);
+                Serial.print(" ");
+                for (int i = 0; i < MAXBUFFERSIZE; i++) {
+                    Serial.print(this->buffer[i]);
+                    Serial.print(" ");
+                }
+                Serial.println();
                 ERROR_PRINTLN(F("Dropped a packet"));
             }
         }
@@ -247,7 +259,9 @@ uint16_t Adafruit_MQTT::readFullPacket(uint8_t *buffer, uint16_t maxsize, uint16
 
     // read the packet type:
     rlen = readPacket(pbuff, 1, timeout);
-    if (rlen != 1) return 0;
+    if (rlen != 1) {
+        return 0;
+    }
 
     DEBUG_PRINT(F("Packet Type:\t"));
     DEBUG_PRINTBUFFER(pbuff, rlen);
@@ -259,7 +273,9 @@ uint16_t Adafruit_MQTT::readFullPacket(uint8_t *buffer, uint16_t maxsize, uint16
 
     do {
         rlen = readPacket(pbuff, 1, timeout);
-        if (rlen != 1) return 0;
+        if (rlen != 1) {
+            return 0;
+        }
         encodedByte = pbuff[0]; // save the last read val
         pbuff++; // get ready for reading the next byte
         uint32_t intermediate = encodedByte & 0x7F;
