@@ -454,13 +454,16 @@ void Adafruit_MQTT::processPackets(int16_t timeout) {
     elapsed += (endtime - starttime);
   }
 }
-
 Adafruit_MQTT_Subscribe *Adafruit_MQTT::readSubscription(int16_t timeout) {
-  uint16_t i, topiclen, datalen;
+    // Check if data is available to read.
+    uint16_t len = readFullPacket(buffer, MAXBUFFERSIZE, timeout); // return one full packet
+    return handleSubscriptionPacket(len);
+}
 
-  // Check if data is available to read.
-  uint16_t len = readFullPacket(buffer, MAXBUFFERSIZE, timeout); // return one full packet
-  if (!len)
+Adafruit_MQTT_Subscribe *Adafruit_MQTT::handleSubscriptionPacket(uint16_t len) {
+    uint16_t i, topiclen, datalen;
+
+    if (!len)
     return NULL;  // No data available, just quit.
   DEBUG_PRINT("Packet len: "); DEBUG_PRINTLN(len);
   DEBUG_PRINTBUFFER(buffer, len);
