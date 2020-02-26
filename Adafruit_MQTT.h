@@ -243,7 +243,7 @@ class Adafruit_MQTT {
   // Functions to generate MQTT packets.
   uint8_t connectPacket(uint8_t *packet);
   uint8_t disconnectPacket(uint8_t *packet);
-  uint16_t publishPacket(uint8_t *packet, const char *topic, uint8_t *payload, uint16_t bLen, uint8_t qos, bool retain);
+  uint16_t publishPacket(uint8_t *packet, const char *topic, uint8_t *payload, uint16_t bLen, uint8_t qos, bool retain = false);
   uint8_t subscribePacket(uint8_t *packet, const char *topic, uint8_t qos);
   uint8_t unsubscribePacket(uint8_t *packet, const char *topic);
   uint8_t pingPacket(uint8_t *packet);
