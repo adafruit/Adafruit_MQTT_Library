@@ -653,7 +653,7 @@ uint16_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
   len += bLen; // payload length
 
   // Now you can start generating the packet!
-  p[0] = MQTT_CTRL_PUBLISH << 4 | qos << 1 | retain;
+  p[0] = MQTT_CTRL_PUBLISH << 4 | qos << 1 | (retain ? 1 : 0);
   p++;
 
   // fill in packet[1] last
