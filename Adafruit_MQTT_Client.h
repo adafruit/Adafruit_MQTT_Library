@@ -41,11 +41,14 @@ public:
                        const char *user = "", const char *pass = "")
       : Adafruit_MQTT(server, port, user, pass), client(client) {}
 
-  bool connectServer();
-  bool disconnectServer();
-  bool connected();
-  uint16_t readPacket(uint8_t *buffer, uint16_t maxlen, int16_t timeout);
-  bool sendPacket(uint8_t *buffer, uint16_t len);
+  bool connected() override;
+
+protected:
+  bool connectServer() override;
+  bool disconnectServer() override;
+  uint16_t readPacket(uint8_t *buffer, uint16_t maxlen,
+                      int16_t timeout) override;
+  bool sendPacket(uint8_t *buffer, uint16_t len) override;
 
 private:
   Client *client;

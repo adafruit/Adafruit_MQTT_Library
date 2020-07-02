@@ -42,7 +42,13 @@ public:
                      const char *user = "", const char *pass = "")
       : Adafruit_MQTT(server, port, user, pass), fona(f) {}
 
-  bool connectServer() {
+  bool connected() {
+    // Return true if connected, false if not connected.
+    return fona->TCPconnected();
+  }
+
+protected:
+  bool connectServer() override {
     char server[40];
     strncpy(server, servername, 40);
 #ifdef ADAFRUIT_SLEEPYDOG_H
@@ -54,14 +60,10 @@ public:
     return fona->TCPconnect(server, portnum);
   }
 
-  bool disconnectServer() { return fona->TCPclose(); }
+  bool disconnectServer() override { return fona->TCPclose(); }
 
-  bool connected() {
-    // Return true if connected, false if not connected.
-    return fona->TCPconnected();
-  }
-
-  uint16_t readPacket(uint8_t *buffer, uint16_t maxlen, int16_t timeout) {
+  uint16_t readPacket(uint8_t *buffer, uint16_t maxlen,
+                      int16_t timeout) override {
     uint8_t *buffp = buffer;
     DEBUG_PRINTLN(F("Reading data.."));
 
@@ -114,7 +116,7 @@ public:
     return len;
   }
 
-  bool sendPacket(uint8_t *buffer, uint16_t len) {
+  bool sendPacket(uint8_t *buffer, uint16_t len) override {
     DEBUG_PRINTLN(F("Writing packet"));
     if (fona->TCPconnected()) {
       boolean ret = fona->TCPsend((char *)buffer, len);
