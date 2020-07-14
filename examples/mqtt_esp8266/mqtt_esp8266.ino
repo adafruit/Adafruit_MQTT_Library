@@ -120,7 +120,7 @@ void loop() {
 }
 
 // Function to connect and reconnect as necessary to the MQTT server.
-// Should be called in the loop function and it will take care if connecting.
+// Should be called in the loop function and it will take care of connecting.
 void MQTT_connect() {
   int8_t ret;
 
