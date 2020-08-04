@@ -9,8 +9,8 @@
 // copies of the Software, and to permit persons to whom the Software is
 // furnished to do so, subject to the following conditions:
 //
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
+// The above copyright notice and this permission notice shall be included in
+// all copies or substantial portions of the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 // IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,8 +21,10 @@
 // SOFTWARE.
 #include "Adafruit_MQTT.h"
 
-#if defined(ARDUINO_SAMD_ZERO) || defined(ARDUINO_SAMD_MKR1000) || defined(ARDUINO_ARCH_SAMD)
-static char *dtostrf (double val, signed char width, unsigned char prec, char *sout) {
+#if defined(ARDUINO_SAMD_ZERO) || defined(ARDUINO_SAMD_MKR1000) ||             \
+    defined(ARDUINO_ARCH_SAMD)
+static char *dtostrf(double val, signed char width, unsigned char prec,
+                     char *sout) {
   char fmt[20];
   sprintf(fmt, "%%%d.%df", width, prec);
   sprintf(sout, fmt, val);
@@ -31,23 +33,22 @@ static char *dtostrf (double val, signed char width, unsigned char prec, char *s
 #endif
 
 #if defined(ESP8266)
-int strncasecmp(const char * str1, const char * str2, int len) {
-    int d = 0;
-    while(len--) {
-        int c1 = tolower(*str1++);
-        int c2 = tolower(*str2++);
-        if(((d = c1 - c2) != 0) || (c2 == '\0')) {
-	  return d;
-        }
+int strncasecmp(const char *str1, const char *str2, int len) {
+  int d = 0;
+  while (len--) {
+    int c1 = tolower(*str1++);
+    int c2 = tolower(*str2++);
+    if (((d = c1 - c2) != 0) || (c2 == '\0')) {
+      return d;
     }
-    return 0;
+  }
+  return 0;
 }
 #endif
 
-
 void printBuffer(uint8_t *buffer, uint16_t len) {
   DEBUG_PRINTER.print('\t');
-  for (uint16_t i=0; i<len; i++) {
+  for (uint16_t i = 0; i < len; i++) {
     if (isprint(buffer[i]))
       DEBUG_PRINTER.write(buffer[i]);
     else
@@ -55,7 +56,7 @@ void printBuffer(uint8_t *buffer, uint16_t len) {
     DEBUG_PRINTER.print(F(" [0x"));
     if (buffer[i] < 0x10)
       DEBUG_PRINTER.print("0");
-    DEBUG_PRINTER.print(buffer[i],HEX);
+    DEBUG_PRINTER.print(buffer[i], HEX);
     DEBUG_PRINTER.print("], ");
     if (i % 8 == 7) {
       DEBUG_PRINTER.print("\n\t");
@@ -74,7 +75,7 @@ static uint8_t *stringprint(uint8_t *p, char *s) {
 }
 */
 
-static uint8_t *stringprint(uint8_t *p, const char *s, uint16_t maxlen=0) {
+static uint8_t *stringprint(uint8_t *p, const char *s, uint16_t maxlen = 0) {
   // If maxlen is specified (has a non-zero value) then use it as the maximum
   // length of the source string to write to the buffer.  Otherwise write
   // the entire source string.
@@ -87,20 +88,18 @@ static uint8_t *stringprint(uint8_t *p, const char *s, uint16_t maxlen=0) {
     Serial.write(pgm_read_byte(s+i));
   }
   */
-  p[0] = len >> 8; p++;
-  p[0] = len & 0xFF; p++;
+  p[0] = len >> 8;
+  p++;
+  p[0] = len & 0xFF;
+  p++;
   strncpy((char *)p, s, len);
-  return p+len;
+  return p + len;
 }
-
 
 // Adafruit_MQTT Definition ////////////////////////////////////////////////////
 
-Adafruit_MQTT::Adafruit_MQTT(const char *server,
-                             uint16_t port,
-                             const char *cid,
-                             const char *user,
-                             const char *pass) {
+Adafruit_MQTT::Adafruit_MQTT(const char *server, uint16_t port, const char *cid,
+                             const char *user, const char *pass) {
   servername = server;
   portnum = port;
   clientid = cid;
@@ -108,7 +107,7 @@ Adafruit_MQTT::Adafruit_MQTT(const char *server,
   password = pass;
 
   // reset subscriptions
-  for (uint8_t i=0; i<MAXSUBSCRIPTIONS; i++) {
+  for (uint8_t i = 0; i < MAXSUBSCRIPTIONS; i++) {
     subscriptions[i] = 0;
   }
 
@@ -118,14 +117,10 @@ Adafruit_MQTT::Adafruit_MQTT(const char *server,
   will_retain = 0;
 
   packet_id_counter = 0;
-
 }
 
-
-Adafruit_MQTT::Adafruit_MQTT(const char *server,
-                             uint16_t port,
-                             const char *user,
-                             const char *pass) {
+Adafruit_MQTT::Adafruit_MQTT(const char *server, uint16_t port,
+                             const char *user, const char *pass) {
   servername = server;
   portnum = port;
   clientid = "";
@@ -133,7 +128,7 @@ Adafruit_MQTT::Adafruit_MQTT(const char *server,
   password = pass;
 
   // reset subscriptions
-  for (uint8_t i=0; i<MAXSUBSCRIPTIONS; i++) {
+  for (uint8_t i = 0; i < MAXSUBSCRIPTIONS; i++) {
     subscriptions[i] = 0;
   }
 
@@ -143,7 +138,6 @@ Adafruit_MQTT::Adafruit_MQTT(const char *server,
   will_retain = 0;
 
   packet_id_counter = 0;
-
 }
 
 int8_t Adafruit_MQTT::connect() {
@@ -166,50 +160,55 @@ int8_t Adafruit_MQTT::connect() {
     return buffer[3];
 
   // Setup subscriptions once connected.
-  for (uint8_t i=0; i<MAXSUBSCRIPTIONS; i++) {
+  for (uint8_t i = 0; i < MAXSUBSCRIPTIONS; i++) {
     // Ignore subscriptions that aren't defined.
-    if (subscriptions[i] == 0) continue;
+    if (subscriptions[i] == 0)
+      continue;
 
     boolean success = false;
     for (uint8_t retry=0; (retry<3) && !success; retry++) { // retry until we get a suback
       // Construct and send subscription packet.
-      uint8_t len = subscribePacket(buffer, subscriptions[i]->topic, subscriptions[i]->qos);
+      uint8_t len = subscribePacket(buffer, subscriptions[i]->topic,
+                                    subscriptions[i]->qos);
       if (!sendPacket(buffer, len))
-	return -1;
+        return -1;
 
-      if(MQTT_PROTOCOL_LEVEL < 3) // older versions didn't suback
-	break;
+      if (MQTT_PROTOCOL_LEVEL < 3) // older versions didn't suback
+        break;
 
       // Check for SUBACK if using MQTT 3.1.1 or higher
-      // TODO: The Server is permitted to start sending PUBLISH packets matching the
-      // Subscription before the Server sends the SUBACK Packet. (will really need to use callbacks - ada)
+      // TODO: The Server is permitted to start sending PUBLISH packets matching
+      // the Subscription before the Server sends the SUBACK Packet. (will
+      // really need to use callbacks - ada)
 
-      //Serial.println("\t**looking for suback");
+      // Serial.println("\t**looking for suback");
       if (processPacketsUntil(buffer, MQTT_CTRL_SUBACK, SUBACK_TIMEOUT_MS)) {
-	success = true;
-	break;
+        success = true;
+        break;
       }
     }
-    if (! success) return -2; // failed to sub for some reason
+    if (!success)
+      return -2; // failed to sub for some reason
   }
 
   return 0;
 }
 
-int8_t Adafruit_MQTT::connect(const char *user, const char *pass)
-{
+int8_t Adafruit_MQTT::connect(const char *user, const char *pass) {
   username = user;
   password = pass;
   return connect();
 }
 
-uint16_t Adafruit_MQTT::processPacketsUntil(uint8_t *buffer, uint8_t waitforpackettype, uint16_t timeout) {
+uint16_t Adafruit_MQTT::processPacketsUntil(uint8_t *buffer,
+                                            uint8_t waitforpackettype,
+                                            uint16_t timeout) {
   uint16_t len;
 
-  while(true) {
+  while (true) {
     len = readFullPacket(buffer, MAXBUFFERSIZE, timeout);
 
-    if(len == 0){
+    if (len == 0) {
       break;
     }
 
@@ -227,7 +226,8 @@ uint16_t Adafruit_MQTT::processPacketsUntil(uint8_t *buffer, uint8_t waitforpack
   return 0;
 }
 
-uint16_t Adafruit_MQTT::readFullPacket(uint8_t *buffer, uint16_t maxsize, uint16_t timeout) {
+uint16_t Adafruit_MQTT::readFullPacket(uint8_t *buffer, uint16_t maxsize,
+                                       uint16_t timeout) {
   // will read a packet and Do The Right Thing with length
   uint8_t *pbuff = buffer;
 
@@ -235,9 +235,11 @@ uint16_t Adafruit_MQTT::readFullPacket(uint8_t *buffer, uint16_t maxsize, uint16
 
   // read the packet type:
   rlen = readPacket(pbuff, 1, timeout);
-  if (rlen != 1) return 0;
+  if (rlen != 1)
+    return 0;
 
-  DEBUG_PRINT(F("Packet Type:\t")); DEBUG_PRINTBUFFER(pbuff, rlen);
+  DEBUG_PRINT(F("Packet Type:\t"));
+  DEBUG_PRINTBUFFER(pbuff, rlen);
   pbuff++;
 
   uint32_t value = 0;
@@ -246,14 +248,15 @@ uint16_t Adafruit_MQTT::readFullPacket(uint8_t *buffer, uint16_t maxsize, uint16
 
   do {
     rlen = readPacket(pbuff, 1, timeout);
-    if (rlen != 1) return 0;
+    if (rlen != 1)
+      return 0;
     encodedByte = pbuff[0]; // save the last read val
-    pbuff++; // get ready for reading the next byte
+    pbuff++;                // get ready for reading the next byte
     uint32_t intermediate = encodedByte & 0x7F;
     intermediate *= multiplier;
     value += intermediate;
     multiplier *= 128;
-    if (multiplier > (128UL*128UL*128UL)) {
+    if (multiplier > (128UL * 128UL * 128UL)) {
       DEBUG_PRINT(F("Malformed packet len\n"));
       return 0;
     }
@@ -267,43 +270,55 @@ uint16_t Adafruit_MQTT::readFullPacket(uint8_t *buffer, uint16_t maxsize, uint16
   } else {
     rlen = readPacket(pbuff, value, timeout);
   }
-  //DEBUG_PRINT(F("Remaining packet:\t")); DEBUG_PRINTBUFFER(pbuff, rlen);
+  // DEBUG_PRINT(F("Remaining packet:\t")); DEBUG_PRINTBUFFER(pbuff, rlen);
 
-  return ((pbuff - buffer)+rlen);
+  return ((pbuff - buffer) + rlen);
 }
 
-const __FlashStringHelper* Adafruit_MQTT::connectErrorString(int8_t code) {
-   switch (code) {
-      case 1: return F("The Server does not support the level of the MQTT protocol requested");
-      case 2: return F("The Client identifier is correct UTF-8 but not allowed by the Server");
-      case 3: return F("The MQTT service is unavailable");
-      case 4: return F("The data in the user name or password is malformed");
-      case 5: return F("Not authorized to connect");
-      case 6: return F("Exceeded reconnect rate limit. Please try again later.");
-      case 7: return F("You have been banned from connecting. Please contact the MQTT server administrator for more details.");
-      case -1: return F("Connection failed");
-      case -2: return F("Failed to subscribe");
-      default: return F("Unknown error");
-   }
+const __FlashStringHelper *Adafruit_MQTT::connectErrorString(int8_t code) {
+  switch (code) {
+  case 1:
+    return F(
+        "The Server does not support the level of the MQTT protocol requested");
+  case 2:
+    return F(
+        "The Client identifier is correct UTF-8 but not allowed by the Server");
+  case 3:
+    return F("The MQTT service is unavailable");
+  case 4:
+    return F("The data in the user name or password is malformed");
+  case 5:
+    return F("Not authorized to connect");
+  case 6:
+    return F("Exceeded reconnect rate limit. Please try again later.");
+  case 7:
+    return F("You have been banned from connecting. Please contact the MQTT "
+             "server administrator for more details.");
+  case -1:
+    return F("Connection failed");
+  case -2:
+    return F("Failed to subscribe");
+  default:
+    return F("Unknown error");
+  }
 }
 
 bool Adafruit_MQTT::disconnect() {
 
   // Construct and send disconnect packet.
   uint8_t len = disconnectPacket(buffer);
-  if (! sendPacket(buffer, len))
+  if (!sendPacket(buffer, len))
     DEBUG_PRINTLN(F("Unable to send disconnect packet"));
 
   return disconnectServer();
-
 }
-
 
 bool Adafruit_MQTT::publish(const char *topic, const char *data, uint8_t qos) {
-    return publish(topic, (uint8_t*)(data), strlen(data), qos);
+  return publish(topic, (uint8_t *)(data), strlen(data), qos);
 }
 
-bool Adafruit_MQTT::publish(const char *topic, uint8_t *data, uint16_t bLen, uint8_t qos) {
+bool Adafruit_MQTT::publish(const char *topic, uint8_t *data, uint16_t bLen,
+                            uint8_t qos) {
   // Construct and send publish packet.
   uint16_t len = publishPacket(buffer, topic, data, bLen, qos);
   if (!sendPacket(buffer, len))
@@ -322,7 +337,8 @@ bool Adafruit_MQTT::publish(const char *topic, uint8_t *data, uint16_t bLen, uin
     packnum <<= 8;
     packnum |= buffer[3];
 
-    // we increment the packet_id_counter right after publishing so inc here too to match
+    // we increment the packet_id_counter right after publishing so inc here too
+    // to match
     packnum++;
     if (packnum != packet_id_counter)
       return false;
@@ -331,7 +347,8 @@ bool Adafruit_MQTT::publish(const char *topic, uint8_t *data, uint16_t bLen, uin
   return true;
 }
 
-bool Adafruit_MQTT::will(const char *topic, const char *payload, uint8_t qos, uint8_t retain) {
+bool Adafruit_MQTT::will(const char *topic, const char *payload, uint8_t qos,
+                         uint8_t retain) {
 
   if (connected()) {
     DEBUG_PRINT(F("Will defined after connect"));
@@ -344,22 +361,22 @@ bool Adafruit_MQTT::will(const char *topic, const char *payload, uint8_t qos, ui
   will_retain = retain;
 
   return true;
-
 }
 
 bool Adafruit_MQTT::subscribe(Adafruit_MQTT_Subscribe *sub) {
   uint8_t i;
   // see if we are already subscribed
-  for (i=0; i<MAXSUBSCRIPTIONS; i++) {
+  for (i = 0; i < MAXSUBSCRIPTIONS; i++) {
     if (subscriptions[i] == sub) {
       DEBUG_PRINTLN(F("Already subscribed"));
       return true;
     }
   }
-  if (i==MAXSUBSCRIPTIONS) { // add to subscriptionlist
-    for (i=0; i<MAXSUBSCRIPTIONS; i++) {
+  if (i == MAXSUBSCRIPTIONS) { // add to subscriptionlist
+    for (i = 0; i < MAXSUBSCRIPTIONS; i++) {
       if (subscriptions[i] == 0) {
-        DEBUG_PRINT(F("Added sub ")); DEBUG_PRINTLN(i);
+        DEBUG_PRINT(F("Added sub "));
+        DEBUG_PRINTLN(i);
         subscriptions[i] = sub;
         return true;
       }
@@ -374,22 +391,23 @@ bool Adafruit_MQTT::unsubscribe(Adafruit_MQTT_Subscribe *sub) {
   uint8_t i;
 
   // see if we are already subscribed
-  for (i=0; i<MAXSUBSCRIPTIONS; i++) {
+  for (i = 0; i < MAXSUBSCRIPTIONS; i++) {
 
     if (subscriptions[i] == sub) {
 
-      DEBUG_PRINTLN(F("Found matching subscription and attempting to unsubscribe."));
+      DEBUG_PRINTLN(
+          F("Found matching subscription and attempting to unsubscribe."));
 
       // Construct and send unsubscribe packet.
       uint8_t len = unsubscribePacket(buffer, subscriptions[i]->topic);
 
       // sending unsubscribe failed
-      if (! sendPacket(buffer, len))
+      if (!sendPacket(buffer, len))
         return false;
 
       // if QoS for this subscription is 1 or 2, we need
       // to wait for the unsuback to confirm unsubscription
-      if(subscriptions[i]->qos > 0 && MQTT_PROTOCOL_LEVEL > 3) {
+      if (subscriptions[i]->qos > 0 && MQTT_PROTOCOL_LEVEL > 3) {
 
         // wait for UNSUBACK
         len = readFullPacket(buffer, MAXBUFFERSIZE, CONNECT_TIMEOUT_MS);
@@ -397,19 +415,17 @@ bool Adafruit_MQTT::unsubscribe(Adafruit_MQTT_Subscribe *sub) {
         DEBUG_PRINTBUFFER(buffer, len);
 
         if ((len != 5) || (buffer[0] != (MQTT_CTRL_UNSUBACK << 4))) {
-          return false;  // failure to unsubscribe
+          return false; // failure to unsubscribe
         }
       }
 
       subscriptions[i] = 0;
       return true;
     }
-
   }
 
   // subscription not found, so we are unsubscribed
   return true;
-
 }
 
 void Adafruit_MQTT::processPackets(int16_t timeout) {
@@ -419,7 +435,7 @@ void Adafruit_MQTT::processPackets(int16_t timeout) {
   while (elapsed < (uint32_t)timeout) {
     Adafruit_MQTT_Subscribe *sub = readSubscription(timeout - elapsed);
     if (sub) {
-      //Serial.println("**** sub packet received");
+      // Serial.println("**** sub packet received");
       if (sub->callback_uint32t != NULL) {
 	// huh lets do the callback in integer mode
 	uint32_t data = 0;
@@ -441,8 +457,10 @@ void Adafruit_MQTT::processPackets(int16_t timeout) {
       }
       else if (sub->callback_io != NULL) {
         // huh lets do the callback in io mode
-        //Serial.print("*** calling io instance callback with : "); Serial.println((char *)sub->lastread);
-        ((sub->io_mqtt)->*(sub->callback_io))((char *)sub->lastread, sub->datalen);
+        // Serial.print("*** calling io instance callback with : ");
+        // Serial.println((char *)sub->lastread);
+        ((sub->io_mqtt)->*(sub->callback_io))((char *)sub->lastread,
+                                              sub->datalen);
       }
     }
 
@@ -473,10 +491,11 @@ Adafruit_MQTT_Subscribe *Adafruit_MQTT::handleSubscriptionPacket(uint16_t len) {
 
   // Parse out length of packet.
   topiclen = buffer[3];
-  DEBUG_PRINT(F("Looking for subscription len ")); DEBUG_PRINTLN(topiclen);
+  DEBUG_PRINT(F("Looking for subscription len "));
+  DEBUG_PRINTLN(topiclen);
 
   // Find subscription associated with this packet.
-  for (i=0; i<MAXSUBSCRIPTIONS; i++) {
+  for (i = 0; i < MAXSUBSCRIPTIONS; i++) {
     if (subscriptions[i]) {
       // Skip this subscription if its name length isn't the same as the
       // received topic name.
@@ -484,22 +503,25 @@ Adafruit_MQTT_Subscribe *Adafruit_MQTT::handleSubscriptionPacket(uint16_t len) {
         continue;
       // Stop if the subscription topic matches the received topic. Be careful
       // to make comparison case insensitive.
-      if (strncasecmp((char*)buffer+4, subscriptions[i]->topic, topiclen) == 0) {
-        DEBUG_PRINT(F("Found sub #")); DEBUG_PRINTLN(i);
+      if (strncasecmp((char *)buffer + 4, subscriptions[i]->topic, topiclen) ==
+          0) {
+        DEBUG_PRINT(F("Found sub #"));
+        DEBUG_PRINTLN(i);
         break;
       }
     }
   }
-  if (i==MAXSUBSCRIPTIONS) return NULL; // matching sub not found ???
+  if (i == MAXSUBSCRIPTIONS)
+    return NULL; // matching sub not found ???
 
   uint8_t packet_id_len = 0;
   uint16_t packetid = 0;
   // Check if it is QoS 1, TODO: we dont support QoS 2
   if ((buffer[0] & 0x6) == 0x2) {
     packet_id_len = 2;
-    packetid = buffer[topiclen+4];
+    packetid = buffer[topiclen + 4];
     packetid <<= 8;
-    packetid |= buffer[topiclen+5];
+    packetid |= buffer[topiclen + 5];
   }
 
   // zero out the old data
@@ -507,15 +529,18 @@ Adafruit_MQTT_Subscribe *Adafruit_MQTT::handleSubscriptionPacket(uint16_t len) {
 
   datalen = len - topiclen - packet_id_len - 4;
   if (datalen > SUBSCRIPTIONDATALEN) {
-    datalen = SUBSCRIPTIONDATALEN-1; // cut it off
+    datalen = SUBSCRIPTIONDATALEN - 1; // cut it off
   }
   // extract out just the data, into the subscription object itself
-  memmove(subscriptions[i]->lastread, buffer+4+topiclen+packet_id_len, datalen);
+  memmove(subscriptions[i]->lastread, buffer + 4 + topiclen + packet_id_len,
+          datalen);
   subscriptions[i]->datalen = datalen;
-  DEBUG_PRINT(F("Data len: ")); DEBUG_PRINTLN(datalen);
-  DEBUG_PRINT(F("Data: ")); DEBUG_PRINTLN((char *)subscriptions[i]->lastread);
+  DEBUG_PRINT(F("Data len: "));
+  DEBUG_PRINTLN(datalen);
+  DEBUG_PRINT(F("Data: "));
+  DEBUG_PRINTLN((char *)subscriptions[i]->lastread);
 
-  if ((MQTT_PROTOCOL_LEVEL > 3) &&(buffer[0] & 0x6) == 0x2) {
+  if ((MQTT_PROTOCOL_LEVEL > 3) && (buffer[0] & 0x6) == 0x2) {
     uint8_t ackpacket[4];
 
     // Construct and send puback packet.
@@ -531,11 +556,12 @@ Adafruit_MQTT_Subscribe *Adafruit_MQTT::handleSubscriptionPacket(uint16_t len) {
 void Adafruit_MQTT::flushIncoming(uint16_t timeout) {
   // flush input!
   DEBUG_PRINTLN(F("Flushing input buffer"));
-  while (readPacket(buffer, MAXBUFFERSIZE, timeout));
+  while (readPacket(buffer, MAXBUFFERSIZE, timeout))
+    ;
 }
 
 bool Adafruit_MQTT::ping(uint8_t num) {
-  //flushIncoming(100);
+  // flushIncoming(100);
 
   while (num--) {
     // Construct and send ping packet.
@@ -565,15 +591,15 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
 
   // fixed header, connection messsage no flags
   p[0] = (MQTT_CTRL_CONNECT << 4) | 0x0;
-  p+=2;
+  p += 2;
   // fill in packet[1] last
 
 #if MQTT_PROTOCOL_LEVEL == 3
-    p = stringprint(p, "MQIsdp");
+  p = stringprint(p, "MQIsdp");
 #elif MQTT_PROTOCOL_LEVEL == 4
-    p = stringprint(p, "MQTT");
+  p = stringprint(p, "MQTT");
 #else
-    #error "MQTT level not supported"
+#error "MQTT level not supported"
 #endif
 
   p[0] = MQTT_PROTOCOL_LEVEL;
@@ -587,14 +613,13 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
 
     p[0] |= MQTT_CONN_WILLFLAG;
 
-    if(will_qos == 1)
+    if (will_qos == 1)
       p[0] |= MQTT_CONN_WILLQOS_1;
-    else if(will_qos == 2)
+    else if (will_qos == 2)
       p[0] |= MQTT_CONN_WILLQOS_2;
 
-    if(will_retain == 1)
+    if (will_retain == 1)
       p[0] |= MQTT_CONN_WILLRETAIN;
-
   }
 
   if (pgm_read_byte(username) != 0)
@@ -608,8 +633,8 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
   p[0] = MQTT_CONN_KEEPALIVE & 0xFF;
   p++;
 
-  if(MQTT_PROTOCOL_LEVEL == 3) {
-    p = stringprint(p, clientid, 23);  // Limit client ID to first 23 characters.
+  if (MQTT_PROTOCOL_LEVEL == 3) {
+    p = stringprint(p, clientid, 23); // Limit client ID to first 23 characters.
   } else {
     if (pgm_read_byte(clientid) != 0) {
       p = stringprint(p, clientid);
@@ -636,21 +661,22 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
 
   len = p - packet;
 
-  packet[1] = len-2;  // don't include the 2 bytes of fixed header data
+  packet[1] = len - 2; // don't include the 2 bytes of fixed header data
   DEBUG_PRINTLN(F("MQTT connect packet:"));
   DEBUG_PRINTBUFFER(buffer, len);
   return len;
 }
 
-
-// as per http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718040
+// as per
+// http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718040
 uint16_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
-                                     uint8_t *data, uint16_t bLen, uint8_t qos) {
+                                      uint8_t *data, uint16_t bLen,
+                                      uint8_t qos) {
   uint8_t *p = packet;
-  uint16_t len=0;
+  uint16_t len = 0;
 
   // calc length of non-header data
-  len += 2;               // two bytes to set the topic size
+  len += 2;             // two bytes to set the topic size
   len += strlen(topic); // topic length
   if(qos > 0) {
     len += 2; // qos packet id
@@ -666,28 +692,28 @@ uint16_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
     uint8_t encodedByte = len % 128;
     len /= 128;
     // if there are more data to encode, set the top bit of this byte
-    if ( len > 0 ) {
+    if (len > 0) {
       encodedByte |= 0x80;
     }
     p[0] = encodedByte;
     p++;
-  } while ( len > 0 );
+  } while (len > 0);
 
   // topic comes before packet identifier
   p = stringprint(p, topic);
 
   // add packet identifier. used for checking PUBACK in QOS > 0
-  if(qos > 0) {
+  if (qos > 0) {
     p[0] = (packet_id_counter >> 8) & 0xFF;
     p[1] = packet_id_counter & 0xFF;
-    p+=2;
+    p += 2;
 
     // increment the packet id
     packet_id_counter++;
   }
 
   memmove(p, data, bLen);
-  p+= bLen;
+  p += bLen;
   len = p - packet;
   DEBUG_PRINTLN(F("MQTT publish packet:"));
   DEBUG_PRINTBUFFER(buffer, len);
@@ -701,12 +727,12 @@ uint8_t Adafruit_MQTT::subscribePacket(uint8_t *packet, const char *topic,
 
   p[0] = MQTT_CTRL_SUBSCRIBE << 4 | MQTT_QOS_1 << 1;
   // fill in packet[1] last
-  p+=2;
+  p += 2;
 
   // packet identifier. used for checking SUBACK
   p[0] = (packet_id_counter >> 8) & 0xFF;
   p[1] = packet_id_counter & 0xFF;
-  p+=2;
+  p += 2;
 
   // increment the packet id
   packet_id_counter++;
@@ -717,13 +743,11 @@ uint8_t Adafruit_MQTT::subscribePacket(uint8_t *packet, const char *topic,
   p++;
 
   len = p - packet;
-  packet[1] = len-2; // don't include the 2 bytes of fixed header data
+  packet[1] = len - 2; // don't include the 2 bytes of fixed header data
   DEBUG_PRINTLN(F("MQTT subscription packet:"));
   DEBUG_PRINTBUFFER(buffer, len);
   return len;
 }
-
-
 
 uint8_t Adafruit_MQTT::unsubscribePacket(uint8_t *packet, const char *topic) {
 
@@ -732,12 +756,12 @@ uint8_t Adafruit_MQTT::unsubscribePacket(uint8_t *packet, const char *topic) {
 
   p[0] = MQTT_CTRL_UNSUBSCRIBE << 4 | 0x1;
   // fill in packet[1] last
-  p+=2;
+  p += 2;
 
   // packet identifier. used for checking UNSUBACK
   p[0] = (packet_id_counter >> 8) & 0xFF;
   p[1] = packet_id_counter & 0xFF;
-  p+=2;
+  p += 2;
 
   // increment the packet id
   packet_id_counter++;
@@ -745,11 +769,10 @@ uint8_t Adafruit_MQTT::unsubscribePacket(uint8_t *packet, const char *topic) {
   p = stringprint(p, topic);
 
   len = p - packet;
-  packet[1] = len-2; // don't include the 2 bytes of fixed header data
+  packet[1] = len - 2; // don't include the 2 bytes of fixed header data
   DEBUG_PRINTLN(F("MQTT unsubscription packet:"));
   DEBUG_PRINTBUFFER(buffer, len);
   return len;
-
 }
 
 uint8_t Adafruit_MQTT::pingPacket(uint8_t *packet) {
@@ -799,7 +822,8 @@ bool Adafruit_MQTT_Publish::publish(uint32_t i) {
 }
 
 bool Adafruit_MQTT_Publish::publish(double f, uint8_t precision) {
-  char payload[41];  // Need to technically hold float max, 39 digits and minus sign.
+  char payload[41]; // Need to technically hold float max, 39 digits and minus
+                    // sign.
   dtostrf(f, 0, precision, payload);
   return mqtt->publish(topic, payload, qos);
 }
@@ -808,12 +832,11 @@ bool Adafruit_MQTT_Publish::publish(const char *payload) {
   return mqtt->publish(topic, payload, qos);
 }
 
-//publish buffer of arbitrary length
+// publish buffer of arbitrary length
 bool Adafruit_MQTT_Publish::publish(uint8_t *payload, uint16_t bLen) {
 
   return mqtt->publish(topic, payload, bLen, qos);
 }
-
 
 // Adafruit_MQTT_Subscribe Definition //////////////////////////////////////////
 
@@ -842,9 +865,10 @@ void Adafruit_MQTT_Subscribe::setCallback(SubscribeCallbackBufferType cb) {
   callback_buffer = cb;
 }
 
-void Adafruit_MQTT_Subscribe::setCallback(AdafruitIO_MQTT *io, SubscribeCallbackIOType cb) {
+void Adafruit_MQTT_Subscribe::setCallback(AdafruitIO_MQTT *io,
+                                          SubscribeCallbackIOType cb) {
   callback_io = cb;
-  io_mqtt= io;
+  io_mqtt = io;
 }
 
 void Adafruit_MQTT_Subscribe::removeCallback(void) {
