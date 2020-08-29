@@ -323,7 +323,8 @@ bool Adafruit_MQTT::publish(const char *topic, const char *data, uint8_t qos) {
 bool Adafruit_MQTT::publish(const char *topic, uint8_t *data, uint16_t bLen,
                             uint8_t qos) {
   // Construct and send publish packet.
-  uint16_t len = publishPacket(buffer, topic, data, bLen, qos);
+  uint16_t len =
+      publishPacket(buffer, topic, data, bLen, qos, (uint16_t)sizeof(buffer));
   if (!sendPacket(buffer, len))
     return false;
 
@@ -668,11 +669,26 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
   return len;
 }
 
+// packetAdditionalLen is a helper function used to figure out
+// how bigger the payload needs to be in order to account for
+// its variable length field. As per
+// http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Table_2.4_Size
+static uint16_t packetAdditionalLen(uint16_t currLen) {
+  /* Increase length field based on current length */
+  if (currLen < 128)
+    return 0;
+  if (currLen < 16384)
+    return 1;
+  if (currLen < 2097151)
+    return 2;
+  return 3;
+}
+
 // as per
 // http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718040
 uint16_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
-                                      uint8_t *data, uint16_t bLen,
-                                      uint8_t qos) {
+                                      uint8_t *data, uint16_t bLen, uint8_t qos,
+                                      uint16_t maxPacketLen) {
   uint8_t *p = packet;
   uint16_t len = 0;
 
@@ -682,7 +698,22 @@ uint16_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
   if (qos > 0) {
     len += 2; // qos packet id
   }
-  len += bLen; // payload length
+  // Calculate additional bytes for length field (if any)
+  uint16_t additionalLen = packetAdditionalLen(len + bLen);
+
+  // Payload length. When maxPacketLen provided is 0, let's
+  // assume buffer is big enough. Fingers crossed.
+  if (maxPacketLen == 0 || (len + bLen + 2 + additionalLen <= maxPacketLen)) {
+    len += bLen + additionalLen;
+  } else {
+    // If we make it here, we got a pickle: the payload is not going
+    // to fit in the packet buffer. Instead of corrupting memory, let's
+    // do something less damaging by reducing the bLen to what we are
+    // able to accomodate. Alternatively, consider using a bigger
+    // maxPacketLen.
+    bLen = maxPacketLen - (len + 2 + packetAdditionalLen(maxPacketLen));
+    len = maxPacketLen - 4;
+  }
 
   // Now you can start generating the packet!
   p[0] = MQTT_CTRL_PUBLISH << 4 | qos << 1;
