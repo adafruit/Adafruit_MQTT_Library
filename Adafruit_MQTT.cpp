@@ -181,7 +181,6 @@ int8_t Adafruit_MQTT::connect() {
       // the Subscription before the Server sends the SUBACK Packet. (will
       // really need to use callbacks - ada)
 
-      // Serial.println("\t**looking for suback");
       if (processPacketsUntil(buffer, MQTT_CTRL_SUBACK, SUBACK_TIMEOUT_MS)) {
         success = true;
         break;
@@ -435,30 +434,24 @@ void Adafruit_MQTT::processPackets(int16_t timeout) {
   while (elapsed < (uint32_t)timeout) {
     Adafruit_MQTT_Subscribe *sub = readSubscription(timeout - elapsed);
     if (sub) {
-      // Serial.println("**** sub packet received");
       if (sub->callback_uint32t != NULL) {
 	// huh lets do the callback in integer mode
 	uint32_t data = 0;
 	data = atoi((char *)sub->lastread);
-	//Serial.print("*** calling int callback with : "); Serial.println(data);
 	sub->callback_uint32t(data);
       }
       else if (sub->callback_double != NULL) {
 	// huh lets do the callback in doublefloat mode
 	double data = 0;
 	data = atof((char *)sub->lastread);
-	//Serial.print("*** calling double callback with : "); Serial.println(data);
 	sub->callback_double(data);
       }
       else if (sub->callback_buffer != NULL) {
 	// huh lets do the callback in buffer mode
-	//Serial.print("*** calling buffer callback with : "); Serial.println((char *)sub->lastread);
 	sub->callback_buffer((char *)sub->lastread, sub->datalen);
       }
       else if (sub->callback_io != NULL) {
         // huh lets do the callback in io mode
-        // Serial.print("*** calling io instance callback with : ");
-        // Serial.println((char *)sub->lastread);
         ((sub->io_mqtt)->*(sub->callback_io))((char *)sub->lastread,
                                               sub->datalen);
       }
