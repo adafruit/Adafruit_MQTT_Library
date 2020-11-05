@@ -22,7 +22,7 @@
 #include "Adafruit_MQTT.h"
 
 #if defined(ARDUINO_SAMD_ZERO) || defined(ARDUINO_SAMD_MKR1000) ||             \
-    defined(ARDUINO_ARCH_SAMD)
+    defined(ARDUINO_SAMD_MKR1010) || defined(ARDUINO_ARCH_SAMD)
 static char *dtostrf(double val, signed char width, unsigned char prec,
                      char *sout) {
   char fmt[20];
