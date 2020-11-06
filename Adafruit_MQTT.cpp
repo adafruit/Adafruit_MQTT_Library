@@ -152,10 +152,12 @@ int8_t Adafruit_MQTT::connect() {
 
   // Read connect response packet and verify it
   len = readFullPacket(buffer, MAXBUFFERSIZE, CONNECT_TIMEOUT_MS);
-  if (len != 4)
+  if (len != 4) {
     return -1;
-  if ((buffer[0] != (MQTT_CTRL_CONNECTACK << 4)) || (buffer[1] != 2))
+  }
+  if ((buffer[0] != (MQTT_CTRL_CONNECTACK << 4)) || (buffer[1] != 2)) {
     return -1;
+  }
   if (buffer[3] != 0)
     return buffer[3];
 
@@ -166,7 +168,8 @@ int8_t Adafruit_MQTT::connect() {
       continue;
 
     boolean success = false;
-    for (uint8_t retry=0; (retry<3) && !success; retry++) { // retry until we get a suback
+    for (uint8_t retry = 0; (retry < 3) && !success;
+         retry++) { // retry until we get a suback
       // Construct and send subscription packet.
       uint8_t len = subscribePacket(buffer, subscriptions[i]->topic,
                                     subscriptions[i]->qos);
@@ -213,13 +216,13 @@ uint16_t Adafruit_MQTT::processPacketsUntil(uint8_t *buffer,
 
     uint8_t packetType = (buffer[0] >> 4);
     if (packetType == waitforpackettype) {
-        return len;
+      return len;
     } else {
-        if (packetType == MQTT_CTRL_PUBLISH) {
-            handleSubscriptionPacket(len);
-        } else {
-            ERROR_PRINTLN(F("Dropped a packet"));
-        }
+      if (packetType == MQTT_CTRL_PUBLISH) {
+        handleSubscriptionPacket(len);
+      } else {
+        ERROR_PRINTLN(F("Dropped a packet"));
+      }
     }
   }
   return 0;
@@ -261,11 +264,12 @@ uint16_t Adafruit_MQTT::readFullPacket(uint8_t *buffer, uint16_t maxsize,
     }
   } while (encodedByte & 0x80);
 
-  DEBUG_PRINT(F("Packet Length:\t")); DEBUG_PRINTLN(value);
+  DEBUG_PRINT(F("Packet Length:\t"));
+  DEBUG_PRINTLN(value);
 
-  if (value > (maxsize - (pbuff-buffer) - 1)) {
-      DEBUG_PRINTLN(F("Packet too big for buffer"));
-      rlen = readPacket(pbuff, (maxsize - (pbuff-buffer) - 1), timeout);
+  if (value > (maxsize - (pbuff - buffer) - 1)) {
+    DEBUG_PRINTLN(F("Packet too big for buffer"));
+    rlen = readPacket(pbuff, (maxsize - (pbuff - buffer) - 1), timeout);
   } else {
     rlen = readPacket(pbuff, value, timeout);
   }
@@ -435,22 +439,19 @@ void Adafruit_MQTT::processPackets(int16_t timeout) {
     Adafruit_MQTT_Subscribe *sub = readSubscription(timeout - elapsed);
     if (sub) {
       if (sub->callback_uint32t != NULL) {
-	// huh lets do the callback in integer mode
-	uint32_t data = 0;
-	data = atoi((char *)sub->lastread);
-	sub->callback_uint32t(data);
-      }
-      else if (sub->callback_double != NULL) {
-	// huh lets do the callback in doublefloat mode
-	double data = 0;
-	data = atof((char *)sub->lastread);
-	sub->callback_double(data);
-      }
-      else if (sub->callback_buffer != NULL) {
-	// huh lets do the callback in buffer mode
-	sub->callback_buffer((char *)sub->lastread, sub->datalen);
-      }
-      else if (sub->callback_io != NULL) {
+        // huh lets do the callback in integer mode
+        uint32_t data = 0;
+        data = atoi((char *)sub->lastread);
+        sub->callback_uint32t(data);
+      } else if (sub->callback_double != NULL) {
+        // huh lets do the callback in doublefloat mode
+        double data = 0;
+        data = atof((char *)sub->lastread);
+        sub->callback_double(data);
+      } else if (sub->callback_buffer != NULL) {
+        // huh lets do the callback in buffer mode
+        sub->callback_buffer((char *)sub->lastread, sub->datalen);
+      } else if (sub->callback_io != NULL) {
         // huh lets do the callback in io mode
         ((sub->io_mqtt)->*(sub->callback_io))((char *)sub->lastread,
                                               sub->datalen);
@@ -466,21 +467,28 @@ void Adafruit_MQTT::processPackets(int16_t timeout) {
   }
 }
 Adafruit_MQTT_Subscribe *Adafruit_MQTT::readSubscription(int16_t timeout) {
-    // Check if data is available to read.
-    uint16_t len = readFullPacket(buffer, MAXBUFFERSIZE, timeout); // return one full packet
-    return handleSubscriptionPacket(len);
+  // Check if data is available to read.
+  uint16_t len =
+      readFullPacket(buffer, MAXBUFFERSIZE, timeout); // return one full packet
+  return handleSubscriptionPacket(len);
 }
 
 Adafruit_MQTT_Subscribe *Adafruit_MQTT::handleSubscriptionPacket(uint16_t len) {
-    uint16_t i, topiclen, datalen;
+  uint16_t i, topiclen, datalen;
 
-    if (!len)
-    return NULL;  // No data available, just quit.
-  DEBUG_PRINT("Packet len: "); DEBUG_PRINTLN(len);
+  if (!len) {
+    return NULL; // No data available, just quit.
+  }
+  DEBUG_PRINT("Packet len: ");
+  DEBUG_PRINTLN(len);
   DEBUG_PRINTBUFFER(buffer, len);
 
-	if (len<3) return NULL;
-	if ((buffer[0] & 0xF0) != (MQTT_CTRL_PUBLISH) << 4) return NULL;
+  if (len < 3) {
+    return NULL;
+  }
+  if ((buffer[0] & 0xF0) != (MQTT_CTRL_PUBLISH) << 4) {
+    return NULL;
+  }
 
   // Parse out length of packet.
   topiclen = buffer[3];
@@ -671,7 +679,7 @@ uint16_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
   // calc length of non-header data
   len += 2;             // two bytes to set the topic size
   len += strlen(topic); // topic length
-  if(qos > 0) {
+  if (qos > 0) {
     len += 2; // qos packet id
   }
   len += bLen; // payload length
