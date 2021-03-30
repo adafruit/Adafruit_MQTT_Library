@@ -664,7 +664,8 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
 
   if (len > (127 + 2)) {
     packet[1] = ((len - 2) % 128) + 0x80; // LSB
-    memmove(packet + 3, packet + 2, len - 2); // create space for an additional length-byte
+    memmove(packet + 3, packet + 2,
+            len - 2);            // create space for an additional length-byte
     packet[2] = (len - 2) / 128; // MSB
     len++;
   } else {
