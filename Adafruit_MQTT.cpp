@@ -342,7 +342,7 @@ bool Adafruit_MQTT::publish(const char *topic, uint8_t *data, uint16_t bLen,
 
     // we increment the packet_id_counter right after publishing so inc here too
     // to match
-    packnum = packnum + 1 + (packnum + 1 == 0); //Skip zero
+    packnum = packnum + 1 + (packnum + 1 == 0); // Skip zero
     if (packnum != packet_id_counter)
       return false;
   }
