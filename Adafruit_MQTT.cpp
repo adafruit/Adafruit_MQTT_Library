@@ -475,7 +475,7 @@ Adafruit_MQTT_Subscribe *Adafruit_MQTT::readSubscription(int16_t timeout) {
 
 namespace {
 
-uint16_t topicOffsetFromLenth(uint16_t const len) 
+uint16_t topicOffsetFromLength(uint16_t const len) 
 {
   if (len < 128) {            // 7 bits (+1 continuation bit)
     return 0;
