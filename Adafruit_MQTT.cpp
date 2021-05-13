@@ -244,7 +244,7 @@ uint16_t Adafruit_MQTT::readFullPacket(uint8_t *buffer, uint16_t maxsize,
   DEBUG_PRINTBUFFER(pbuff, rlen);
   pbuff++;
 
-  uint32_t value = 0;
+  uint32_t remainingLength = 0;
   uint32_t multiplier = 1;
   uint8_t encodedByte;
 
@@ -256,7 +256,7 @@ uint16_t Adafruit_MQTT::readFullPacket(uint8_t *buffer, uint16_t maxsize,
     pbuff++;                // get ready for reading the next byte
     uint32_t intermediate = encodedByte & 0x7F;
     intermediate *= multiplier;
-    value += intermediate;
+    remainingLength += intermediate;
     multiplier *= 128;
     if (multiplier > (128UL * 128UL * 128UL)) {
       DEBUG_PRINT(F("Malformed packet len\n"));
@@ -265,17 +265,19 @@ uint16_t Adafruit_MQTT::readFullPacket(uint8_t *buffer, uint16_t maxsize,
   } while (encodedByte & 0x80);
 
   DEBUG_PRINT(F("Packet Length:\t"));
-  DEBUG_PRINTLN(value);
+  DEBUG_PRINTLN(fixedHeaderLength + remainingLength);
 
-  if (value > (maxsize - (pbuff - buffer) - 1)) {
+  uint16_t fixedHeaderLength = pbuff - buffer;
+
+  if (fixedHeaderLength + remainingLength + 1 > maxsize) {
     DEBUG_PRINTLN(F("Packet too big for buffer"));
-    rlen = readPacket(pbuff, (maxsize - (pbuff - buffer) - 1), timeout);
+    rlen = readPacket(pbuff, (maxsize - fixedHeaderLength - 1), timeout);
   } else {
-    rlen = readPacket(pbuff, value, timeout);
+    rlen = readPacket(pbuff, remainingLength, timeout);
   }
   // DEBUG_PRINT(F("Remaining packet:\t")); DEBUG_PRINTBUFFER(pbuff, rlen);
 
-  return ((pbuff - buffer) + rlen);
+  return (fixedHeaderLength + rlen);
 }
 
 const __FlashStringHelper *Adafruit_MQTT::connectErrorString(int8_t code) {
