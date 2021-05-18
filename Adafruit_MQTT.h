@@ -184,6 +184,9 @@ public:
   bool will(const char *topic, const char *payload, uint8_t qos = 0,
             uint8_t retain = 0);
 
+  // Sets the KeepAlive Interval, in seconds.
+  bool setKeepAliveInterval(uint16_t keepAlive);
+
   // Publish a message to a topic using the specified QoS level.  Returns true
   // if the message was published, false otherwise.
   bool publish(const char *topic, const char *payload, uint8_t qos = 0);
@@ -250,6 +253,7 @@ protected:
   const char *will_payload;
   uint8_t will_qos;
   uint8_t will_retain;
+  uint16_t keepAliveInterval; // MQTT KeepAlive time interval, in seconds
   uint8_t buffer[MAXBUFFERSIZE]; // one buffer, used for all incoming/outgoing
   uint16_t packet_id_counter;
 
