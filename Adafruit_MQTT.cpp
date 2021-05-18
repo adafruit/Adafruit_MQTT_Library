@@ -132,6 +132,8 @@ Adafruit_MQTT::Adafruit_MQTT(const char *server, uint16_t port, const char *cid,
   will_qos = 0;
   will_retain = 0;
 
+  keepAliveInterval = MQTT_CONN_KEEPALIVE;
+
   packet_id_counter = 0;
 }
 
@@ -152,6 +154,8 @@ Adafruit_MQTT::Adafruit_MQTT(const char *server, uint16_t port,
   will_payload = 0;
   will_qos = 0;
   will_retain = 0;
+
+  keepAliveInterval = MQTT_CONN_KEEPALIVE;
 
   packet_id_counter = 0;
 }
@@ -381,6 +385,25 @@ bool Adafruit_MQTT::will(const char *topic, const char *payload, uint8_t qos,
   will_qos = qos;
   will_retain = retain;
 
+  return true;
+}
+
+/***************************************************************************/
+/*!
+    @brief  Sets the connect packet's KeepAlive Interval, in seconds. This
+            function MUST be called prior to connect().
+    @param    keepAlive
+               Maximum amount of time without communication between the
+               client and the MQTT broker, in seconds.
+    @returns  True if called prior to connect(), False otherwise.
+*/
+/***************************************************************************/
+bool Adafruit_MQTT::setKeepAliveInterval(uint16_t keepAlive) {
+  if (connected()) {
+    DEBUG_PRINT(F("keepAlive defined after connection established."));
+    return false;
+  }
+  keepAliveInterval = keepAlive;
   return true;
 }
 
@@ -649,9 +672,9 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
     p[0] |= MQTT_CONN_PASSWORDFLAG;
   p++;
 
-  p[0] = MQTT_CONN_KEEPALIVE >> 8;
+  p[0] = keepAliveInterval >> 8;
   p++;
-  p[0] = MQTT_CONN_KEEPALIVE & 0xFF;
+  p[0] = keepAliveInterval & 0xFF;
   p++;
 
   if (MQTT_PROTOCOL_LEVEL == 3) {
