@@ -253,7 +253,7 @@ protected:
   const char *will_payload;
   uint8_t will_qos;
   uint8_t will_retain;
-  uint16_t keepAliveInterval; // MQTT KeepAlive time interval, in seconds
+  uint16_t keepAliveInterval;    // MQTT KeepAlive time interval, in seconds
   uint8_t buffer[MAXBUFFERSIZE]; // one buffer, used for all incoming/outgoing
   uint16_t packet_id_counter;
 
