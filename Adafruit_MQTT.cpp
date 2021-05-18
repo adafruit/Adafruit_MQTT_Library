@@ -388,7 +388,7 @@ bool Adafruit_MQTT::will(const char *topic, const char *payload, uint8_t qos,
   return true;
 }
 
-/**************************************************************************/
+/***************************************************************************/
 /*!
     @brief  Sets the connect packet's KeepAlive Interval, in seconds. This
             function MUST be called prior to connect().
@@ -397,7 +397,7 @@ bool Adafruit_MQTT::will(const char *topic, const char *payload, uint8_t qos,
                client and the MQTT broker, in seconds.
     @returns  True if called prior to connect(), False otherwise.
 */
-/**************************************************************************/
+/***************************************************************************/
 bool Adafruit_MQTT::setKeepAliveInterval(uint16_t keepAlive) {
   if (connected()) {
     DEBUG_PRINT(F("keepAlive defined after connection established."));
