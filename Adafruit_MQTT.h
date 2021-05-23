@@ -320,6 +320,8 @@ public:
 
   AdafruitIO_MQTT *io_mqtt;
 
+  bool new_message;
+
 private:
   Adafruit_MQTT *mqtt;
 };
