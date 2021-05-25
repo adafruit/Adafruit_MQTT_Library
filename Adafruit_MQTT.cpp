@@ -510,7 +510,7 @@ void Adafruit_MQTT::processPackets(int16_t timeout) {
 Adafruit_MQTT_Subscribe *Adafruit_MQTT::readSubscription(int16_t timeout) {
 
   // Sync or Async subscriber with message
-  Adafruit_MQTT_Subscribe *s=0;
+  Adafruit_MQTT_Subscribe *s = 0;
 
   // Check if are unread messages
   for (uint8_t i = 0; i < MAXSUBSCRIPTIONS; i++) {
@@ -524,7 +524,7 @@ Adafruit_MQTT_Subscribe *Adafruit_MQTT::readSubscription(int16_t timeout) {
   if (!s) {
     // Check if data is available to read.
     uint16_t len = readFullPacket(buffer, MAXBUFFERSIZE,
-		                  timeout); // return one full packet
+                                  timeout); // return one full packet
     s = handleSubscriptionPacket(len);
   }
 
