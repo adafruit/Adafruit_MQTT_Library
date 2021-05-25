@@ -510,27 +510,27 @@ void Adafruit_MQTT::processPackets(int16_t timeout) {
 Adafruit_MQTT_Subscribe *Adafruit_MQTT::readSubscription(int16_t timeout) {
 
   // Sync or Async subscriber with message
-  Adafruit_MQTT_Subscribe* s=0;
+  Adafruit_MQTT_Subscribe *s=0;
 
   // Check if are unread messages
   for (uint8_t i = 0; i < MAXSUBSCRIPTIONS; i++) {
     if (subscriptions[i] && subscriptions[i]->new_message) {
-      s=subscriptions[i];
+      s = subscriptions[i];
       break;
     }
   }
 
   // not unread message
-  if ( ! s ) {
+  if (!s) {
     // Check if data is available to read.
-    uint16_t len = 
-      readFullPacket(buffer, MAXBUFFERSIZE, timeout); // return one full packet
-    s=handleSubscriptionPacket(len);
+    uint16_t len = readFullPacket(buffer, MAXBUFFERSIZE,
+		                  timeout); // return one full packet
+    s = handleSubscriptionPacket(len);
   }
 
   // it there is a message, mark it as not pending
-  if ( s ) {
-    s->new_message=false;
+  if (s) {
+    s->new_message = false;
   }
 
   return s;
@@ -573,12 +573,12 @@ Adafruit_MQTT_Subscribe *Adafruit_MQTT::handleSubscriptionPacket(uint16_t len) {
                       topiclen) == 0) {
         DEBUG_PRINT(F("Found sub #"));
         DEBUG_PRINTLN(i);
-        if ( subscriptions[i]->new_message ) {
+        if (subscriptions[i]->new_message) {
           DEBUG_PRINTLN(F("Lost previous message"));
         } else {
-          subscriptions[i]->new_message=true;
+          subscriptions[i]->new_message = true;
         }
-        
+
         break;
       }
     }
