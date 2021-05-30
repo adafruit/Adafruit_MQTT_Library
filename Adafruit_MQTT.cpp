@@ -733,7 +733,8 @@ uint16_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
   // 2 + additionalLen: header byte + remaining length field (from 1 to 4 bytes)
   // len = topic size field + value (string)
   // bLen = buffer size
-  if (!(maxPacketLen == 0 || (len + bLen + 2 + additionalLen <= maxPacketLen))) {
+  if (!(maxPacketLen == 0 ||
+        (len + bLen + 2 + additionalLen <= maxPacketLen))) {
     // If we make it here, we got a pickle: the payload is not going
     // to fit in the packet buffer. Instead of corrupting memory, let's
     // do something less damaging by reducing the bLen to what we are
