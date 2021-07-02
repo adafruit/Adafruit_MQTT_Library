@@ -49,8 +49,8 @@ public:
 
 protected:
   bool connectServer() override {
-    char server[40];
-    strncpy(server, servername, 40);
+    char server[60];
+    strncpy(server, servername, 60);
 #ifdef ADAFRUIT_SLEEPYDOG_H
     Watchdog.reset();
 #endif
