@@ -756,19 +756,21 @@ uint16_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
   // Calculate additional bytes for length field (if any)
   uint16_t additionalLen = packetAdditionalLen(len + bLen);
 
-  // Payload length. When maxPacketLen provided is 0, let's
+  // Payload remaining length. When maxPacketLen provided is 0, let's
   // assume buffer is big enough. Fingers crossed.
-  if (maxPacketLen == 0 || (len + bLen + 2 + additionalLen <= maxPacketLen)) {
-    len += bLen + additionalLen;
-  } else {
+  // 2 + additionalLen: header byte + remaining length field (from 1 to 4 bytes)
+  // len = topic size field + value (string)
+  // bLen = buffer size
+  if (!(maxPacketLen == 0 ||
+        (len + bLen + 2 + additionalLen <= maxPacketLen))) {
     // If we make it here, we got a pickle: the payload is not going
     // to fit in the packet buffer. Instead of corrupting memory, let's
     // do something less damaging by reducing the bLen to what we are
     // able to accomodate. Alternatively, consider using a bigger
     // maxPacketLen.
     bLen = maxPacketLen - (len + 2 + packetAdditionalLen(maxPacketLen));
-    len = maxPacketLen - 4;
   }
+  len += bLen; // remaining len excludes header byte & length field
 
   // Now you can start generating the packet!
   p[0] = MQTT_CTRL_PUBLISH << 4 | qos << 1;
