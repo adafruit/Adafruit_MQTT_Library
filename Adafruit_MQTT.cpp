@@ -134,7 +134,7 @@ Adafruit_MQTT::Adafruit_MQTT(const char *server, uint16_t port, const char *cid,
 
   keepAliveInterval = MQTT_CONN_KEEPALIVE;
 
-  packet_id_counter = 0;
+  packet_id_counter = 1;
 }
 
 Adafruit_MQTT::Adafruit_MQTT(const char *server, uint16_t port,
@@ -157,7 +157,7 @@ Adafruit_MQTT::Adafruit_MQTT(const char *server, uint16_t port,
 
   keepAliveInterval = MQTT_CONN_KEEPALIVE;
 
-  packet_id_counter = 0;
+  packet_id_counter = 1;
 }
 
 int8_t Adafruit_MQTT::connect() {
