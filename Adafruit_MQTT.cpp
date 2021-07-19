@@ -340,6 +340,11 @@ bool Adafruit_MQTT::disconnect() {
 bool Adafruit_MQTT::publish(const char *topic, const char *data, uint8_t qos) {
   return publish(topic, (uint8_t *)(data), strlen(data), qos);
 }
+void Adafruit_MQTT::incrementPacketIdCounter() {
+  packet_id_counter++;
+  // Ensure packet_id_counter is never zero
+  packet_id_counter = packet_id_counter == 0 ? 1 : packet_id_counter;
+}
 
 bool Adafruit_MQTT::publish(const char *topic, uint8_t *data, uint16_t bLen,
                             uint8_t qos) {
@@ -365,6 +370,8 @@ bool Adafruit_MQTT::publish(const char *topic, uint8_t *data, uint16_t bLen,
     // we increment the packet_id_counter right after publishing so inc here too
     // to match
     packnum++;
+    if(packnum == 0)
+      packnum = 1;
     if (packnum != packet_id_counter)
       return false;
   }
@@ -798,7 +805,7 @@ uint16_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
     p += 2;
 
     // increment the packet id
-    packet_id_counter++;
+    incrementPacketIdCounter();
   }
 
   memmove(p, data, bLen);
@@ -824,7 +831,7 @@ uint8_t Adafruit_MQTT::subscribePacket(uint8_t *packet, const char *topic,
   p += 2;
 
   // increment the packet id
-  packet_id_counter++;
+  incrementPacketIdCounter();
 
   p = stringprint(p, topic);
 
@@ -853,7 +860,7 @@ uint8_t Adafruit_MQTT::unsubscribePacket(uint8_t *packet, const char *topic) {
   p += 2;
 
   // increment the packet id
-  packet_id_counter++;
+  incrementPacketIdCounter();
 
   p = stringprint(p, topic);
 

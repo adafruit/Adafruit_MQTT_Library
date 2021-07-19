@@ -271,6 +271,7 @@ private:
   uint8_t unsubscribePacket(uint8_t *packet, const char *topic);
   uint8_t pingPacket(uint8_t *packet);
   uint8_t pubackPacket(uint8_t *packet, uint16_t packetid);
+  void incrementPacketIdCounter();
 };
 
 class Adafruit_MQTT_Publish {
