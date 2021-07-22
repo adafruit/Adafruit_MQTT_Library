@@ -472,6 +472,46 @@ bool Adafruit_MQTT::unsubscribe(Adafruit_MQTT_Subscribe *sub) {
   return true;
 }
 
+bool Adafruit_MQTT::processPackets(int16_t timeout) {
+  bool subPacketFound = false;
+  uint32_t elapsed = 0, endtime, starttime = millis();
+
+  while (elapsed < (uint32_t)timeout) {
+    Adafruit_MQTT_Subscribe *sub = readSubscription(timeout - elapsed);
+    if (sub) {
+      if (sub->callback_uint32t != NULL) {
+        // huh lets do the callback in integer mode
+        uint32_t data = 0;
+        data = atoi((char *)sub->lastread);
+        sub->callback_uint32t(data);
+        subPacketFound = true;
+      } else if (sub->callback_double != NULL) {
+        // huh lets do the callback in doublefloat mode
+        double data = 0;
+        data = atof((char *)sub->lastread);
+        sub->callback_double(data);
+        subPacketFound = true;
+      } else if (sub->callback_buffer != NULL) {
+        // huh lets do the callback in buffer mode
+        sub->callback_buffer((char *)sub->lastread, sub->datalen);
+      } else if (sub->callback_io != NULL) {
+        // huh lets do the callback in io mode
+        ((sub->io_mqtt)->*(sub->callback_io))((char *)sub->lastread,
+                                              sub->datalen);
+        subPacketFound = true;
+      }
+    }
+
+    // keep track over elapsed time
+    endtime = millis();
+    if (endtime < starttime) {
+      starttime = endtime; // looped around!")
+    }
+    elapsed += (endtime - starttime);
+  }
+  return subPacketFound;
+}
+
 void Adafruit_MQTT::processPackets(int16_t timeout) {
 
   uint32_t elapsed = 0, endtime, starttime = millis();
@@ -507,6 +547,7 @@ void Adafruit_MQTT::processPackets(int16_t timeout) {
     elapsed += (endtime - starttime);
   }
 }
+
 Adafruit_MQTT_Subscribe *Adafruit_MQTT::readSubscription(int16_t timeout) {
 
   // Sync or Async subscriber with message

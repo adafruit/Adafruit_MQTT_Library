@@ -213,6 +213,7 @@ public:
   // appropriate callback
   Adafruit_MQTT_Subscribe *handleSubscriptionPacket(uint16_t len);
 
+  bool processPackets(int16_t timeout);
   void processPackets(int16_t timeout);
 
   // Ping the server to ensure the connection is still alive.
