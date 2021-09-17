@@ -431,6 +431,8 @@ bool Adafruit_MQTT::subscribe(Adafruit_MQTT_Subscribe *sub) {
   return false;
 }
 
+// Processes packets until a subscription packet is found
+// and the subscription callback function has been executed
 bool Adafruit_MQTT::unsubscribe(Adafruit_MQTT_Subscribe *sub) {
   uint8_t i;
 
@@ -472,7 +474,7 @@ bool Adafruit_MQTT::unsubscribe(Adafruit_MQTT_Subscribe *sub) {
   return true;
 }
 
-bool Adafruit_MQTT::processPackets(int16_t timeout) {
+bool Adafruit_MQTT::processPacketsUntilCallback(int16_t timeout) {
   bool subPacketFound = false;
   uint32_t elapsed = 0, endtime, starttime = millis();
 

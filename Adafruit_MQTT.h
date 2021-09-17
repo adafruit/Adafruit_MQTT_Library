@@ -34,7 +34,7 @@
 #define ADAFRUIT_MQTT_VERSION_PATCH 0
 
 // Uncomment/comment to turn on/off debug output messages.
-//#define MQTT_DEBUG
+#define MQTT_DEBUG
 // Uncomment/comment to turn on/off error output messages.
 #define MQTT_ERROR
 
@@ -107,7 +107,7 @@
 // Largest full packet we're able to send.
 // Need to be able to store at least ~90 chars for a connect packet with full
 // 23 char client ID.
-#define MAXBUFFERSIZE (150)
+#define MAXBUFFERSIZE (512)
 
 #define MQTT_CONN_USERNAMEFLAG 0x80
 #define MQTT_CONN_PASSWORDFLAG 0x40
@@ -124,7 +124,7 @@
 #define SUBSCRIPTIONDATALEN 20
 #else
 #define MAXSUBSCRIPTIONS 15
-#define SUBSCRIPTIONDATALEN 100
+#define SUBSCRIPTIONDATALEN MAXBUFFERSIZE
 #endif
 
 class AdafruitIO_MQTT; // forward decl
@@ -213,7 +213,7 @@ public:
   // appropriate callback
   Adafruit_MQTT_Subscribe *handleSubscriptionPacket(uint16_t len);
 
-  bool processPackets(int16_t timeout);
+  bool processPacketsUntilCallback(int16_t timeout);
   void processPackets(int16_t timeout);
 
   // Ping the server to ensure the connection is still alive.
