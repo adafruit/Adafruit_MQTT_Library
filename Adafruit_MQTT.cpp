@@ -134,7 +134,7 @@ Adafruit_MQTT::Adafruit_MQTT(const char *server, uint16_t port, const char *cid,
 
   keepAliveInterval = MQTT_CONN_KEEPALIVE;
 
-  packet_id_counter = 0;
+  packet_id_counter = 1;
 }
 
 Adafruit_MQTT::Adafruit_MQTT(const char *server, uint16_t port,
@@ -157,7 +157,7 @@ Adafruit_MQTT::Adafruit_MQTT(const char *server, uint16_t port,
 
   keepAliveInterval = MQTT_CONN_KEEPALIVE;
 
-  packet_id_counter = 0;
+  packet_id_counter = 1;
 }
 
 int8_t Adafruit_MQTT::connect() {
@@ -799,6 +799,8 @@ uint16_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
 
     // increment the packet id
     packet_id_counter++;
+    if (packet_id_counter == 0)
+      packet_id_counter = 1;
   }
 
   memmove(p, data, bLen);
@@ -825,6 +827,8 @@ uint8_t Adafruit_MQTT::subscribePacket(uint8_t *packet, const char *topic,
 
   // increment the packet id
   packet_id_counter++;
+  if (packet_id_counter == 0)
+    packet_id_counter = 1;
 
   p = stringprint(p, topic);
 
@@ -854,6 +858,8 @@ uint8_t Adafruit_MQTT::unsubscribePacket(uint8_t *packet, const char *topic) {
 
   // increment the packet id
   packet_id_counter++;
+  if (packet_id_counter == 0)
+    packet_id_counter = 1;
 
   p = stringprint(p, topic);
 
