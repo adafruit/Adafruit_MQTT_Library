@@ -209,9 +209,11 @@ public:
   // messages!
   Adafruit_MQTT_Subscribe *readSubscription(int16_t timeout = 0);
 
-  // Handle any data coming in for subscriptions and fires them off to the
-  // appropriate callback
+  // Handle any data coming in for subscriptions
   Adafruit_MQTT_Subscribe *handleSubscriptionPacket(uint16_t len);
+
+  // Execute a subscription packet's associated callback and mark as "read"
+  void processSubscriptionPacket(Adafruit_MQTT_Subscribe *sub);
 
   void processPackets(int16_t timeout);
 
