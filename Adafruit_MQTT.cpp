@@ -239,6 +239,9 @@ void Adafruit_MQTT::processSubscriptionPacket(Adafruit_MQTT_Subscribe *sub) {
   } else if (sub->callback_io != NULL) {
     // execute callback in io mode
     ((sub->io_mqtt)->*(sub->callback_io))((char *)sub->lastread, sub->datalen);
+  } else {
+    DEBUG_PRINTLN("ERROR: Subscription packet did not have an associated callback");
+    return;
   }
   // mark subscription message as "read""
   sub->new_message = false;
