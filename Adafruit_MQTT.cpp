@@ -226,6 +226,9 @@ uint16_t Adafruit_MQTT::processPacketsUntil(uint8_t *buffer,
                                             uint8_t waitforpackettype,
                                             uint16_t timeout) {
   uint16_t len;
+  DEBUG_PRINTLN("call: processPacketsUntil()");
+  DEBUG_PRINT("Looking for packetType: ");
+  DEBUG_PRINTLN(waitforpackettype);
 
   while (true) {
     len = readFullPacket(buffer, MAXBUFFERSIZE, timeout);
@@ -239,7 +242,31 @@ uint16_t Adafruit_MQTT::processPacketsUntil(uint8_t *buffer,
       return len;
     } else {
       if (packetType == MQTT_CTRL_PUBLISH) {
-        handleSubscriptionPacket(len);
+
+        Adafruit_MQTT_Subscribe *sub = handleSubscriptionPacket(len);
+        if (sub) {
+          DEBUG_PRINTLN("processPacketsUntil got subscription!");
+          if (sub->callback_uint32t != NULL) {
+            // huh lets do the callback in integer mode
+            uint32_t data = 0;
+            data = atoi((char *)sub->lastread);
+            sub->callback_uint32t(data);
+          } else if (sub->callback_double != NULL) {
+            // huh lets do the callback in doublefloat mode
+            double data = 0;
+            data = atof((char *)sub->lastread);
+            sub->callback_double(data);
+          } else if (sub->callback_buffer != NULL) {
+            // huh lets do the callback in buffer mode
+            DEBUG_PRINTLN("processPacketsUntil called the callback_buffer!");
+            sub->callback_buffer((char *)sub->lastread, sub->datalen);
+          } else if (sub->callback_io != NULL) {
+            // huh lets do the callback in io mode
+            ((sub->io_mqtt)->*(sub->callback_io))((char *)sub->lastread,
+                                                  sub->datalen);
+          }
+        }
+
       } else {
         ERROR_PRINTLN(F("Dropped a packet"));
       }
@@ -477,8 +504,10 @@ void Adafruit_MQTT::processPackets(int16_t timeout) {
   uint32_t elapsed = 0, endtime, starttime = millis();
 
   while (elapsed < (uint32_t)timeout) {
+    DEBUG_PRINTLN("L480: readSubscription() called by processPackets()");
     Adafruit_MQTT_Subscribe *sub = readSubscription(timeout - elapsed);
     if (sub) {
+      DEBUG_PRINTLN("processPackets got subscription!");
       if (sub->callback_uint32t != NULL) {
         // huh lets do the callback in integer mode
         uint32_t data = 0;
@@ -491,6 +520,7 @@ void Adafruit_MQTT::processPackets(int16_t timeout) {
         sub->callback_double(data);
       } else if (sub->callback_buffer != NULL) {
         // huh lets do the callback in buffer mode
+        DEBUG_PRINTLN("processPackets callback_buffer!");
         sub->callback_buffer((char *)sub->lastread, sub->datalen);
       } else if (sub->callback_io != NULL) {
         // huh lets do the callback in io mode
