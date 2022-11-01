@@ -34,7 +34,7 @@
 #define ADAFRUIT_MQTT_VERSION_PATCH 0
 
 // Uncomment/comment to turn on/off debug output messages.
-//#define MQTT_DEBUG
+// #define MQTT_DEBUG
 // Uncomment/comment to turn on/off error output messages.
 #define MQTT_ERROR
 
@@ -209,9 +209,11 @@ public:
   // messages!
   Adafruit_MQTT_Subscribe *readSubscription(int16_t timeout = 0);
 
-  // Handle any data coming in for subscriptions and fires them off to the
-  // appropriate callback
+  // Handle any data coming in for subscriptions
   Adafruit_MQTT_Subscribe *handleSubscriptionPacket(uint16_t len);
+
+  // Execute a subscription packet's associated callback and mark as "read"
+  void processSubscriptionPacket(Adafruit_MQTT_Subscribe *sub);
 
   void processPackets(int16_t timeout);
 
