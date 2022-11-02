@@ -366,17 +366,17 @@ bool Adafruit_MQTT::disconnect() {
 }
 
 bool Adafruit_MQTT::publish(const char *topic, const char *data, uint8_t qos) {
-    return publish(topic, (uint8_t*)(data), strlen(data), false, qos);
+  return publish(topic, (uint8_t*)(data), strlen(data), false, qos);
 }
 
 bool Adafruit_MQTT::publish(const char *topic, const char *data,
                             bool retain, uint8_t qos) {
-    return publish(topic, (uint8_t*)(data), strlen(data), retain, qos);
+  return publish(topic, (uint8_t*)(data), strlen(data), retain, qos);
 }
 
 bool Adafruit_MQTT::publish(const char *topic, uint8_t *data, uint16_t bLen,
                             uint8_t qos) {
-    return publish(topic, data, bLen, false, qos);
+  return publish(topic, data, bLen, false, qos);
 }
 
 bool Adafruit_MQTT::publish(const char *topic, uint8_t *data, uint16_t bLen,
@@ -925,9 +925,7 @@ Adafruit_MQTT_Publish::Adafruit_MQTT_Publish(Adafruit_MQTT *mqttserver,
   qos = q;
 }
 
-bool Adafruit_MQTT_Publish::publish(int32_t i) {
-  return publish(i, false);
-}
+bool Adafruit_MQTT_Publish::publish(int32_t i) { return publish(i, false); }
 
 bool Adafruit_MQTT_Publish::publish(int32_t i, bool retain) {
   char payload[12];
@@ -935,9 +933,7 @@ bool Adafruit_MQTT_Publish::publish(int32_t i, bool retain) {
   return mqtt->publish(topic, payload, retain, qos);
 }
 
-bool Adafruit_MQTT_Publish::publish(uint32_t i) {
-  return publish(i, false);
-}
+bool Adafruit_MQTT_Publish::publish(uint32_t i) { return publish(i, false); }
 
 bool Adafruit_MQTT_Publish::publish(uint32_t i, bool retain) {
   char payload[11];
@@ -950,8 +946,8 @@ bool Adafruit_MQTT_Publish::publish(double f, uint8_t precision) {
 }
 
 bool Adafruit_MQTT_Publish::publish(double f, bool retain, uint8_t precision) {
-  char payload[41];  // Need to technically hold float max, 39 digits and minus
-                     // sign.
+  char payload[41]; // Need to technically hold float max, 39 digits and minus
+                    // sign.
   dtostrf(f, 0, precision, payload);
   return mqtt->publish(topic, payload, retain, qos);
 }
@@ -969,7 +965,8 @@ bool Adafruit_MQTT_Publish::publish(uint8_t *payload, uint16_t bLen) {
   return publish(payload, bLen, false);
 }
 
-bool Adafruit_MQTT_Publish::publish(uint8_t *payload, uint16_t bLen, bool retain) {
+bool Adafruit_MQTT_Publish::publish(uint8_t *payload, uint16_t bLen,
+                                    bool retain) {
 
   return mqtt->publish(topic, payload, bLen, retain, qos);
 }
