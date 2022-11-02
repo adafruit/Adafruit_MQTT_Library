@@ -369,20 +369,21 @@ bool Adafruit_MQTT::publish(const char *topic, const char *data, uint8_t qos) {
     return publish(topic, (uint8_t*)(data), strlen(data), false, qos);
 }
 
-bool Adafruit_MQTT::publish(const char *topic, uint8_t *data, uint16_t bLen,
-                            uint8_t qos) {
-    return publish(topic, data, bLen, false, qos);
-}
-
 bool Adafruit_MQTT::publish(const char *topic, const char *data,
                             bool retain, uint8_t qos) {
     return publish(topic, (uint8_t*)(data), strlen(data), retain, qos);
 }
 
 bool Adafruit_MQTT::publish(const char *topic, uint8_t *data, uint16_t bLen,
+                            uint8_t qos) {
+    return publish(topic, data, bLen, false, qos);
+}
+
+bool Adafruit_MQTT::publish(const char *topic, uint8_t *data, uint16_t bLen,
                             bool retain, uint8_t qos) {
   // Construct and send publish packet.
-  uint16_t len = publishPacket(buffer, topic, data, bLen, retain, qos, (uint16_t)sizeof(buffer));
+  uint16_t len = publishPacket(buffer, topic, data, bLen, retain, qos,
+                               (uint16_t)sizeof(buffer));
 
   if (!sendPacket(buffer, len))
     return false;

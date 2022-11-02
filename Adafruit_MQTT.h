@@ -190,10 +190,11 @@ public:
   // Publish a message to a topic using the specified QoS level.  Returns true
   // if the message was published, false otherwise.
   bool publish(const char *topic, const char *payload, uint8_t qos = 0);
+  bool publish(const char *topic, const char *payload, bool retain, uint8_t qos = 0);
   bool publish(const char *topic, uint8_t *payload, uint16_t bLen,
                uint8_t qos = 0);
-  bool publish(const char *topic, const char *payload, bool retain, uint8_t qos = 0);
-  bool publish(const char *topic, uint8_t *payload, uint16_t bLen, bool retain, uint8_t qos = 0);
+  bool publish(const char *topic, uint8_t *payload, uint16_t bLen,
+               bool retain, uint8_t qos = 0);
 
   // Add a subscription to receive messages for a topic.  Returns true if the
   // subscription could be added or was already present, false otherwise.
