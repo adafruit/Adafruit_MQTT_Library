@@ -192,6 +192,8 @@ public:
   bool publish(const char *topic, const char *payload, uint8_t qos = 0);
   bool publish(const char *topic, uint8_t *payload, uint16_t bLen,
                uint8_t qos = 0);
+  bool publish(const char *topic, const char *payload, bool retain, uint8_t qos = 0);
+  bool publish(const char *topic, uint8_t *payload, uint16_t bLen, bool retain, uint8_t qos = 0);
 
   // Add a subscription to receive messages for a topic.  Returns true if the
   // subscription could be added or was already present, false otherwise.
@@ -268,8 +270,10 @@ private:
   uint8_t connectPacket(uint8_t *packet);
   uint8_t disconnectPacket(uint8_t *packet);
   uint16_t publishPacket(uint8_t *packet, const char *topic, uint8_t *payload,
-                         uint16_t bLen, uint8_t qos, uint16_t maxPacketLen = 0,
-                         bool retain = false);
+                         uint16_t bLen, uint8_t qos, uint16_t maxPacketLen = 0);
+  uint16_t publishPacket(uint8_t *packet, const char *topic, uint8_t *payload,
+                         uint16_t bLen, bool retain, uint8_t qos, uint16_t maxPacketLen = 0);
+
   uint8_t subscribePacket(uint8_t *packet, const char *topic, uint8_t qos);
   uint8_t unsubscribePacket(uint8_t *packet, const char *topic);
   uint8_t pingPacket(uint8_t *packet);
@@ -282,14 +286,19 @@ public:
                         uint8_t qos = 0);
 
   bool publish(const char *s);
+  bool publish(const char *s, bool retain);
   bool publish(
       double f,
       uint8_t precision =
           2); // Precision controls the minimum number of digits after decimal.
               // This might be ignored and a higher precision value sent.
+  bool publish(double f, bool retain, uint8_t precision = 2);
   bool publish(int32_t i);
+  bool publish(int32_t i, bool retain);
   bool publish(uint32_t i);
+  bool publish(uint32_t i, bool retain);
   bool publish(uint8_t *b, uint16_t bLen);
+  bool publish(uint8_t *b, uint16_t bLen, bool retain);
 
 private:
   Adafruit_MQTT *mqtt;
