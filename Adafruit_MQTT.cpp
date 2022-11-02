@@ -366,12 +366,12 @@ bool Adafruit_MQTT::disconnect() {
 }
 
 bool Adafruit_MQTT::publish(const char *topic, const char *data, uint8_t qos) {
-  return publish(topic, (uint8_t*)(data), strlen(data), false, qos);
+  return publish(topic, (uint8_t *)(data), strlen(data), false, qos);
 }
 
-bool Adafruit_MQTT::publish(const char *topic, const char *data,
-                            bool retain, uint8_t qos) {
-  return publish(topic, (uint8_t*)(data), strlen(data), retain, qos);
+bool Adafruit_MQTT::publish(const char *topic, const char *data, bool retain,
+                            uint8_t qos) {
+  return publish(topic, (uint8_t *)(data), strlen(data), retain, qos);
 }
 
 bool Adafruit_MQTT::publish(const char *topic, uint8_t *data, uint16_t bLen,
