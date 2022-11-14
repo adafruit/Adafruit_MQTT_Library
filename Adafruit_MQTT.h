@@ -287,7 +287,7 @@ public:
       double f,
       uint8_t precision =
           2, // Precision controls the minimum number of digits after decimal.
-              // This might be ignored and a higher precision value sent.
+             // This might be ignored and a higher precision value sent.
       bool retain = false);
   bool publish(int32_t i, bool retain = false);
   bool publish(uint32_t i, bool retain = false);
