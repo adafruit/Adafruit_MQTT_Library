@@ -365,25 +365,16 @@ bool Adafruit_MQTT::disconnect() {
   return disconnectServer();
 }
 
-bool Adafruit_MQTT::publish(const char *topic, const char *data, uint8_t qos) {
-  return publish(topic, (uint8_t *)(data), strlen(data), false, qos);
-}
-
-bool Adafruit_MQTT::publish(const char *topic, const char *data, bool retain,
-                            uint8_t qos) {
-  return publish(topic, (uint8_t *)(data), strlen(data), retain, qos);
+bool Adafruit_MQTT::publish(const char *topic, const char *data, uint8_t qos,
+                            bool retain) {
+  return publish(topic, (uint8_t *)(data), strlen(data), qos, retain);
 }
 
 bool Adafruit_MQTT::publish(const char *topic, uint8_t *data, uint16_t bLen,
-                            uint8_t qos) {
-  return publish(topic, data, bLen, false, qos);
-}
-
-bool Adafruit_MQTT::publish(const char *topic, uint8_t *data, uint16_t bLen,
-                            bool retain, uint8_t qos) {
+                            uint8_t qos, bool retain) {
   // Construct and send publish packet.
-  uint16_t len = publishPacket(buffer, topic, data, bLen, retain, qos,
-                               (uint16_t)sizeof(buffer));
+  uint16_t len = publishPacket(buffer, topic, data, bLen, qos,
+                               (uint16_t)sizeof(buffer), retain);
 
   if (!sendPacket(buffer, len))
     return false;
@@ -763,13 +754,7 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
 // http://docs.oasis-open.org/mqtt/mqtt/v3.1.1/os/mqtt-v3.1.1-os.html#_Toc398718040
 uint16_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
                                       uint8_t *data, uint16_t bLen, uint8_t qos,
-                                      uint16_t maxPacketLen) {
-  return publishPacket(packet, topic, data, bLen, false, qos, maxPacketLen);
-}
-
-uint16_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
-                                      uint8_t *data, uint16_t bLen, bool retain,
-                                      uint8_t qos, uint16_t maxPacketLen) {
+                                      uint16_t maxPacketLen, bool retain) {
   uint8_t *p = packet;
   uint16_t len = 0;
 
@@ -925,50 +910,33 @@ Adafruit_MQTT_Publish::Adafruit_MQTT_Publish(Adafruit_MQTT *mqttserver,
   qos = q;
 }
 
-bool Adafruit_MQTT_Publish::publish(int32_t i) { return publish(i, false); }
-
 bool Adafruit_MQTT_Publish::publish(int32_t i, bool retain) {
   char payload[12];
   ltoa(i, payload, 10);
-  return mqtt->publish(topic, payload, retain, qos);
+  return mqtt->publish(topic, payload, qos, retain);
 }
-
-bool Adafruit_MQTT_Publish::publish(uint32_t i) { return publish(i, false); }
 
 bool Adafruit_MQTT_Publish::publish(uint32_t i, bool retain) {
   char payload[11];
   ultoa(i, payload, 10);
-  return mqtt->publish(topic, payload, retain, qos);
+  return mqtt->publish(topic, payload, qos, retain);
 }
 
-bool Adafruit_MQTT_Publish::publish(double f, uint8_t precision) {
-  return publish(f, false, precision);
-}
-
-bool Adafruit_MQTT_Publish::publish(double f, bool retain, uint8_t precision) {
+bool Adafruit_MQTT_Publish::publish(double f, uint8_t precision, bool retain) {
   char payload[41]; // Need to technically hold float max, 39 digits and minus
                     // sign.
   dtostrf(f, 0, precision, payload);
-  return mqtt->publish(topic, payload, retain, qos);
-}
-
-bool Adafruit_MQTT_Publish::publish(const char *payload) {
-  return publish(payload, false);
+  return mqtt->publish(topic, payload, qos, retain);
 }
 
 bool Adafruit_MQTT_Publish::publish(const char *payload, bool retain) {
-  return mqtt->publish(topic, payload, retain, qos);
+  return mqtt->publish(topic, payload, qos, retain);
 }
 
 // publish buffer of arbitrary length
-bool Adafruit_MQTT_Publish::publish(uint8_t *payload, uint16_t bLen) {
-  return publish(payload, bLen, false);
-}
-
 bool Adafruit_MQTT_Publish::publish(uint8_t *payload, uint16_t bLen,
                                     bool retain) {
-
-  return mqtt->publish(topic, payload, bLen, retain, qos);
+  return mqtt->publish(topic, payload, bLen, qos, retain);
 }
 
 // Adafruit_MQTT_Subscribe Definition //////////////////////////////////////////
