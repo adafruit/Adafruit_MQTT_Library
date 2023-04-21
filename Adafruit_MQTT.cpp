@@ -329,46 +329,9 @@ uint16_t Adafruit_MQTT::readFullPacket(uint8_t *buffer, uint16_t maxsize,
 
 #ifdef ARDUINO_ARCH_ESP32
 const char *Adafruit_MQTT::connectErrorString(int8_t code) {
-  const char *statusMsg;
-  switch (code) {
-  case 1:
-    statusMsg =
-        "The Server does not support the level of the MQTT protocol requested";
-    break;
-  case 2:
-    statusMsg =
-        "The Client identifier is correct UTF-8 but not allowed by the Server";
-    break;
-  case 3:
-    statusMsg = "The MQTT service is unavailable";
-    break;
-  case 4:
-    statusMsg = "The data in the user name or password is malformed";
-    break;
-  case 5:
-    statusMsg = "Not authorized to connect";
-    break;
-  case 6:
-    statusMsg = "Exceeded reconnect rate limit. Please try again later.";
-    break;
-  case 7:
-    statusMsg = "You have been banned from connecting. Please contact the MQTT "
-                "server administrator for more details.";
-    break;
-  case -1:
-    statusMsg = "Connection failed";
-    break;
-  case -2:
-    statusMsg = "Failed to subscribe";
-    break;
-  default:
-    statusMsg = "Unknown error";
-    break;
-  }
-  return statusMsg;
-}
 #else
 const __FlashStringHelper *Adafruit_MQTT::connectErrorString(int8_t code) {
+#endif
   switch (code) {
   case 1:
     return F(
@@ -395,7 +358,6 @@ const __FlashStringHelper *Adafruit_MQTT::connectErrorString(int8_t code) {
     return F("Unknown error");
   }
 }
-#endif
 
 bool Adafruit_MQTT::disconnect() {
 
