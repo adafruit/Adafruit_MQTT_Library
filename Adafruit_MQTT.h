@@ -166,19 +166,11 @@ public:
   int8_t connect();
   int8_t connect(const char *user, const char *pass);
 
-#ifdef ARDUINO_ARCH_ESP32
-  // Returns a printable string version of the error code returned by
-  // connect(). Preprocessor due to breaking change within
-  // Arduino ESP32 BSP v2.0.8
-  // see: https://github.com/espressif/arduino-esp32/pull/7941
-  const char *connectErrorString(int8_t code);
-#else
-  // Returns a printable string version of the error code returned by
+  // Return a printable string version of the error code returned by
   // connect(). This returns a __FlashStringHelper*, which points to a
   // string stored in flash, but can be directly passed to e.g.
   // Serial.println without any further processing.
   const __FlashStringHelper *connectErrorString(int8_t code);
-#endif;
 
   // Sends MQTT disconnect packet and calls disconnectServer()
   bool disconnect();
