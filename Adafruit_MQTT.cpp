@@ -327,11 +327,7 @@ uint16_t Adafruit_MQTT::readFullPacket(uint8_t *buffer, uint16_t maxsize,
   return ((pbuff - buffer) + rlen);
 }
 
-#ifdef ARDUINO_ARCH_ESP32
-const char *Adafruit_MQTT::connectErrorString(int8_t code) {
-#else
 const __FlashStringHelper *Adafruit_MQTT::connectErrorString(int8_t code) {
-#endif
   switch (code) {
   case 1:
     return F(
