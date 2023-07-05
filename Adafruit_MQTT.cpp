@@ -156,7 +156,6 @@ Adafruit_MQTT::Adafruit_MQTT(const char *server, uint16_t port,
 
   packet_id_counter = 1; // MQTT spec forbids packet id of 0 if QOS=1
   keepAliveInterval = MQTT_CONN_KEEPALIVE;
-
 }
 
 int8_t Adafruit_MQTT::connect() {
