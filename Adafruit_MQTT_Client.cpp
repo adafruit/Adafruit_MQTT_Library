@@ -83,17 +83,18 @@ uint16_t Adafruit_MQTT_Client::readPacket(uint8_t *buffer, uint16_t maxlen,
 
 bool Adafruit_MQTT_Client::sendPacket(uint8_t *buffer, uint16_t len) {
   uint16_t ret = 0;
-
+  uint16_t offset = 0;
   while (len > 0) {
     if (client->connected()) {
       // send 250 bytes at most at a time, can adjust this later based on Client
 
       uint16_t sendlen = len > 250 ? 250 : len;
       // Serial.print("Sending: "); Serial.println(sendlen);
-      ret = client->write(buffer, sendlen);
+      ret = client->write(buffer + offset, sendlen);
       DEBUG_PRINT(F("Client sendPacket returned: "));
       DEBUG_PRINTLN(ret);
       len -= ret;
+      offset += ret;
 
       if (ret != sendlen) {
         DEBUG_PRINTLN("Failed to send packet.");
