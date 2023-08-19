@@ -49,7 +49,7 @@ Adafruit_MQTT_Client mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO
 *  to ESP32 which has certificate verification by storing root certs and having a
 *  chain-of-trust rather than doing individual certificate fingerprints.
 */
-static const char *fingerprint PROGMEM = "18 C0 C2 3D BE DD 81 37 73 40 E7 E4 36 61 CB 0A DF 96 AD 25";
+static const char *fingerprint PROGMEM = "4E C1 52 73 24 A8 36 D6 7A 4C 67 C7 91 0C 0A 22 B9 2D 5B CA";
 
 /****************************** Feeds ***************************************/
 
