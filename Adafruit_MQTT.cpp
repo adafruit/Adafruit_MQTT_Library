@@ -132,9 +132,8 @@ Adafruit_MQTT::Adafruit_MQTT(const char *server, uint16_t port, const char *cid,
   will_qos = 0;
   will_retain = 0;
 
+  packet_id_counter = 1; // MQTT spec forbids packet id of 0 if QOS=1
   keepAliveInterval = MQTT_CONN_KEEPALIVE;
-
-  packet_id_counter = 0;
 }
 
 Adafruit_MQTT::Adafruit_MQTT(const char *server, uint16_t port,
@@ -155,9 +154,8 @@ Adafruit_MQTT::Adafruit_MQTT(const char *server, uint16_t port,
   will_qos = 0;
   will_retain = 0;
 
+  packet_id_counter = 1; // MQTT spec forbids packet id of 0 if QOS=1
   keepAliveInterval = MQTT_CONN_KEEPALIVE;
-
-  packet_id_counter = 0;
 }
 
 int8_t Adafruit_MQTT::connect() {
@@ -394,7 +392,7 @@ bool Adafruit_MQTT::publish(const char *topic, uint8_t *data, uint16_t bLen,
 
     // we increment the packet_id_counter right after publishing so inc here too
     // to match
-    packnum++;
+    packnum = packnum + 1 + (packnum + 1 == 0); // Skip zero
     if (packnum != packet_id_counter)
       return false;
   }
@@ -808,8 +806,8 @@ uint16_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
     p[1] = packet_id_counter & 0xFF;
     p += 2;
 
-    // increment the packet id
-    packet_id_counter++;
+    // increment the packet id, skipping 0
+    packet_id_counter = packet_id_counter + 1 + (packet_id_counter + 1 == 0);
   }
 
   memmove(p, data, bLen);
@@ -834,8 +832,8 @@ uint8_t Adafruit_MQTT::subscribePacket(uint8_t *packet, const char *topic,
   p[1] = packet_id_counter & 0xFF;
   p += 2;
 
-  // increment the packet id
-  packet_id_counter++;
+  // increment the packet id, skipping 0
+  packet_id_counter = packet_id_counter + 1 + (packet_id_counter + 1 == 0);
 
   p = stringprint(p, topic);
 
@@ -863,8 +861,8 @@ uint8_t Adafruit_MQTT::unsubscribePacket(uint8_t *packet, const char *topic) {
   p[1] = packet_id_counter & 0xFF;
   p += 2;
 
-  // increment the packet id
-  packet_id_counter++;
+  // increment the packet id, skipping 0
+  packet_id_counter = packet_id_counter + 1 + (packet_id_counter + 1 == 0);
 
   p = stringprint(p, topic);
 
