@@ -563,9 +563,12 @@ Adafruit_MQTT_Subscribe *Adafruit_MQTT::handleSubscriptionPacket(uint16_t len) {
   }
 
   // Parse out length of packet.
-  uint16_t const topicoffset = packetAdditionalLen(len);
+  // NOTE: This includes data in the variable header and the payload.
+  uint16_t remainingLen = len - 4; // subtract the 4 header bytes
+  uint16_t const topicoffset = packetAdditionalLen(remainingLen);
   uint16_t const topicstart = topicoffset + 4;
-  topiclen = buffer[3 + topicoffset];
+
+  topiclen = int((buffer[2 + topicoffset]) << 8 | buffer[3 + topicoffset]);
   DEBUG_PRINT(F("Looking for subscription len "));
   DEBUG_PRINTLN(topiclen);
 
