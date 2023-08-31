@@ -107,7 +107,7 @@
 // Largest full packet we're able to send.
 // Need to be able to store at least ~90 chars for a connect packet with full
 // 23 char client ID.
-// Future TODO: This should be replaced by the ability to
+// Future TODO: This should be replaced by the ability to dynamically allocate a buffer as needed.
 #if defined(ARDUINO_ARCH_ESP8266) || defined(ARDUINO_ARCH_ESP32) ||            \
     defined(ARDUINO_ARCH_RP2040) || defined(ARDUINO_ARCH_SAMD)
 #define MAXBUFFERSIZE (512)
