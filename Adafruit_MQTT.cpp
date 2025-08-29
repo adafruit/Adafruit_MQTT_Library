@@ -564,13 +564,109 @@ Adafruit_MQTT_Subscribe *Adafruit_MQTT::handleSubscriptionPacket(uint16_t len) {
 
   // Parse out length of packet.
   // NOTE: This includes data in the variable header and the payload.
+  Serial.print("Remaining len (len -4 header bytes): ");
   uint16_t remainingLen = len - 4; // subtract the 4 header bytes
-  uint16_t const topicoffset = packetAdditionalLen(remainingLen);
-  uint16_t const topicstart = topicoffset + 4;
+  Serial.println(remainingLen);
+  uint16_t topicoffset = packetAdditionalLen(remainingLen);
+  Serial.print("Topic offset (packetAdditionalLen): ");
+  Serial.println(topicoffset);
+  uint16_t topicstart = topicoffset + 4;
+  Serial.print("Topic start (offset + 4): ");
+  Serial.println(topicstart);
+
+
+  Serial.print("buf[2 + topicoffset]: '");
+  Serial.print(buffer[2 + topicoffset]);
+  Serial.print("' (");
+  Serial.print(buffer[2 + topicoffset], HEX);
+  Serial.println(")");
+  uint16_t msb = buffer[2 + topicoffset] << 8;
+  Serial.print("MSB (buf[2 + topicoffset] << 8): ");
+  Serial.println(msb);
+  uint16_t lsb = buffer[3 + topicoffset];
+  Serial.print("LSB (buf[3 + topicoffset]): ");
+  Serial.print(lsb);
+  Serial.print(" ('");
+  Serial.print(buffer[3 + topicoffset]);
+  Serial.print("' = 0x");
+  Serial.print(buffer[3 + topicoffset], HEX);
+  Serial.println(")");
+  uint16_t topiclen_sb = int(msb | lsb);
+  Serial.print("Topic length (msb | lsb): ");
+  Serial.println(topiclen_sb);
 
   topiclen = int((buffer[2 + topicoffset]) << 8 | buffer[3 + topicoffset]);
   DEBUG_PRINT(F("Looking for subscription len "));
   DEBUG_PRINTLN(topiclen);
+
+
+  // NEW WORKING CODE:
+
+  // Parse variable length encoding
+  uint32_t multiplier = 1;
+  DEBUG_PRINT("new technique - multiplier: 1");
+  uint32_t value = 0;
+  uint8_t encodedByte;
+  uint8_t offset = 1; // start after first header byte
+  do {
+      encodedByte = buffer[offset++];
+      value += (encodedByte & 127) * multiplier;
+      multiplier *= 128;
+  } while ((encodedByte & 128) != 0);
+  DEBUG_PRINT(F("new technique - value: "));
+  DEBUG_PRINTLN(value);
+  DEBUG_PRINT(F("new technique - offset: "));
+  DEBUG_PRINTLN(offset);
+
+  // Now offset points to the first byte of topic length
+  uint16_t new_msb = buffer[offset] << 8;
+  DEBUG_PRINT(F("new technique - new_msb: "));
+  DEBUG_PRINTLN(new_msb);
+  uint16_t new_lsb = buffer[offset + 1];
+  DEBUG_PRINT(F("new technique - new_lsb: "));
+  DEBUG_PRINTLN(new_lsb);
+  uint16_t new_topiclen = new_msb | new_lsb;
+  DEBUG_PRINT(F("new technique - new_topiclen: "));
+  DEBUG_PRINTLN(new_topiclen);
+  uint16_t new_topicstart = offset + 2;
+  DEBUG_PRINT(F("new technique - new_topicstart: "));
+  DEBUG_PRINTLN(new_topicstart);
+  
+  DEBUG_PRINT(F("Old topic offset (2 less) vs new topic offset: "));
+  DEBUG_PRINT(topicoffset);
+  DEBUG_PRINT(F(" vs "));
+  DEBUG_PRINTLN(new_topicstart);
+  
+  DEBUG_PRINT(F("Old topic start vs new topic start: "));
+  DEBUG_PRINT(topicstart);
+  DEBUG_PRINT(F(" vs "));
+  DEBUG_PRINTLN(new_topicstart);
+  
+  DEBUG_PRINT(F("Old topic len vs new topic len: "));
+  DEBUG_PRINT(topiclen);
+  DEBUG_PRINT(F(" vs "));
+  DEBUG_PRINTLN(new_topiclen);
+
+  topiclen = new_topiclen;
+  topicstart = new_topicstart;
+  /*
+  // Parse MQTT Remaining Length field (variable length encoding)
+uint8_t headerLen = 1;
+uint32_t remainingLen = 0;
+uint8_t multiplier = 1;
+uint8_t encodedByte;
+do {
+    encodedByte = buffer[headerLen++];
+    remainingLen += (encodedByte & 127) * multiplier;
+    multiplier *= 128;
+} while ((encodedByte & 128) != 0);
+
+// Now headerLen is the offset to the variable header
+uint16_t topiclen = (buffer[headerLen] << 8) | buffer[headerLen + 1];
+const char* topic = (const char*)&buffer[headerLen + 2];
+const uint8_t* payload = (const uint8_t*)&buffer[headerLen + 2 + topiclen];
+// payload length = remainingLen - (2 + topiclen [+2 for packet id if QoS > 0])
+  */
 
   // Find subscription associated with this packet.
   for (i = 0; i < MAXSUBSCRIPTIONS; i++) {
