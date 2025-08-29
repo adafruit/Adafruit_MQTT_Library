@@ -564,21 +564,23 @@ Adafruit_MQTT_Subscribe *Adafruit_MQTT::handleSubscriptionPacket(uint16_t len) {
 
   // Parse MQTT Remaining Length field (variable length encoding).
   // This field can be 1-4 bytes, so we must parse it byte-by-byte.
-  // Each byte uses the lower 7 bits for data, and the MSB as a continuation flag.
-  // This loop advances 'offset' to the first byte after the remaining length field.
+  // Each byte uses the lower 7 bits for data, and the MSB as a continuation
+  // flag. This loop advances 'offset' to the first byte after the remaining
+  // length field.
   uint32_t multiplier = 1;
   uint32_t value = 0;
   uint8_t encodedByte;
   uint8_t offset = 1; // Start after the fixed header byte
   do {
-      encodedByte = buffer[offset++];
-      value += (encodedByte & 127) * multiplier;
-      multiplier *= 128;
-      // Infinite loop protection: MQTT spec allows max 4 bytes for this field
-      if (offset > 5) { // 1 (header) + 4 (max length bytes)
-          DEBUG_PRINTLN(F("Bad MQTT packet: Remaining Length field too long / malformed"));
-          return NULL;
-      }
+    encodedByte = buffer[offset++];
+    value += (encodedByte & 127) * multiplier;
+    multiplier *= 128;
+    // Infinite loop protection: MQTT spec allows max 4 bytes for this field
+    if (offset > 5) { // 1 (header) + 4 (max length bytes)
+      DEBUG_PRINTLN(
+          F("Bad MQTT packet: Remaining Length field too long / malformed"));
+      return NULL;
+    }
   } while ((encodedByte & 128) != 0);
 
   // Now 'offset' points to the first byte of the topic length field.
