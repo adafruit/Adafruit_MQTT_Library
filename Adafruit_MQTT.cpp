@@ -562,15 +562,33 @@ Adafruit_MQTT_Subscribe *Adafruit_MQTT::handleSubscriptionPacket(uint16_t len) {
     return NULL;
   }
 
-  // Parse out length of packet.
-  // NOTE: This includes data in the variable header and the payload.
-  uint16_t remainingLen = len - 4; // subtract the 4 header bytes
-  uint16_t const topicoffset = packetAdditionalLen(remainingLen);
-  uint16_t const topicstart = topicoffset + 4;
+  // Parse MQTT Remaining Length field (variable length encoding).
+  // This field can be 1-4 bytes, so we must parse it byte-by-byte.
+  // Each byte uses the lower 7 bits for data, and the MSB as a continuation
+  // flag. This loop advances 'offset' to the first byte after the remaining
+  // length field.
+  uint32_t multiplier = 1;
+  uint32_t value = 0;
+  uint8_t encodedByte;
+  uint8_t offset = 1; // Start after the fixed header byte
+  do {
+    encodedByte = buffer[offset++];
+    value += (encodedByte & 127) * multiplier;
+    multiplier *= 128;
+    // Infinite loop protection: MQTT spec allows max 4 bytes for this field
+    if (offset > 5) { // 1 (header) + 4 (max length bytes)
+      DEBUG_PRINTLN(
+          F("Bad MQTT packet: Remaining Length field too long / malformed"));
+      return NULL;
+    }
+  } while ((encodedByte & 128) != 0);
 
-  topiclen = int((buffer[2 + topicoffset]) << 8 | buffer[3 + topicoffset]);
-  DEBUG_PRINT(F("Looking for subscription len "));
-  DEBUG_PRINTLN(topiclen);
+  // Now 'offset' points to the first byte of the topic length field.
+  // The topic length is always 2 bytes, big-endian.
+  uint16_t new_msb = buffer[offset] << 8;
+  uint16_t new_lsb = buffer[offset + 1];
+  topiclen = new_msb | new_lsb;
+  uint16_t topicstart = offset + 2;
 
   // Find subscription associated with this packet.
   for (i = 0; i < MAXSUBSCRIPTIONS; i++) {
