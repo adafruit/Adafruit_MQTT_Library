@@ -42,10 +42,23 @@
 #define ESP32_GPIO0   -1
 
 /*************************** Timing / Params ***************************/
+// MQTT KeepAlive interval (seconds). The client must send at least one
+// packet (e.g., PINGREQ) within this interval or the MQTT server will
+// disconnect the session.
 #define AIRLIFT_KEEPALIVE   30
+
+// Safety margin (seconds) to subtract before sending a manual PING.
+// AirLift/NINA-FW firmware does not reliably handle automatic MQTT
+// KeepAlive packets, and real-world testing shows a 10 second margin
+// prevents premature disconnects (“No socket available”).
+#define KEEPALIVE_SAFETY_MARGIN 10
+
 #define MAX_MQTT_RETRIES    5
 #define SUBSCRIBE_WAIT_MS   1500
-#define PING_PERIOD_MS      ((AIRLIFT_KEEPALIVE - 10) * 1000)
+
+// Time (milliseconds) between manual MQTT PING operations.
+#define PING_PERIOD_MS \
+  ((AIRLIFT_KEEPALIVE - KEEPALIVE_SAFETY_MARGIN) * 1000)
 
 /*************************** MQTT Objects ******************************/
 WiFiClient client;
@@ -64,43 +77,6 @@ Adafruit_MQTT_Subscribe time_subscription =
 /*************************** State Vars *******************************/
 unsigned long ping_clk = 0;
 long ping_cnt = 0;
-
-/*************************** Function Prototypes ***********************/
-void initWiFi();
-void MQTT_connect();
-void MQTT_ping();
-void printCurrentNet();
-void printWiFiData();
-void printMacAddress(byte mac[]);
-
-/*************************** Setup *************************************/
-void setup() {
-  Serial.begin(115200);
-  while (!Serial) delay(10);
-
-  Serial.println("MQTT AirLift Subscribe + KeepAlive Example");
-
-  initWiFi();
-
-  mqtt.setKeepAliveInterval(AIRLIFT_KEEPALIVE);
-  mqtt.subscribe(&time_subscription);
-
-  MQTT_connect();
-}
-
-/*************************** Main Loop *********************************/
-void loop() {
-
-  MQTT_ping();
-
-  Adafruit_MQTT_Subscribe *subscription =
-    mqtt.readSubscription(SUBSCRIBE_WAIT_MS);
-
-  if (subscription == &time_subscription) {
-    Serial.print("TIME FEED: ");
-    Serial.println((char *)time_subscription.lastread);
-  }
-}
 
 /*************************** MQTT Connect ******************************/
 void MQTT_connect() {
@@ -240,4 +216,33 @@ void printMacAddress(byte mac[]) {
     if (i > 0) Serial.print(":");
   }
   Serial.print(" ");
+}
+
+/*************************** Setup *************************************/
+void setup() {
+  Serial.begin(115200);
+  while (!Serial) delay(10);
+
+  Serial.println("MQTT AirLift Subscribe + KeepAlive Example");
+
+  initWiFi();
+
+  mqtt.setKeepAliveInterval(AIRLIFT_KEEPALIVE);
+  mqtt.subscribe(&time_subscription);
+
+  MQTT_connect();
+}
+
+/*************************** Main Loop *********************************/
+void loop() {
+
+  MQTT_ping();
+
+  Adafruit_MQTT_Subscribe *subscription =
+    mqtt.readSubscription(SUBSCRIBE_WAIT_MS);
+
+  if (subscription == &time_subscription) {
+    Serial.print("TIME FEED: ");
+    Serial.println((char *)time_subscription.lastread);
+  }
 }
