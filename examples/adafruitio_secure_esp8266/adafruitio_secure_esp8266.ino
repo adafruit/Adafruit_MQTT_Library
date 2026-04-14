@@ -45,10 +45,26 @@ Adafruit_MQTT_Client mqtt(&client, AIO_SERVER, AIO_SERVERPORT, AIO_USERNAME, AIO
 
 // io.adafruit.com SHA1 fingerprint
 /* WARNING - This value was last updated on 07/14/25 and may not be up-to-date!
-*  If security is a concern for your project, we strongly recommend users impacted by this moving
-*  to ESP32 which has certificate verification by storing root certs and having a
-*  chain-of-trust rather than doing individual certificate fingerprints.
+*  If security is a concern for your project, we strongly recommend users impacted by this move
+*  to a larger MCU like ESP32 which has certificate verification by storing root certs and having
+*  a chain-of-trust rather than doing individual certificate fingerprints. */
+/*  For Mac, Linux and WSL users: Run the following command to get the latest fingerprint (with OpenSSL):
+```
+openssl s_client -connect [io.adafruit.com]:8883 -showcerts </dev/null 2>/dev/null | openssl x509 -fingerprint -noout | sed 's/:/ /g' | sed 's/SHA1 Fingerprint=//'
+```
 */
+/*  Windows users can use Powershell and not need to install OpenSSL:
+```
+$tcpClient = New-Object System.Net.Sockets.TcpClient("io.adafruit.com", 8883);
+$sslStream = New-Object System.Net.Security.SslStream($tcpClient.GetStream(), $false, ({$True}));
+$sslStream.AuthenticateAsClient("io.adafruit.com");
+$cert = $sslStream.RemoteCertificate;
+$fingerprint = ($cert.GetCertHashString());
+Write-Output ($fingerprint -replace '(.{2})', '$1 ' -replace ' $', '');
+```
+*/
+
+/* Replace the value below with your updated SHA1 fingerprint for io.adafruit.com: */
 static const char *fingerprint PROGMEM = "47 D2 CB 14 DF 38 97 59 C6 65 1A 1F 3E 00 1E 53 CC A5 17 E0";
 
 /****************************** Feeds ***************************************/
@@ -84,7 +100,7 @@ void setup() {
   Serial.println("WiFi connected");
   Serial.println("IP address: "); Serial.println(WiFi.localIP());
 
-  // check the fingerprint of io.adafruit.com's SSL cert
+  /* Verify SSL fingerprint (see above for instructions to update the SSL fingerprint) */
   client.setFingerprint(fingerprint);
 }
 
