@@ -763,7 +763,16 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
 
   len = p - packet;
 
-  packet[1] = len - 2; // don't include the 2 bytes of fixed header data
+  if (len > (127 + 2)) {
+    packet[1] = ((len - 2) % 128) + 0x80; // LSB
+    memmove(packet + 3, packet + 2,
+            len - 2);            // create space for an additional length-byte
+    packet[2] = (len - 2) / 128; // MSB
+    len++;
+  } else {
+    packet[1] = len - 2; // don't include the 2 bytes of fixed header data
+  }
+
   DEBUG_PRINTLN(F("MQTT connect packet:"));
   DEBUG_PRINTBUFFER(buffer, len);
   return len;
