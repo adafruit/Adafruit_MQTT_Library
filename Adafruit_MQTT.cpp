@@ -32,7 +32,7 @@ static char *dtostrf(double val, signed char width, unsigned char prec,
 }
 #endif
 
-#if defined(ESP8266)
+#if defined(ESP8266) || defined(ESP32)
 int strncasecmp(const char *str1, const char *str2, int len) {
   int d = 0;
   while (len--) {
