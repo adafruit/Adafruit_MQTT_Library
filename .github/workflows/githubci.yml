@@ -1,6 +1,6 @@
 name: Arduino Library CI
 
-on: [pull_request, push, repository_dispatch]
+on: [pull_request, push, workflow_dispatch, repository_dispatch]
 
 jobs:
   build:
