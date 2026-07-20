@@ -711,7 +711,7 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
   p[0] = MQTT_CONN_CLEANSESSION;
 
   // set the will flags if needed
-  if (will_topic && pgm_read_byte(will_topic) != 0) {
+  if (will_topic && will_topic[0] != 0) {
 
     p[0] |= MQTT_CONN_WILLFLAG;
 
@@ -724,9 +724,9 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
       p[0] |= MQTT_CONN_WILLRETAIN;
   }
 
-  if (pgm_read_byte(username) != 0)
+  if (username[0] != 0)
     p[0] |= MQTT_CONN_USERNAMEFLAG;
-  if (pgm_read_byte(password) != 0)
+  if (password[0] != 0)
     p[0] |= MQTT_CONN_PASSWORDFLAG;
   p++;
 
@@ -738,7 +738,7 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
   if (MQTT_PROTOCOL_LEVEL == 3) {
     p = stringprint(p, clientid, 23); // Limit client ID to first 23 characters.
   } else {
-    if (pgm_read_byte(clientid) != 0) {
+    if (clientid[0] != 0) {
       p = stringprint(p, clientid);
     } else {
       p[0] = 0x0;
@@ -749,15 +749,15 @@ uint8_t Adafruit_MQTT::connectPacket(uint8_t *packet) {
     }
   }
 
-  if (will_topic && pgm_read_byte(will_topic) != 0) {
+  if (will_topic && will_topic[0] != 0) {
     p = stringprint(p, will_topic);
     p = stringprint(p, will_payload);
   }
 
-  if (pgm_read_byte(username) != 0) {
+  if (username[0] != 0) {
     p = stringprint(p, username);
   }
-  if (pgm_read_byte(password) != 0) {
+  if (password[0] != 0) {
     p = stringprint(p, password);
   }
 
