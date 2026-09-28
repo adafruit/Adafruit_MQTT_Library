@@ -45,34 +45,52 @@
 // Define actual debug output functions when necessary.
 #ifdef MQTT_DEBUG
 #define DEBUG_PRINT(...)                                                       \
-  { DEBUG_PRINTER.print(__VA_ARGS__); }
+  {                                                                            \
+    DEBUG_PRINTER.print(__VA_ARGS__);                                          \
+  }
 #define DEBUG_PRINTLN(...)                                                     \
-  { DEBUG_PRINTER.println(__VA_ARGS__); }
+  {                                                                            \
+    DEBUG_PRINTER.println(__VA_ARGS__);                                        \
+  }
 #define DEBUG_PRINTBUFFER(buffer, len)                                         \
-  { printBuffer(buffer, len); }
+  {                                                                            \
+    printBuffer(buffer, len);                                                  \
+  }
 #else
 #define DEBUG_PRINT(...)                                                       \
-  {}
+  {                                                                            \
+  }
 #define DEBUG_PRINTLN(...)                                                     \
-  {}
+  {                                                                            \
+  }
 #define DEBUG_PRINTBUFFER(buffer, len)                                         \
-  {}
+  {                                                                            \
+  }
 #endif
 
 #ifdef MQTT_ERROR
 #define ERROR_PRINT(...)                                                       \
-  { DEBUG_PRINTER.print(__VA_ARGS__); }
+  {                                                                            \
+    DEBUG_PRINTER.print(__VA_ARGS__);                                          \
+  }
 #define ERROR_PRINTLN(...)                                                     \
-  { DEBUG_PRINTER.println(__VA_ARGS__); }
+  {                                                                            \
+    DEBUG_PRINTER.println(__VA_ARGS__);                                        \
+  }
 #define ERROR_PRINTBUFFER(buffer, len)                                         \
-  { printBuffer(buffer, len); }
+  {                                                                            \
+    printBuffer(buffer, len);                                                  \
+  }
 #else
 #define ERROR_PRINT(...)                                                       \
-  {}
+  {                                                                            \
+  }
 #define ERROR_PRINTLN(...)                                                     \
-  {}
+  {                                                                            \
+  }
 #define ERROR_PRINTBUFFER(buffer, len)                                         \
-  {}
+  {                                                                            \
+  }
 #endif
 
 // Use 3 (MQTT 3.0) or 4 (MQTT 3.1.1)
@@ -153,11 +171,16 @@ class Adafruit_MQTT_Subscribe; // forward decl
 class Adafruit_MQTT {
 public:
   Adafruit_MQTT(const char *server, uint16_t port, const char *cid,
-                const char *user, const char *pass);
+                const char *user, const char *pass,
+                uint16_t maxBufferSz = MAXBUFFERSIZE);
 
   Adafruit_MQTT(const char *server, uint16_t port, const char *user = "",
-                const char *pass = "");
-  virtual ~Adafruit_MQTT() {}
+                const char *pass = "", uint16_t maxBufferSz = MAXBUFFERSIZE);
+  virtual ~Adafruit_MQTT();
+
+  // Allocate a zeroed buffer of expectedSz bytes, returns NULL if the
+  // allocation fails
+  static uint8_t *allocateMqttBuffer(uint16_t expectedSz);
 
   // Connect to the MQTT server.  Returns 0 on success, otherwise an error code
   // that indicates something went wrong:
@@ -184,6 +207,10 @@ public:
 
   // Return true if connected to the MQTT server, otherwise false.
   virtual bool connected() = 0; // Subclasses need to fill this in!
+
+  // Size of the packet buffer, in bytes, as actually allocated. Returns 0 if
+  // the buffer allocation failed.
+  uint16_t bufferSize() const { return maxBufferSize; }
 
   // Set MQTT last will topic, payload, QOS, and retain. This needs
   // to be called before connect() because it is sent as part of the
@@ -263,8 +290,9 @@ protected:
   const char *will_payload;
   uint8_t will_qos;
   uint8_t will_retain;
-  uint16_t keepAliveInterval;    // MQTT KeepAlive time interval, in seconds
-  uint8_t buffer[MAXBUFFERSIZE]; // one buffer, used for all incoming/outgoing
+  uint16_t keepAliveInterval; // MQTT KeepAlive time interval, in seconds
+  uint8_t *buffer;        // one buffer, used for all incoming/outgoing payloads
+  uint16_t maxBufferSize; // size of buffer, in bytes, 0 if allocation failed
   uint16_t packet_id_counter;
 
 private:
@@ -288,7 +316,6 @@ class Adafruit_MQTT_Publish {
 public:
   Adafruit_MQTT_Publish(Adafruit_MQTT *mqttserver, const char *feed,
                         uint8_t qos = 0);
-
   bool publish(const char *s, bool retain = false);
   bool publish(
       double f,
@@ -309,7 +336,13 @@ private:
 class Adafruit_MQTT_Subscribe {
 public:
   Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver, const char *feedname,
-                          uint8_t q = 0);
+                          uint8_t q = 0,
+                          uint16_t datalen_max = SUBSCRIPTIONDATALEN);
+  ~Adafruit_MQTT_Subscribe();
+
+  // Each subscription owns its payload buffer and must not be copied.
+  Adafruit_MQTT_Subscribe(const Adafruit_MQTT_Subscribe &) = delete;
+  Adafruit_MQTT_Subscribe &operator=(const Adafruit_MQTT_Subscribe &) = delete;
 
   void setCallback(SubscribeCallbackUInt32Type callb);
   void setCallback(SubscribeCallbackDoubleType callb);
@@ -320,9 +353,10 @@ public:
   const char *topic;
   uint8_t qos;
 
-  uint8_t lastread[SUBSCRIPTIONDATALEN];
-  // Number valid bytes in lastread. Limited to SUBSCRIPTIONDATALEN-1 to
-  // ensure nul terminating lastread.
+  uint8_t *lastread;
+  uint16_t lastread_max; // size of lastread, in bytes, 0 if allocation failed
+  // Number of valid bytes in lastread. Limited to lastread_max-1 to ensure
+  // NUL-terminated lastread.
   uint16_t datalen;
 
   SubscribeCallbackUInt32Type callback_uint32t;
