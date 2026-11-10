@@ -133,7 +133,8 @@
 #define PUBLISH_TIMEOUT_MS 500
 #define PING_TIMEOUT_MS 500
 #define SUBACK_TIMEOUT_MS 500
-// Minimum time to read the rest of a packet once its first byte arrives
+// Maximum timing gap between bytes once a packet starts (only used if the gap
+// is larger than the caller code's timeout)
 #define PACKET_BODY_TIMEOUT_MS 5000
 
 // Adjust as necessary, in seconds.  Default to 5 minutes.
@@ -159,11 +160,20 @@
 #define MQTT_CONN_WILLFLAG 0x04
 #define MQTT_CONN_CLEANSESSION 0x02
 
-// how much data we save in a subscription object
-// and how many subscriptions we want to be able to track.
-// NOTE: SUBSCRIPTIONDATALEN is only the *default* subscription payload size.
-// Raising the MQTT buffer via the maxBufferSz constructor argument does not
-// change it -- pass datalen_max to each Adafruit_MQTT_Subscribe as well.
+/*
+ * MAXSUBSCRIPTIONS: Maximum number of subscriptions the client can track.
+ * SUBSCRIPTIONDATALEN: Default size in bytes of each subscription's payload
+ * buffer, used when no datalen_max is passed to Adafruit_MQTT_Subscribe.
+ *
+ * On AVR platforms, these are kept small due to limited RAM.
+ *
+ * On other platforms, SUBSCRIPTIONDATALEN equals the default MAXBUFFERSIZE.
+ *
+ * If maxBufferSz is increased, you must pass a matching datalen_max into each
+ * Adafruit_MQTT_Subscribe call, e.g.: Adafruit_MQTT_Client mqtt(&client,
+ * SERVER, PORT, USER, KEY, 4096); Adafruit_MQTT_Subscribe feed(&mqtt,
+ * "user/feeds/x", MQTT_QOS_0, 4096);
+ */
 #if defined(__AVR_ATmega32U4__) || defined(__AVR_ATmega328P__)
 #define MAXSUBSCRIPTIONS 5
 #define SUBSCRIPTIONDATALEN 20
@@ -424,11 +434,10 @@ public:
   const char *topic;
   uint8_t qos;
 
-  uint8_t *lastread;
-  size_t lastread_max; // size of lastread, in bytes, 0 if allocation failed
-  // Number of valid bytes in lastread. Limited to lastread_max-1 to ensure
-  // NUL-terminated lastread.
-  size_t datalen;
+  uint8_t *lastread;   // Buffer holding the last received message
+  size_t lastread_max; // Size of lastread in bytes, 0 if allocation failed
+  size_t datalen;      // Number of valid bytes in lastread. Limited to
+                       // lastread_max-1 to ensure NULL-terminated lastread.
 
   SubscribeCallbackUInt32Type callback_uint32t;
   SubscribeCallbackDoubleType callback_double;

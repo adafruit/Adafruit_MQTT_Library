@@ -372,7 +372,8 @@ size_t Adafruit_MQTT::readFullPacket(uint8_t *buffer, size_t maxsize,
   DEBUG_PRINTBUFFER(pbuff, rlen);
   pbuff++;
 
-  // A short read past this point leaves the stream out of sync
+  // A short read past this point leaves the stream out of sync becase the
+  // remaining length field has already been partially consumed.
   int16_t body_timeout =
       (timeout > PACKET_BODY_TIMEOUT_MS) ? timeout : PACKET_BODY_TIMEOUT_MS;
 
