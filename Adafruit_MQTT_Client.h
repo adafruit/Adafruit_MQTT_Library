@@ -34,21 +34,35 @@
 class Adafruit_MQTT_Client : public Adafruit_MQTT {
 public:
   Adafruit_MQTT_Client(Client *client, const char *server, uint16_t port,
-                       const char *cid, const char *user, const char *pass)
-      : Adafruit_MQTT(server, port, cid, user, pass), client(client) {}
+                       const char *cid, const char *user, const char *pass,
+                       size_t maxBufferSz = MAXBUFFERSIZE)
+      : Adafruit_MQTT(server, port, cid, user, pass, maxBufferSz),
+        client(client) {}
 
   Adafruit_MQTT_Client(Client *client, const char *server, uint16_t port,
-                       const char *user = "", const char *pass = "")
-      : Adafruit_MQTT(server, port, user, pass), client(client) {}
+                       const char *user = "", const char *pass = "",
+                       size_t maxBufferSz = MAXBUFFERSIZE)
+      : Adafruit_MQTT(server, port, user, pass, maxBufferSz), client(client) {}
 
   bool connected() override;
 
 protected:
   bool connectServer() override;
   bool disconnectServer() override;
+  // Real implementations. Where size_t is 16 bits wide (AVR) these *are* the
+  // uint16_t overrides the base class requires.
+  size_t readPacket(uint8_t *buffer, size_t maxlen, int16_t timeout) override;
+  bool sendPacket(uint8_t *buffer, size_t len) override;
+#if defined(ADAFRUIT_MQTT_WIDE_SIZE_T)
+  // uint16_t forms required by the base class; forward to the size_t forms.
   uint16_t readPacket(uint8_t *buffer, uint16_t maxlen,
-                      int16_t timeout) override;
-  bool sendPacket(uint8_t *buffer, uint16_t len) override;
+                      int16_t timeout) override {
+    return (uint16_t)readPacket(buffer, (size_t)maxlen, timeout);
+  }
+  bool sendPacket(uint8_t *buffer, uint16_t len) override {
+    return sendPacket(buffer, (size_t)len);
+  }
+#endif
 
 private:
   Client *client;

@@ -58,11 +58,11 @@ bool Adafruit_MQTT_Client::connected() {
   return client->connected();
 }
 
-uint16_t Adafruit_MQTT_Client::readPacket(uint8_t *buffer, uint16_t maxlen,
-                                          int16_t timeout) {
+size_t Adafruit_MQTT_Client::readPacket(uint8_t *buffer, size_t maxlen,
+                                        int16_t timeout) {
   /* Read data until either the connection is closed, or the idle timeout is
    * reached. */
-  uint16_t len = 0;
+  size_t len = 0;
   int16_t t = timeout;
 
   if (maxlen == 0) { // handle zero-length packets
@@ -91,25 +91,26 @@ uint16_t Adafruit_MQTT_Client::readPacket(uint8_t *buffer, uint16_t maxlen,
   return len;
 }
 
-bool Adafruit_MQTT_Client::sendPacket(uint8_t *buffer, uint16_t len) {
-  uint16_t ret = 0;
-  uint16_t offset = 0;
+bool Adafruit_MQTT_Client::sendPacket(uint8_t *buffer, size_t len) {
+  size_t offset = 0;
   while (len > 0) {
     if (client->connected()) {
       // send 250 bytes at most at a time, can adjust this later based on Client
 
-      uint16_t sendlen = len > 250 ? 250 : len;
+      size_t sendlen = len > 250 ? 250 : len;
       // Serial.print("Sending: "); Serial.println(sendlen);
-      ret = client->write(buffer + offset, sendlen);
+      size_t ret = client->write(buffer + offset, sendlen);
       DEBUG_PRINT(F("Client sendPacket returned: "));
       DEBUG_PRINTLN(ret);
-      len -= ret;
-      offset += ret;
 
+      // Check before adjusting len, so a Client that reports more than it was
+      // asked to send cannot underflow it.
       if (ret != sendlen) {
         DEBUG_PRINTLN("Failed to send packet.");
         return false;
       }
+      len -= ret;
+      offset += ret;
     } else {
       DEBUG_PRINTLN(F("Connection failed!"));
       return false;

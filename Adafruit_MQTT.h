@@ -23,6 +23,21 @@
 #define _ADAFRUIT_MQTT_H_
 
 #include "Arduino.h"
+#include <stddef.h>
+#include <stdint.h>
+
+// On 8/16-bit targets (AVR) size_t is 16 bits wide, which makes it the *same*
+// type as uint16_t; declaring both a uint16_t and a size_t overload there is a
+// redefinition error. ADAFRUIT_MQTT_WIDE_SIZE_T is defined only where size_t is
+// wider than uint16_t (ESP8266, ESP32, RP2040, SAMD); the wide overloads below
+// are compiled only on those targets.
+#if defined(__SIZEOF_SIZE_T__)
+#if __SIZEOF_SIZE_T__ > 2
+#define ADAFRUIT_MQTT_WIDE_SIZE_T 1
+#endif
+#elif defined(SIZE_MAX) && (SIZE_MAX > 0xFFFFu)
+#define ADAFRUIT_MQTT_WIDE_SIZE_T 1
+#endif
 
 #if defined(ARDUINO_SAMD_ZERO) || defined(ARDUINO_STM32_FEATHER)
 #define strncpy_P(dest, src, len) strncpy((dest), (src), (len))
@@ -118,6 +133,8 @@
 #define PUBLISH_TIMEOUT_MS 500
 #define PING_TIMEOUT_MS 500
 #define SUBACK_TIMEOUT_MS 500
+// Minimum time to read the rest of a packet once its first byte arrives
+#define PACKET_BODY_TIMEOUT_MS 5000
 
 // Adjust as necessary, in seconds.  Default to 5 minutes.
 #define MQTT_CONN_KEEPALIVE 300
@@ -144,6 +161,9 @@
 
 // how much data we save in a subscription object
 // and how many subscriptions we want to be able to track.
+// NOTE: SUBSCRIPTIONDATALEN is only the *default* subscription payload size.
+// Raising the MQTT buffer via the maxBufferSz constructor argument does not
+// change it -- pass datalen_max to each Adafruit_MQTT_Subscribe as well.
 #if defined(__AVR_ATmega32U4__) || defined(__AVR_ATmega328P__)
 #define MAXSUBSCRIPTIONS 5
 #define SUBSCRIPTIONDATALEN 20
@@ -163,8 +183,16 @@ typedef void (*SubscribeCallbackBufferType)(char *str, uint16_t len);
 // returns an io data wrapper instance
 typedef void (AdafruitIO_MQTT::*SubscribeCallbackIOType)(char *str,
                                                          uint16_t len);
+#if defined(ADAFRUIT_MQTT_WIDE_SIZE_T)
+// returns a chunk of raw data, with a size_t length so payloads larger than
+// 64KB can report their true size
+typedef void (*SubscribeCallbackBufferLargeType)(char *str, size_t len);
+// returns an io data wrapper instance, with a size_t length
+typedef void (AdafruitIO_MQTT::*SubscribeCallbackIOLargeType)(char *str,
+                                                              size_t len);
+#endif
 
-extern void printBuffer(uint8_t *buffer, uint16_t len);
+extern void printBuffer(uint8_t *buffer, size_t len);
 
 class Adafruit_MQTT_Subscribe; // forward decl
 
@@ -172,15 +200,15 @@ class Adafruit_MQTT {
 public:
   Adafruit_MQTT(const char *server, uint16_t port, const char *cid,
                 const char *user, const char *pass,
-                uint16_t maxBufferSz = MAXBUFFERSIZE);
+                size_t maxBufferSz = MAXBUFFERSIZE);
 
   Adafruit_MQTT(const char *server, uint16_t port, const char *user = "",
-                const char *pass = "", uint16_t maxBufferSz = MAXBUFFERSIZE);
+                const char *pass = "", size_t maxBufferSz = MAXBUFFERSIZE);
   virtual ~Adafruit_MQTT();
 
   // Allocate a zeroed buffer of expectedSz bytes, returns NULL if the
   // allocation fails
-  static uint8_t *allocateMqttBuffer(uint16_t expectedSz);
+  static uint8_t *allocateMqttBuffer(size_t expectedSz);
 
   // Connect to the MQTT server.  Returns 0 on success, otherwise an error code
   // that indicates something went wrong:
@@ -210,7 +238,7 @@ public:
 
   // Size of the packet buffer, in bytes, as actually allocated. Returns 0 if
   // the buffer allocation failed.
-  uint16_t bufferSize() const { return maxBufferSize; }
+  size_t bufferSize() const { return maxBufferSize; }
 
   // Set MQTT last will topic, payload, QOS, and retain. This needs
   // to be called before connect() because it is sent as part of the
@@ -225,7 +253,7 @@ public:
   // if the message was published, false otherwise.
   bool publish(const char *topic, const char *payload, uint8_t qos = 0,
                bool retain = false);
-  bool publish(const char *topic, uint8_t *payload, uint16_t bLen,
+  bool publish(const char *topic, uint8_t *payload, size_t bLen,
                uint8_t qos = 0, bool retain = false);
 
   // Add a subscription to receive messages for a topic.  Returns true if the
@@ -245,7 +273,7 @@ public:
   Adafruit_MQTT_Subscribe *readSubscription(int16_t timeout = 0);
 
   // Handle any data coming in for subscriptions
-  Adafruit_MQTT_Subscribe *handleSubscriptionPacket(uint16_t len);
+  Adafruit_MQTT_Subscribe *handleSubscriptionPacket(size_t len);
 
   // Execute a subscription packet's associated callback and mark as "read"
   void processSubscriptionPacket(Adafruit_MQTT_Subscribe *sub);
@@ -266,19 +294,52 @@ protected:
   virtual bool disconnectServer() = 0; // Subclasses need to fill this in!
 
   // Send data to the server specified by the buffer and length of data.
+  //
+  // NOTE: subclasses MUST implement this uint16_t form -- it is what keeps
+  // subclasses written against older versions of this library compiling.
+  // Subclasses that want to send payloads larger than 64KB should *also*
+  // override the size_t form below; the library only ever calls the size_t
+  // form internally.
   virtual bool sendPacket(uint8_t *buffer, uint16_t len) = 0;
+
+#if defined(ADAFRUIT_MQTT_WIDE_SIZE_T)
+  // Wide form of sendPacket().  The default implementation forwards to the
+  // uint16_t form so subclasses that have not been updated keep working; it
+  // fails rather than truncating when len does not fit in a uint16_t.
+  virtual bool sendPacket(uint8_t *buffer, size_t len) {
+    if (len > 0xFFFFUL) {
+      ERROR_PRINTLN(F("Packet too large for this sendPacket() implementation"));
+      return false;
+    }
+    return sendPacket(buffer, (uint16_t)len);
+  }
+#endif
 
   // Read MQTT packet from the server.  Will read up to maxlen bytes and store
   // the data in the provided buffer.  Waits up to the specified timeout (in
   // milliseconds) for data to be available.
+  //
+  // NOTE: as with sendPacket(), subclasses MUST implement this uint16_t form.
   virtual uint16_t readPacket(uint8_t *buffer, uint16_t maxlen,
                               int16_t timeout) = 0;
 
+#if defined(ADAFRUIT_MQTT_WIDE_SIZE_T)
+  // Wide form of readPacket().  The default implementation clamps maxlen and
+  // forwards to the uint16_t form; subclasses that support buffers larger than
+  // 64KB should override this one instead.
+  virtual size_t readPacket(uint8_t *buffer, size_t maxlen, int16_t timeout) {
+    if (maxlen > 0xFFFFUL) {
+      maxlen = 0xFFFFUL;
+    }
+    return readPacket(buffer, (uint16_t)maxlen, timeout);
+  }
+#endif
+
   // Read a full packet, keeping note of the correct length
-  uint16_t readFullPacket(uint8_t *buffer, uint16_t maxsize, uint16_t timeout);
+  size_t readFullPacket(uint8_t *buffer, size_t maxsize, uint16_t timeout);
   // Properly process packets until you get to one you want
-  uint16_t processPacketsUntil(uint8_t *buffer, uint8_t waitforpackettype,
-                               uint16_t timeout);
+  size_t processPacketsUntil(uint8_t *buffer, uint8_t waitforpackettype,
+                             uint16_t timeout);
 
   // Shared state that subclasses can use:
   const char *servername;
@@ -291,8 +352,8 @@ protected:
   uint8_t will_qos;
   uint8_t will_retain;
   uint16_t keepAliveInterval; // MQTT KeepAlive time interval, in seconds
-  uint8_t *buffer;        // one buffer, used for all incoming/outgoing payloads
-  uint16_t maxBufferSize; // size of buffer, in bytes, 0 if allocation failed
+  uint8_t *buffer;      // one buffer, used for all incoming/outgoing payloads
+  size_t maxBufferSize; // size of buffer, in bytes, 0 if allocation failed
   uint16_t packet_id_counter;
 
 private:
@@ -303,9 +364,9 @@ private:
   // Functions to generate MQTT packets.
   uint8_t connectPacket(uint8_t *packet);
   uint8_t disconnectPacket(uint8_t *packet);
-  uint16_t publishPacket(uint8_t *packet, const char *topic, uint8_t *payload,
-                         uint16_t bLen, uint8_t qos, uint16_t maxPacketLen = 0,
-                         bool retain = false);
+  size_t publishPacket(uint8_t *packet, const char *topic, uint8_t *payload,
+                       size_t bLen, uint8_t qos, size_t maxPacketLen = 0,
+                       bool retain = false);
   uint8_t subscribePacket(uint8_t *packet, const char *topic, uint8_t qos);
   uint8_t unsubscribePacket(uint8_t *packet, const char *topic);
   uint8_t pingPacket(uint8_t *packet);
@@ -325,7 +386,7 @@ public:
       bool retain = false);
   bool publish(int32_t i, bool retain = false);
   bool publish(uint32_t i, bool retain = false);
-  bool publish(uint8_t *b, uint16_t bLen, bool retain = false);
+  bool publish(uint8_t *b, size_t bLen, bool retain = false);
 
 private:
   Adafruit_MQTT *mqtt;
@@ -337,7 +398,7 @@ class Adafruit_MQTT_Subscribe {
 public:
   Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver, const char *feedname,
                           uint8_t q = 0,
-                          uint16_t datalen_max = SUBSCRIPTIONDATALEN);
+                          size_t datalen_max = SUBSCRIPTIONDATALEN);
   ~Adafruit_MQTT_Subscribe();
 
   // Each subscription owns its payload buffer and must not be copied.
@@ -348,21 +409,29 @@ public:
   void setCallback(SubscribeCallbackDoubleType callb);
   void setCallback(SubscribeCallbackBufferType callb);
   void setCallback(AdafruitIO_MQTT *io, SubscribeCallbackIOType callb);
+#if defined(ADAFRUIT_MQTT_WIDE_SIZE_T)
+  void setCallback(SubscribeCallbackBufferLargeType callb);
+  void setCallback(AdafruitIO_MQTT *io, SubscribeCallbackIOLargeType callb);
+#endif
   void removeCallback(void);
 
   const char *topic;
   uint8_t qos;
 
   uint8_t *lastread;
-  uint16_t lastread_max; // size of lastread, in bytes, 0 if allocation failed
+  size_t lastread_max; // size of lastread, in bytes, 0 if allocation failed
   // Number of valid bytes in lastread. Limited to lastread_max-1 to ensure
   // NUL-terminated lastread.
-  uint16_t datalen;
+  size_t datalen;
 
   SubscribeCallbackUInt32Type callback_uint32t;
   SubscribeCallbackDoubleType callback_double;
   SubscribeCallbackBufferType callback_buffer;
   SubscribeCallbackIOType callback_io;
+#if defined(ADAFRUIT_MQTT_WIDE_SIZE_T)
+  SubscribeCallbackBufferLargeType callback_buffer_large;
+  SubscribeCallbackIOLargeType callback_io_large;
+#endif
 
   AdafruitIO_MQTT *io_mqtt;
 
