@@ -986,7 +986,7 @@ size_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
   // check itself cannot overflow now that these are size_t.
   size_t overhead = len + 2 + additionalLen;
   if (maxPacketLen != 0 &&
-      (maxPacketLen <= overhead || bLen > maxPacketLen - overhead)) {
+      (maxPacketLen < overhead || bLen > maxPacketLen - overhead)) {
     // If we make it here, we got a pickle: the payload is not going
     // to fit in the packet buffer. Instead of corrupting memory, let's
     // do something less damaging by reducing the bLen to what we are
