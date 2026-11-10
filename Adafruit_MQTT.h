@@ -404,6 +404,9 @@ public:
   // Each subscription owns its payload buffer and must not be copied.
   Adafruit_MQTT_Subscribe(const Adafruit_MQTT_Subscribe &) = delete;
   Adafruit_MQTT_Subscribe &operator=(const Adafruit_MQTT_Subscribe &) = delete;
+  // Moving transfers buffer ownership. Required so pre-C++17 toolchains accept
+  // `Adafruit_MQTT_Subscribe s = Adafruit_MQTT_Subscribe(...);`.
+  Adafruit_MQTT_Subscribe(Adafruit_MQTT_Subscribe &&other);
 
   void setCallback(SubscribeCallbackUInt32Type callb);
   void setCallback(SubscribeCallbackDoubleType callb);

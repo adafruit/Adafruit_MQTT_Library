@@ -1183,6 +1183,23 @@ Adafruit_MQTT_Subscribe::Adafruit_MQTT_Subscribe(Adafruit_MQTT *mqttserver,
   }
 }
 
+Adafruit_MQTT_Subscribe::Adafruit_MQTT_Subscribe(
+    Adafruit_MQTT_Subscribe &&other)
+    : topic(other.topic), qos(other.qos), lastread(other.lastread),
+      lastread_max(other.lastread_max), datalen(other.datalen),
+      callback_uint32t(other.callback_uint32t),
+      callback_double(other.callback_double),
+      callback_buffer(other.callback_buffer), callback_io(other.callback_io),
+#if defined(ADAFRUIT_MQTT_WIDE_SIZE_T)
+      callback_buffer_large(other.callback_buffer_large),
+      callback_io_large(other.callback_io_large),
+#endif
+      io_mqtt(other.io_mqtt), new_message(other.new_message), mqtt(other.mqtt) {
+  other.lastread = NULL;
+  other.lastread_max = 0;
+  other.datalen = 0;
+}
+
 Adafruit_MQTT_Subscribe::~Adafruit_MQTT_Subscribe() { free(lastread); }
 
 void Adafruit_MQTT_Subscribe::setCallback(SubscribeCallbackUInt32Type cb) {
