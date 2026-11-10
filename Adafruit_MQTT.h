@@ -205,6 +205,9 @@ public:
   Adafruit_MQTT(const char *server, uint16_t port, const char *user = "",
                 const char *pass = "", size_t maxBufferSz = MAXBUFFERSIZE);
   virtual ~Adafruit_MQTT();
+  // Owns a heap buffer, so copying would double-free it
+  Adafruit_MQTT(const Adafruit_MQTT &) = delete;
+  Adafruit_MQTT &operator=(const Adafruit_MQTT &) = delete;
 
   // Allocate a zeroed buffer of expectedSz bytes, returns NULL if the
   // allocation fails

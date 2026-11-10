@@ -205,10 +205,9 @@ uint8_t *Adafruit_MQTT::allocateMqttBuffer(size_t expectedSz) {
   allocated, or an MQTT error code from the server.
 */
 int8_t Adafruit_MQTT::connect() {
-  if (buffer == NULL || maxBufferSize == 0) {
-    DEBUG_PRINTLN(F("MQTT buffer was not allocated"));
-    return -2;
-  }
+  // Check if the MQTT buffer has been successfully allocated
+  if (buffer == NULL || maxBufferSize == 0)
+    return -3;
 
   // Connect to the server.
   if (!connectServer())
@@ -464,6 +463,8 @@ const __FlashStringHelper *Adafruit_MQTT::connectErrorString(int8_t code) {
     return F("Connection failed");
   case -2:
     return F("Failed to subscribe");
+  case -3:
+    return F("Failed to allocate memory for MQTT buffer");
   default:
     return F("Unknown error");
   }
@@ -586,6 +587,12 @@ bool Adafruit_MQTT::subscribe(Adafruit_MQTT_Subscribe *sub) {
 
 bool Adafruit_MQTT::unsubscribe(Adafruit_MQTT_Subscribe *sub) {
   uint8_t i;
+
+  // Validate buffer allocation before attempting to unsubscribe
+  if (buffer == NULL || maxBufferSize == 0) {
+    DEBUG_PRINTLN(F("MQTT buffer not allocated"));
+    return false;
+  }
 
   // see if we are already subscribed
   for (i = 0; i < MAXSUBSCRIPTIONS; i++) {
