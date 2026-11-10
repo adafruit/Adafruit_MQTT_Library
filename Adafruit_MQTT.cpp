@@ -409,8 +409,11 @@ size_t Adafruit_MQTT::readFullPacket(uint8_t *buffer, size_t maxsize,
   size_t consumed = (size_t)(pbuff - buffer);
   size_t avail = (maxsize > consumed + 1) ? (maxsize - consumed - 1) : 0;
   if (value > avail) {
-    DEBUG_PRINTLN(F("Incoming packet too large for buffer - reading and "
-                    "dropping the rest of the packet"));
+    ERROR_PRINT(F("Incoming packet ("));
+    ERROR_PRINT((unsigned long)value);
+    ERROR_PRINT(F(" bytes) larger than buffer size ("));
+    ERROR_PRINT((unsigned long)avail);
+    ERROR_PRINTLN(F(" bytes), dropping"));
     uint8_t sink[64];
     uint32_t remaining = value;
     while (remaining > 0) {
@@ -423,6 +426,9 @@ size_t Adafruit_MQTT::readFullPacket(uint8_t *buffer, size_t maxsize,
         break;
       }
       remaining -= got;
+    }
+    if (remaining == 0) {
+      ERROR_PRINTLN(F("Oversized packet drained OK"));
     }
     return 0;
   }
@@ -796,6 +802,11 @@ Adafruit_MQTT_Subscribe *Adafruit_MQTT::handleSubscriptionPacket(size_t len) {
   // Reserve one byte for the NUL terminator, so, the usable payload is
   // lastread_max - 1.
   if (datalen > subscriptions[i]->lastread_max - 1) {
+    ERROR_PRINT(F("Subscription packet ("));
+    ERROR_PRINT((unsigned long)datalen);
+    ERROR_PRINT(F(" bytes) larger than buffer size ("));
+    ERROR_PRINT((unsigned long)(subscriptions[i]->lastread_max - 1));
+    ERROR_PRINTLN(F(" bytes), truncated"));
     datalen = subscriptions[i]->lastread_max - 1; // cut it off
   }
   // extract out just the data, into the subscription object itself
@@ -987,6 +998,11 @@ size_t Adafruit_MQTT::publishPacket(uint8_t *packet, const char *topic,
       ERROR_PRINTLN(F("Buffer too small for topic"));
       return 0;
     }
+    ERROR_PRINT(F("Publish packet ("));
+    ERROR_PRINT((unsigned long)bLen);
+    ERROR_PRINT(F(" bytes) larger than buffer size ("));
+    ERROR_PRINT((unsigned long)(maxPacketLen - overhead));
+    ERROR_PRINTLN(F(" bytes), truncated"));
     bLen = maxPacketLen - overhead;
   }
   len += bLen; // remaining len excludes header byte & length field
