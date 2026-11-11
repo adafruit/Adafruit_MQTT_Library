@@ -35,12 +35,14 @@
 class Adafruit_MQTT_FONA : public Adafruit_MQTT {
 public:
   Adafruit_MQTT_FONA(Adafruit_FONA *f, const char *server, uint16_t port,
-                     const char *cid, const char *user, const char *pass)
-      : Adafruit_MQTT(server, port, cid, user, pass), fona(f) {}
+                     const char *cid, const char *user, const char *pass,
+                     size_t maxBufferSz = MAXBUFFERSIZE)
+      : Adafruit_MQTT(server, port, cid, user, pass, maxBufferSz), fona(f) {}
 
   Adafruit_MQTT_FONA(Adafruit_FONA *f, const char *server, uint16_t port,
-                     const char *user = "", const char *pass = "")
-      : Adafruit_MQTT(server, port, user, pass), fona(f) {}
+                     const char *user = "", const char *pass = "",
+                     size_t maxBufferSz = MAXBUFFERSIZE)
+      : Adafruit_MQTT(server, port, user, pass, maxBufferSz), fona(f) {}
 
   bool connected() {
     // Return true if connected, false if not connected.
@@ -62,8 +64,9 @@ protected:
 
   bool disconnectServer() override { return fona->TCPclose(); }
 
-  uint16_t readPacket(uint8_t *buffer, uint16_t maxlen,
-                      int16_t timeout) override {
+  // Real implementations. Where size_t is 16 bits wide (AVR) these *are* the
+  // uint16_t overrides the base class requires.
+  size_t readPacket(uint8_t *buffer, size_t maxlen, int16_t timeout) override {
     uint8_t *buffp = buffer;
     DEBUG_PRINTLN(F("Reading data.."));
 
@@ -72,8 +75,9 @@ protected:
 
     /* Read data until either the connection is closed, or the idle timeout is
      * reached. */
-    uint16_t len = 0;
+    size_t len = 0;
     int16_t t = timeout;
+    // NOTE: avail stays uint16_t to match Adafruit_FONA's TCP API.
     uint16_t avail;
 
     while (fona->TCPconnected() && (timeout >= 0)) {
@@ -81,8 +85,9 @@ protected:
       while (avail = fona->TCPavailable()) {
         // DEBUG_PRINT('!');
 
-        if (len + avail > maxlen) {
-          avail = maxlen - len;
+        if (len + (size_t)avail > maxlen) {
+          // Safe to narrow: this branch only runs when maxlen - len < avail.
+          avail = (uint16_t)(maxlen - len);
           if (avail == 0)
             return len;
         }
@@ -116,8 +121,14 @@ protected:
     return len;
   }
 
-  bool sendPacket(uint8_t *buffer, uint16_t len) override {
+  bool sendPacket(uint8_t *buffer, size_t len) override {
     DEBUG_PRINTLN(F("Writing packet"));
+#if defined(ADAFRUIT_MQTT_WIDE_SIZE_T)
+    if (len > 0xFFFFUL) {
+      DEBUG_PRINTLN(F("Packet too large for FONA"));
+      return false;
+    }
+#endif
     if (fona->TCPconnected()) {
       boolean ret = fona->TCPsend((char *)buffer, len);
       // DEBUG_PRINT(F("sendPacket returned: ")); DEBUG_PRINTLN(ret);
@@ -131,6 +142,17 @@ protected:
     }
     return true;
   }
+
+#if defined(ADAFRUIT_MQTT_WIDE_SIZE_T)
+  // uint16_t forms required by the base class; forward to the size_t forms.
+  uint16_t readPacket(uint8_t *buffer, uint16_t maxlen,
+                      int16_t timeout) override {
+    return (uint16_t)readPacket(buffer, (size_t)maxlen, timeout);
+  }
+  bool sendPacket(uint8_t *buffer, uint16_t len) override {
+    return sendPacket(buffer, (size_t)len);
+  }
+#endif
 
 private:
   uint32_t serverip;
